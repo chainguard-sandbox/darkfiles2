@@ -13,35 +13,57 @@ import (
 
 // File represents a file (or symlink) found in the container filesystem.
 type File struct {
-	Path      string
-	Size      int64
-	Mode      uint32
-	IsSymlink bool
+	Path       string
+	Size       int64
+	Mode       uint32
+	IsSymlink  bool
 	LinkTarget string // only set when IsSymlink is true
+	LayerIndex int    // index into ImageFS.Layers
+}
+
+// Layer describes a single image layer and the Dockerfile command that created it.
+type Layer struct {
+	Index     int    // index into the real (non-empty) layer list
+	DiffID    string // sha256 of the uncompressed tar
+	CreatedBy string // raw string from image config history
+	Comment   string
+	IsEmpty   bool // true for ENV, LABEL, etc. entries with no layer tar
+}
+
+// Command returns a cleaned-up display version of CreatedBy.
+func (l Layer) Command() string {
+	s := l.CreatedBy
+	if idx := strings.Index(s, "#(nop) "); idx != -1 {
+		s = strings.TrimSpace(s[idx+len("#(nop) "):])
+	} else {
+		for _, pfx := range []string{"/bin/sh -c ", "/bin/bash -c "} {
+			s = strings.TrimPrefix(s, pfx)
+		}
+	}
+	const max = 120
+	if len(s) > max {
+		s = s[:max] + "…"
+	}
+	return s
 }
 
 // ImageFS holds the flattened filesystem and image metadata.
 type ImageFS struct {
-	Files     []File
-	OsRelease map[string]string
-	// FileContent holds the raw bytes of files we need for package DB parsing.
-	FileContent map[string][]byte
-	// Symlinks maps each symlink path to its (raw, unresolved) link target.
-	Symlinks map[string]string
+	Files       []File
+	Layers      []Layer           // all history entries (including empty)
+	OsRelease   map[string]string
+	FileContent map[string][]byte // pkg DB and SBOM files
+	Symlinks    map[string]string // path -> raw link target
 }
 
-// ResolveSymlink follows the full symlink chain (including directory symlinks)
-// for up to maxDepth hops and returns the canonical path.
+// ResolveSymlink follows the full symlink chain for up to maxDepth hops.
 func (fs *ImageFS) ResolveSymlink(path string) string {
 	const maxDepth = 16
 	for i := 0; i < maxDepth; i++ {
-		// Try exact match first.
 		if target, ok := fs.Symlinks[path]; ok {
 			path = joinSymlink(path, target)
 			continue
 		}
-		// Try resolving each directory component in case a parent dir is a symlink
-		// (e.g. /bin → /usr/bin means /bin/ash resolves to /usr/bin/ash).
 		resolved, changed := fs.resolvePrefix(path)
 		if !changed {
 			return path
@@ -51,16 +73,12 @@ func (fs *ImageFS) ResolveSymlink(path string) string {
 	return path
 }
 
-// resolvePrefix walks the components of path and resolves the first directory
-// component that is itself a symlink. Returns the new path and whether a
-// substitution was made.
 func (fs *ImageFS) resolvePrefix(path string) (string, bool) {
 	parts := strings.Split(strings.TrimPrefix(path, "/"), "/")
 	current := ""
 	for i, part := range parts {
 		current += "/" + part
 		if target, ok := fs.Symlinks[current]; ok {
-			// Replace current prefix with resolved target.
 			resolved := joinSymlink(current, target)
 			rest := strings.Join(parts[i+1:], "/")
 			if rest != "" {
@@ -80,36 +98,29 @@ func joinSymlink(symlinkPath, target string) string {
 	return filepath.Clean(dir + target)
 }
 
-// pkgDBPaths are file paths whose contents we need to parse package databases.
 var pkgDBPaths = map[string]bool{
-	// APK (Alpine)
-	"/lib/apk/db/installed": true,
-	// APK (Wolfi / newer Alpine)
+	"/lib/apk/db/installed":     true,
 	"/usr/lib/apk/db/installed": true,
-	// dpkg (Debian / Ubuntu)
-	"/var/lib/dpkg/status": true,
+	"/var/lib/dpkg/status":      true,
 }
 
 func isPkgDBPath(path string) bool {
 	if pkgDBPaths[path] {
 		return true
 	}
-	// dpkg per-package file lists: /var/lib/dpkg/info/*.list
 	if strings.HasPrefix(path, "/var/lib/dpkg/info/") && strings.HasSuffix(path, ".list") {
 		return true
 	}
-	// RPM db files
 	if strings.HasPrefix(path, "/var/lib/rpm/") {
 		return true
 	}
-	// In-image SBOM files (e.g. Wolfi/Chainguard apko SBOMs)
 	if strings.HasPrefix(path, "/var/lib/db/sbom/") {
 		return true
 	}
 	return false
 }
 
-// Load pulls an image by reference and returns its flattened filesystem.
+// Load pulls an image by reference and returns its layered filesystem.
 func Load(ref string) (*ImageFS, error) {
 	img, err := crane.Pull(ref, crane.WithAuthFromKeychain(defaultKeychain()))
 	if err != nil {
@@ -128,84 +139,190 @@ func LoadFromTar(path string) (*ImageFS, error) {
 }
 
 func fromImage(img v1.Image) (*ImageFS, error) {
-	pr, pw := io.Pipe()
-
-	errCh := make(chan error, 1)
-	go func() {
-		err := crane.Export(img, pw)
-		pw.CloseWithError(err)
-		errCh <- err
-	}()
+	layers, err := buildLayerMetadata(img)
+	if err != nil {
+		return nil, err
+	}
 
 	fs := &ImageFS{
+		Layers:      layers,
 		OsRelease:   map[string]string{},
 		FileContent: map[string][]byte{},
 		Symlinks:    map[string]string{},
 	}
-	seen := map[string]struct{}{}
 
-	tr := tar.NewReader(pr)
+	imgLayers, err := img.Layers()
+	if err != nil {
+		return nil, fmt.Errorf("getting image layers: %w", err)
+	}
+
+	// Map real layer index -> Layers slice index.
+	layerIdxMap := buildLayerIndexMap(layers)
+
+	// Overlay state: last writer wins.
+	fileOrigin := map[string]int{}  // path -> Layers slice index
+	fileInfo   := map[string]File{} // path -> latest File metadata
+
+	for realIdx, imgLayer := range imgLayers {
+		lIdx, ok := layerIdxMap[realIdx]
+		if !ok {
+			lIdx = realIdx
+		}
+		rc, err := imgLayer.Uncompressed()
+		if err != nil {
+			return nil, fmt.Errorf("layer %d uncompressed: %w", realIdx, err)
+		}
+		err = scanLayerTar(rc, lIdx, fs, fileOrigin, fileInfo)
+		rc.Close()
+		if err != nil {
+			return nil, fmt.Errorf("scanning layer %d: %w", realIdx, err)
+		}
+	}
+
+	for _, f := range fileInfo {
+		f.LayerIndex = fileOrigin[f.Path]
+		fs.Files = append(fs.Files, f)
+	}
+
+	return fs, nil
+}
+
+func scanLayerTar(
+	rc io.Reader,
+	layerIdx int,
+	fs *ImageFS,
+	fileOrigin map[string]int,
+	fileInfo map[string]File,
+) error {
+	tr := tar.NewReader(rc)
 	for {
 		hdr, err := tr.Next()
 		if err == io.EOF {
 			break
 		}
 		if err != nil {
-			return nil, fmt.Errorf("reading tar: %w", err)
+			return err
 		}
 
-		path := cleanPath(hdr.Name)
+		name := cleanPath(hdr.Name)
 
-		switch {
-		case path == "/etc/os-release" || path == "/usr/lib/os-release":
+		if isWhiteout(name) {
+			target := whiteoutTarget(name)
+			delete(fileOrigin, target)
+			delete(fileInfo, target)
+			io.Copy(io.Discard, tr)
+			continue
+		}
+		if isOpaqueWhiteout(name) {
+			dir := filepath.Dir(name)
+			for p := range fileOrigin {
+				if strings.HasPrefix(p, dir+"/") {
+					delete(fileOrigin, p)
+					delete(fileInfo, p)
+				}
+			}
+			io.Copy(io.Discard, tr)
+			continue
+		}
+
+		if name == "/etc/os-release" || name == "/usr/lib/os-release" {
 			data, _ := io.ReadAll(tr)
-			// Keep the first real file we find (not a symlink).
 			if hdr.Typeflag != tar.TypeSymlink && len(fs.OsRelease) == 0 {
 				fs.OsRelease = parseOsRelease(string(data))
 			}
+			continue
+		}
 
-		case isPkgDBPath(path):
+		if isPkgDBPath(name) {
 			data, err := io.ReadAll(tr)
 			if err != nil {
-				return nil, fmt.Errorf("reading %s: %w", path, err)
+				return fmt.Errorf("reading %s: %w", name, err)
 			}
-			fs.FileContent[path] = data
+			fs.FileContent[name] = data
+			continue
+		}
 
-		default:
-			// Skip directories.
-			if hdr.Typeflag == tar.TypeDir {
-				continue
-			}
-			if _, ok := seen[path]; ok {
-				// Overlay layers can repeat entries; keep the first (topmost) occurrence.
-				continue
-			}
-			seen[path] = struct{}{}
+		if hdr.Typeflag == tar.TypeDir {
+			io.Copy(io.Discard, tr)
+			continue
+		}
 
-			// Drain any content we won't store.
-			if _, err := io.Copy(io.Discard, tr); err != nil {
-				return nil, fmt.Errorf("draining %s: %w", path, err)
-			}
+		io.Copy(io.Discard, tr)
 
-			f := File{
-				Path: path,
-				Size: hdr.Size,
-				Mode: uint32(hdr.Mode),
+		f := File{
+			Path: name,
+			Size: hdr.Size,
+			Mode: uint32(hdr.Mode),
+		}
+		if hdr.Typeflag == tar.TypeSymlink || hdr.Typeflag == tar.TypeLink {
+			f.IsSymlink = true
+			f.LinkTarget = hdr.Linkname
+			fs.Symlinks[name] = hdr.Linkname
+		}
+		fileOrigin[name] = layerIdx
+		fileInfo[name] = f
+	}
+	return nil
+}
+
+func buildLayerMetadata(img v1.Image) ([]Layer, error) {
+	cf, err := img.ConfigFile()
+	if err != nil {
+		return nil, fmt.Errorf("reading image config: %w", err)
+	}
+	rootfs := cf.RootFS
+	if err != nil {
+	}
+
+	var layers []Layer
+	realIdx := 0
+	for _, h := range cf.History {
+		l := Layer{
+			CreatedBy: h.CreatedBy,
+			Comment:   h.Comment,
+			IsEmpty:   h.EmptyLayer,
+		}
+		if !h.EmptyLayer {
+			l.Index = realIdx
+			if realIdx < len(rootfs.DiffIDs) {
+				l.DiffID = rootfs.DiffIDs[realIdx].String()
 			}
-			if hdr.Typeflag == tar.TypeSymlink || hdr.Typeflag == tar.TypeLink {
-				f.IsSymlink = true
-				f.LinkTarget = hdr.Linkname
-				fs.Symlinks[path] = hdr.Linkname
-			}
-			fs.Files = append(fs.Files, f)
+			realIdx++
+		}
+		layers = append(layers, l)
+	}
+
+	if len(layers) == 0 {
+		imgLayers, err := img.Layers()
+		if err != nil {
+			return nil, err
+		}
+		for i := range imgLayers {
+			layers = append(layers, Layer{Index: i, CreatedBy: fmt.Sprintf("layer %d", i)})
 		}
 	}
+	return layers, nil
+}
 
-	if err := <-errCh; err != nil {
-		return nil, fmt.Errorf("exporting image: %w", err)
+func buildLayerIndexMap(layers []Layer) map[int]int {
+	m := map[int]int{}
+	for sliceIdx, l := range layers {
+		if !l.IsEmpty {
+			m[l.Index] = sliceIdx
+		}
 	}
+	return m
+}
 
-	return fs, nil
+func isWhiteout(path string) bool {
+	base := filepath.Base(path)
+	return strings.HasPrefix(base, ".wh.") && base != ".wh..wh..opq"
+}
+func isOpaqueWhiteout(path string) bool { return filepath.Base(path) == ".wh..wh..opq" }
+func whiteoutTarget(whiteoutPath string) string {
+	dir := filepath.Dir(whiteoutPath)
+	base := strings.TrimPrefix(filepath.Base(whiteoutPath), ".wh.")
+	return dir + "/" + base
 }
 
 func cleanPath(name string) string {

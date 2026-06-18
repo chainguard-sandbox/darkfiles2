@@ -4,8 +4,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	iofs "io/fs"
 	"sort"
+	"strings"
 	"text/tabwriter"
+
+	"github.com/chainguard-dev/darkfiles2/internal/image"
 )
 
 // categoryOrder controls the display order of categories in stats output.
@@ -136,6 +140,69 @@ func printGrouped(w io.Writer, r *Result, detailed bool) {
 			tw.Flush()
 		}
 	}
+}
+
+// PrintByLayer writes files grouped by the image layer (Dockerfile instruction)
+// that introduced them, with size and mode. When showCat is true, each file is
+// tagged with its category — useful when the selection mixes expected and
+// unexpected dark files.
+func PrintByLayer(w io.Writer, layers []image.Layer, files []CategorizedFile, showCat bool) {
+	byLayer := map[int][]CategorizedFile{}
+	for _, f := range files {
+		byLayer[f.LayerIndex] = append(byLayer[f.LayerIndex], f)
+	}
+
+	idxs := make([]int, 0, len(byLayer))
+	for idx := range byLayer {
+		idxs = append(idxs, idx)
+	}
+	sort.Ints(idxs)
+
+	for _, lIdx := range idxs {
+		lf := byLayer[lIdx]
+
+		cmd := fmt.Sprintf("layer %d", lIdx)
+		diffID := ""
+		if lIdx >= 0 && lIdx < len(layers) {
+			cmd = layers[lIdx].Command()
+			diffID = shortDigest(layers[lIdx].DiffID)
+		}
+
+		fmt.Fprintf(w, "\n┌─ Layer %d", lIdx)
+		if diffID != "" {
+			fmt.Fprintf(w, " [%s]", diffID)
+		}
+		fmt.Fprintln(w)
+		fmt.Fprintf(w, "│  %s\n", cmd)
+		fmt.Fprintf(w, "│  %d file(s)\n", len(lf))
+		fmt.Fprintln(w, "│")
+
+		tw := tabwriter.NewWriter(w, 0, 0, 2, ' ', 0)
+		for _, f := range sortedFiles(lf) {
+			cat := ""
+			if showCat {
+				cat = fmt.Sprintf("  [%s]", f.Cat)
+			}
+			fmt.Fprintf(tw, "│  ├── %s\t%s\t%s%s\n", f.Path, humanBytes(f.Size), formatMode(f.File), cat)
+		}
+		tw.Flush()
+		fmt.Fprintln(w, "└"+strings.Repeat("─", 60))
+	}
+}
+
+func shortDigest(d string) string {
+	s := strings.TrimPrefix(d, "sha256:")
+	if len(s) > 12 {
+		s = s[:12]
+	}
+	return s
+}
+
+func formatMode(f image.File) string {
+	if f.IsSymlink {
+		return fmt.Sprintf("-> %s", f.LinkTarget)
+	}
+	return iofs.FileMode(f.Mode).String()
 }
 
 func sortedPaths(files []CategorizedFile) []string {

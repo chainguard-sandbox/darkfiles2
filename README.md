@@ -36,7 +36,10 @@ go build -o darkfiles .
 
 ## Usage
 
-### Scan an image and print statistics
+Everything is done through a single `scan` command. By default it prints a
+statistics summary; flags switch on more detailed views.
+
+### Statistics summary (default)
 
 ```
 darkfiles scan alpine:latest
@@ -58,25 +61,49 @@ Dark files:     5 (1.2%)
 Dark size:      2.1 KiB (0.0%)
 ```
 
-### List dark files
+### Detailed view: dark files grouped by layer
+
+`--detailed` (`-d`) appends a breakdown of dark files grouped by the layer
+(Dockerfile instruction) that introduced them, with size and mode:
 
 ```
-# List dark (untracked) files — default
-darkfiles list debian:latest
-
-# Include file sizes
-darkfiles list --detailed debian:latest
-
-# Show all files, or only tracked files
-darkfiles list --set all debian:latest
-darkfiles list --set tracked debian:latest
+darkfiles scan -d alpine:latest
 ```
+
+### Plain path list (for scripting)
+
+`--paths` emits matching file paths, one per line:
+
+```
+darkfiles scan --paths debian:latest            # unknown files (default)
+darkfiles scan --paths --sizes debian:latest    # add file sizes
+darkfiles scan --paths --group debian:latest    # group by category
+```
+
+### Selecting which files to show
+
+The `--set` flag controls which files the `--detailed` and `--paths` views
+operate on (the summary always reports on everything):
+
+```
+darkfiles scan -d --set unknown img    # unrecognised dark files only (default)
+darkfiles scan -d --set dark    img    # all dark files, incl. expected ones
+darkfiles scan --paths --set tracked img
+darkfiles scan --paths --set all img
+```
+
+| `--set`   | meaning                                                  |
+|-----------|----------------------------------------------------------|
+| `unknown` | unrecognised dark files — the ones to investigate (default) |
+| `dark`    | all dark files, including expected (pkg state, `/dev`, …) |
+| `tracked` | files owned by a package or SBOM                         |
+| `all`     | every file in the image                                  |
 
 ### Load from a local tar
 
 ```
 docker save myimage:latest | darkfiles scan --tar /dev/stdin
-darkfiles list --tar ./myimage.tar --detailed
+darkfiles scan --tar ./myimage.tar -d --set dark
 ```
 
 ## What counts as "dark"?

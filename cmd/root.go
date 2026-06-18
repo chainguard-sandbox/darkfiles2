@@ -23,5 +23,4 @@ func Execute() {
 
 func init() {
 	rootCmd.AddCommand(scanCmd)
-	rootCmd.AddCommand(listCmd)
 }

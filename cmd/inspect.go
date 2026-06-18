@@ -44,7 +44,11 @@ expected files (package manager state, device files, etc.).`,
 		}
 
 		if len(candidates) == 0 {
-			fmt.Println("No dark files found.")
+			if inspectFlags.all {
+				fmt.Println("No dark files found.")
+			} else {
+				fmt.Println("No unexpected dark files found. Run with --all to include expected dark files.")
+			}
 			return nil
 		}
 

@@ -50,11 +50,33 @@ func TestSelectFiles(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.set, func(t *testing.T) {
-			got := paths(selectFiles(r, fs, tt.set))
+			got := paths(selectFiles(r, fs, tt.set, false))
 			if !equalUnordered(got, tt.want) {
 				t.Errorf("selectFiles(set=%q) = %v, want %v", tt.set, got, tt.want)
 			}
 		})
+	}
+}
+
+func TestSelectFilesCodeOnly(t *testing.T) {
+	fs := &image.ImageFS{
+		Files: []image.File{
+			{Path: "/app/server", Kind: image.KindExecutable},
+			{Path: "/usr/lib/libfoo.so.1", Kind: image.KindSharedLibrary},
+			{Path: "/app/config.yaml", Kind: image.KindOther},
+		},
+	}
+	r := &report.Result{
+		DarkFiles: []report.CategorizedFile{
+			{File: fs.Files[0], Cat: report.CategoryUnknown},
+			{File: fs.Files[1], Cat: report.CategoryUnknown},
+			{File: fs.Files[2], Cat: report.CategoryUnknown},
+		},
+	}
+	got := paths(selectFiles(r, fs, "dark", true))
+	want := []string{"/app/server", "/usr/lib/libfoo.so.1"}
+	if !equalUnordered(got, want) {
+		t.Errorf("selectFiles(dark, codeOnly) = %v, want %v", got, want)
 	}
 }
 

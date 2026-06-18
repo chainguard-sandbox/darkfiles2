@@ -17,6 +17,7 @@ var scanFlags struct {
 	set      string
 	group    bool
 	sizes    bool
+	code     bool
 	tar      string
 }
 
@@ -65,7 +66,7 @@ on:
 			sub := &report.Result{
 				ImageRef:  r.ImageRef,
 				Distro:    r.Distro,
-				DarkFiles: selectFiles(r, fs, scanFlags.set),
+				DarkFiles: selectFiles(r, fs, scanFlags.set, scanFlags.code),
 			}
 			if scanFlags.sizes {
 				report.PrintDarkFilesDetailed(os.Stdout, sub, scanFlags.group)
@@ -79,17 +80,20 @@ on:
 		report.PrintStats(os.Stdout, r)
 
 		if scanFlags.detailed {
-			files := selectFiles(r, fs, scanFlags.set)
+			files := selectFiles(r, fs, scanFlags.set, scanFlags.code)
 			if len(files) == 0 {
-				if scanFlags.set == "unknown" {
+				switch {
+				case scanFlags.code:
+					fmt.Println("\nNo dark code files found.")
+				case scanFlags.set == "unknown":
 					fmt.Println("\nNo unexpected dark files found. Use --set dark to include expected dark files.")
-				} else {
+				default:
 					fmt.Println("\nNo files to show.")
 				}
 				return nil
 			}
 			// Tag categories whenever the selection can mix categories.
-			report.PrintByLayer(os.Stdout, fs.Layers, files, scanFlags.set != "unknown")
+			report.PrintByLayer(os.Stdout, fs.Layers, files, scanFlags.set != "unknown", isTerminal(os.Stdout))
 		}
 		return nil
 	},
@@ -105,6 +109,8 @@ func init() {
 		"Which files the --detailed/--paths views show: unknown, dark, tracked, or all")
 	scanCmd.Flags().BoolVar(&scanFlags.group, "group", false, "With --paths, group output by category")
 	scanCmd.Flags().BoolVar(&scanFlags.sizes, "sizes", false, "With --paths, show file sizes")
+	scanCmd.Flags().BoolVar(&scanFlags.code, "code", false,
+		"Show only code files: executables, shared/static libraries, and scripts")
 	scanCmd.Flags().StringVar(&scanFlags.tar, "tar", "", "Load image from local OCI tar file instead of a registry")
 }
 
@@ -119,26 +125,37 @@ func validSet(s string) bool {
 
 // selectFiles returns the files matching the named set, as CategorizedFile so
 // callers can render paths, sizes, layer attribution, or categories uniformly.
-func selectFiles(r *report.Result, fs *image.ImageFS, set string) []report.CategorizedFile {
+// When codeOnly is set, the result is filtered to executable code.
+func selectFiles(r *report.Result, fs *image.ImageFS, set string, codeOnly bool) []report.CategorizedFile {
+	var files []report.CategorizedFile
 	switch set {
 	case "dark":
-		return r.DarkFiles
+		files = r.DarkFiles
 	case "tracked", "all":
 		dark := make(map[string]bool, len(r.DarkFiles))
 		for _, f := range r.DarkFiles {
 			dark[f.Path] = true
 		}
-		var out []report.CategorizedFile
 		for _, f := range fs.Files {
 			if set == "tracked" && dark[f.Path] {
 				continue
 			}
-			out = append(out, report.CategorizedFile{File: f, Cat: report.Classify(f)})
+			files = append(files, report.CategorizedFile{File: f, Cat: report.Classify(f)})
 		}
-		return out
 	default: // "unknown"
-		return r.UnknownFiles()
+		files = r.UnknownFiles()
 	}
+
+	if !codeOnly {
+		return files
+	}
+	var code []report.CategorizedFile
+	for _, f := range files {
+		if f.Kind.IsCode() {
+			code = append(code, f)
+		}
+	}
+	return code
 }
 
 // analyzeImage runs the package-db scan and dark-file analysis under a spinner,

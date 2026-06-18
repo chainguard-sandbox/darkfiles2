@@ -80,6 +80,26 @@ darkfiles scan --paths --sizes debian:latest    # add file sizes
 darkfiles scan --paths --group debian:latest    # group by category
 ```
 
+### Highlighting executable code
+
+Among dark files, executables, libraries, and scripts are the highest-signal
+subset — an unknown binary is far more concerning than a stray config file.
+darkfiles identifies them by content (ELF/Mach-O/PE/shebang/ar magic bytes,
+disambiguated by mode and path) and:
+
+- adds a `Dark code:` line to the summary (`3 executables, 2 shared libraries`),
+- tags each code file in the detailed/paths views (`[executable]`, `[shared library]`, `[script]`),
+- highlights them in red in the `--detailed` view when writing to a terminal.
+
+Use `--code` to show only code files (composes with `--set`):
+
+```
+darkfiles scan -d --code img            # dark binaries/libs/scripts, by layer
+darkfiles scan --paths --code img       # just their paths, for scripting
+```
+
+The JSON output includes a `dark_code` object with per-kind counts.
+
 ### Selecting which files to show
 
 The `--set` flag controls which files the `--detailed` and `--paths` views

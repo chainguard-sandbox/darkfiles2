@@ -2,6 +2,7 @@ package image
 
 import (
 	"archive/tar"
+	"bytes"
 	"fmt"
 	"io"
 	"path/filepath"
@@ -11,14 +12,46 @@ import (
 	v1 "github.com/google/go-containerregistry/pkg/v1"
 )
 
+// FileKind classifies a file by what it contains. It is orthogonal to a dark
+// file's Category: an unknown dark file can also be an executable.
+type FileKind int
+
+const (
+	// KindOther is anything not recognised as executable code.
+	KindOther FileKind = iota
+	KindExecutable    // ELF/Mach-O/PE executable
+	KindSharedLibrary // .so / .dylib shared object
+	KindScript        // shebang (#!) script
+	KindStaticLibrary // ar archive (.a)
+)
+
+func (k FileKind) String() string {
+	switch k {
+	case KindExecutable:
+		return "executable"
+	case KindSharedLibrary:
+		return "shared library"
+	case KindScript:
+		return "script"
+	case KindStaticLibrary:
+		return "static library"
+	default:
+		return ""
+	}
+}
+
+// IsCode reports whether the file is executable code (binary, library, script).
+func (k FileKind) IsCode() bool { return k != KindOther }
+
 // File represents a file (or symlink) found in the container filesystem.
 type File struct {
 	Path       string
 	Size       int64
 	Mode       uint32
 	IsSymlink  bool
-	LinkTarget string // only set when IsSymlink is true
-	LayerIndex int    // index into ImageFS.Layers
+	LinkTarget string   // only set when IsSymlink is true
+	LayerIndex int      // index into ImageFS.Layers
+	Kind       FileKind // executable/library/script classification
 }
 
 // Layer describes a single image layer and the Dockerfile command that created it.
@@ -247,8 +280,6 @@ func scanLayerTar(
 			continue
 		}
 
-		io.Copy(io.Discard, tr)
-
 		f := File{
 			Path: name,
 			Size: hdr.Size,
@@ -258,6 +289,14 @@ func scanLayerTar(
 			f.IsSymlink = true
 			f.LinkTarget = hdr.Linkname
 			fs.Symlinks[name] = hdr.Linkname
+			io.Copy(io.Discard, tr)
+		} else {
+			// Sniff the leading bytes to classify executables/libraries, then
+			// drain the rest. We never retain full file content.
+			magic := make([]byte, magicLen)
+			n, _ := io.ReadFull(tr, magic)
+			io.Copy(io.Discard, tr)
+			f.Kind = classifyKind(name, hdr.Mode, magic[:n])
 		}
 		fileOrigin[name] = layerIdx
 		fileInfo[name] = f
@@ -327,6 +366,122 @@ func whiteoutTarget(whiteoutPath string) string {
 
 func cleanPath(name string) string {
 	return "/" + strings.TrimPrefix(filepath.Clean("/"+name), "/")
+}
+
+// magicLen is how many leading bytes we read to identify a file. 18 bytes is
+// enough to reach the ELF e_type field (offset 16) which splits executables
+// from shared objects.
+const magicLen = 18
+
+var (
+	elfMagic = []byte{0x7f, 'E', 'L', 'F'}
+	arMagic  = []byte("!<arch>\n")
+	wasmMagic = []byte{0x00, 'a', 's', 'm'}
+)
+
+// classifyKind identifies executable code from the file's leading bytes, using
+// mode and path only to disambiguate (e.g. an ELF shared object that is really
+// a PIE executable).
+func classifyKind(name string, mode int64, magic []byte) FileKind {
+	switch {
+	case len(magic) >= 2 && magic[0] == '#' && magic[1] == '!':
+		return KindScript
+	case bytes.HasPrefix(magic, arMagic):
+		return KindStaticLibrary
+	case bytes.HasPrefix(magic, elfMagic):
+		return classifyELF(name, mode, magic)
+	case isMachO(magic):
+		if looksLikeLibrary(name) {
+			return KindSharedLibrary
+		}
+		return KindExecutable
+	case len(magic) >= 2 && magic[0] == 'M' && magic[1] == 'Z': // PE / DOS
+		return KindExecutable
+	case bytes.HasPrefix(magic, wasmMagic):
+		return KindExecutable
+	default:
+		return KindOther
+	}
+}
+
+func classifyELF(name string, mode int64, magic []byte) FileKind {
+	if len(magic) < 18 {
+		// Header truncated; fall back to name/mode.
+		if looksLikeLibrary(name) {
+			return KindSharedLibrary
+		}
+		return KindExecutable
+	}
+	// e_type is a 2-byte field at offset 16; EI_DATA (magic[5]) gives endianness
+	// (1 = little, 2 = big).
+	var etype uint16
+	if magic[5] == 2 {
+		etype = uint16(magic[16])<<8 | uint16(magic[17])
+	} else {
+		etype = uint16(magic[16]) | uint16(magic[17])<<8
+	}
+	const (
+		etExec = 2 // ET_EXEC
+		etDyn  = 3 // ET_DYN — shared object or position-independent executable
+	)
+	switch etype {
+	case etExec:
+		return KindExecutable
+	case etDyn:
+		if looksLikeLibrary(name) {
+			return KindSharedLibrary
+		}
+		if mode&0o111 != 0 || inBinDir(name) {
+			return KindExecutable
+		}
+		return KindSharedLibrary
+	default:
+		return KindOther
+	}
+}
+
+func isMachO(magic []byte) bool {
+	if len(magic) < 4 {
+		return false
+	}
+	// 32/64-bit, both byte orders. Fat/universal (0xCAFEBABE) is omitted because
+	// it collides with Java .class files.
+	for _, m := range [][]byte{
+		{0xFE, 0xED, 0xFA, 0xCE}, {0xCE, 0xFA, 0xED, 0xFE},
+		{0xFE, 0xED, 0xFA, 0xCF}, {0xCF, 0xFA, 0xED, 0xFE},
+	} {
+		if bytes.Equal(magic[:4], m) {
+			return true
+		}
+	}
+	return false
+}
+
+func looksLikeLibrary(name string) bool {
+	base := filepath.Base(name)
+	if strings.HasSuffix(base, ".dylib") || strings.HasSuffix(base, ".a") {
+		return true
+	}
+	// libfoo.so, libfoo.so.1, libfoo.so.1.2.3
+	if i := strings.Index(base, ".so"); i != -1 {
+		rest := base[i+len(".so"):]
+		if rest == "" || rest[0] == '.' {
+			return true
+		}
+	}
+	return false
+}
+
+func inBinDir(name string) bool {
+	for _, d := range []string{
+		"/bin/", "/sbin/", "/usr/bin/", "/usr/sbin/",
+		"/usr/libexec/", "/usr/local/bin/", "/usr/local/sbin/",
+	} {
+		if strings.Contains(name, d) {
+			return true
+		}
+	}
+	return false
 }
 
 func parseOsRelease(content string) map[string]string {

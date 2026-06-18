@@ -183,6 +183,59 @@ func TestJoinSymlink(t *testing.T) {
 	}
 }
 
+func elfHeader(etype byte) []byte {
+	// \x7fELF, 64-bit, little-endian, then padding to offset 16, then e_type.
+	h := make([]byte, 18)
+	copy(h, []byte{0x7f, 'E', 'L', 'F', 2, 1, 1, 0})
+	h[16] = etype // e_type low byte (little-endian)
+	return h
+}
+
+func TestClassifyKind(t *testing.T) {
+	tests := []struct {
+		name  string
+		path  string
+		mode  int64
+		magic []byte
+		want  FileKind
+	}{
+		{"elf exec", "/app/server", 0o755, elfHeader(2), KindExecutable},
+		{"elf shared lib by name", "/usr/lib/libfoo.so.1", 0o644, elfHeader(3), KindSharedLibrary},
+		{"elf dyn .so exact", "/usr/lib/libc.so", 0o644, elfHeader(3), KindSharedLibrary},
+		{"elf pie exec in bindir", "/usr/bin/tool", 0o755, elfHeader(3), KindExecutable},
+		{"elf dyn no hints -> lib", "/opt/blob", 0o644, elfHeader(3), KindSharedLibrary},
+		{"shebang script", "/app/run.sh", 0o755, []byte("#!/bin/sh\n"), KindScript},
+		{"ar static lib", "/usr/lib/libx.a", 0o644, []byte("!<arch>\n........"), KindStaticLibrary},
+		{"pe binary", "/app/win.exe", 0o755, []byte("MZ\x90\x00"), KindExecutable},
+		{"wasm", "/app/mod.wasm", 0o644, []byte{0x00, 'a', 's', 'm', 1, 0, 0, 0}, KindExecutable},
+		{"plain text", "/app/config", 0o644, []byte("hello world\n"), KindOther},
+		{"empty file", "/app/empty", 0o644, []byte{}, KindOther},
+		{"too short for elf etype", "/app/x", 0o755, []byte{0x7f, 'E', 'L', 'F'}, KindExecutable},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := classifyKind(tt.path, tt.mode, tt.magic); got != tt.want {
+				t.Errorf("classifyKind(%q) = %v, want %v", tt.path, got, tt.want)
+			}
+		})
+	}
+}
+
+func TestLooksLikeLibrary(t *testing.T) {
+	yes := []string{"/usr/lib/libc.so", "/usr/lib/libc.so.6", "/x/libz.so.1.2.3", "/a/foo.dylib", "/a/bar.a"}
+	no := []string{"/usr/bin/sh", "/etc/sofa", "/a/something.solib", "/a/notes.txt"}
+	for _, p := range yes {
+		if !looksLikeLibrary(p) {
+			t.Errorf("looksLikeLibrary(%q) = false, want true", p)
+		}
+	}
+	for _, p := range no {
+		if looksLikeLibrary(p) {
+			t.Errorf("looksLikeLibrary(%q) = true, want false", p)
+		}
+	}
+}
+
 func TestResolveSymlink(t *testing.T) {
 	fs := &ImageFS{
 		Symlinks: map[string]string{

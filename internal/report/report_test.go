@@ -164,3 +164,49 @@ func TestUnknownFilesAndByCategory(t *testing.T) {
 }
 
 func approx(a, b float64) bool { return math.Abs(a-b) < 1e-9 }
+
+func TestDarkCodeCountsAndFormat(t *testing.T) {
+	r := &Result{
+		DarkFiles: []CategorizedFile{
+			{File: image.File{Path: "/a", Kind: image.KindExecutable}},
+			{File: image.File{Path: "/b", Kind: image.KindExecutable}},
+			{File: image.File{Path: "/lib.so", Kind: image.KindSharedLibrary}},
+			{File: image.File{Path: "/s.sh", Kind: image.KindScript}},
+			{File: image.File{Path: "/data", Kind: image.KindOther}}, // excluded
+		},
+	}
+	counts := r.DarkCodeCounts()
+	if counts[image.KindExecutable] != 2 || counts[image.KindSharedLibrary] != 1 || counts[image.KindScript] != 1 {
+		t.Errorf("DarkCodeCounts() = %v", counts)
+	}
+	if _, ok := counts[image.KindOther]; ok {
+		t.Error("DarkCodeCounts() should not include KindOther")
+	}
+
+	// Order is fixed; libraries pluralize irregularly; singular stays singular.
+	got := formatCodeCounts(counts)
+	want := "2 executables, 1 shared library, 1 script"
+	if got != want {
+		t.Errorf("formatCodeCounts() = %q, want %q", got, want)
+	}
+}
+
+func TestPluralize(t *testing.T) {
+	cases := map[[2]string]string{
+		{"executable", "1"}:     "executable",
+		{"executable", "2"}:     "executables",
+		{"shared library", "2"}: "shared libraries",
+		{"script", "3"}:         "scripts",
+	}
+	for k, want := range cases {
+		n := 1
+		if k[1] == "2" {
+			n = 2
+		} else if k[1] == "3" {
+			n = 3
+		}
+		if got := pluralize(k[0], n); got != want {
+			t.Errorf("pluralize(%q, %d) = %q, want %q", k[0], n, got, want)
+		}
+	}
+}

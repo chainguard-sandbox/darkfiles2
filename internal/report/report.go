@@ -58,6 +58,17 @@ func (r *Result) UnknownFiles() []CategorizedFile {
 	return out
 }
 
+// DarkCodeCounts counts dark files that are executable code, keyed by kind.
+func (r *Result) DarkCodeCounts() map[image.FileKind]int {
+	m := map[image.FileKind]int{}
+	for _, f := range r.DarkFiles {
+		if f.Kind.IsCode() {
+			m[f.Kind]++
+		}
+	}
+	return m
+}
+
 // ByCategory returns dark files grouped by category.
 func (r *Result) ByCategory() map[Category][]CategorizedFile {
 	m := map[Category][]CategorizedFile{}

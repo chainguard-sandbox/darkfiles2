@@ -59,6 +59,40 @@ func PrintStats(w io.Writer, r *Result) {
 		fmt.Fprintf(tw, "  %s:\t%d files,  %s%s\n", cat.String(), len(files), humanBytes(sz), marker)
 	}
 	tw.Flush()
+
+	// Highlight executable code among the dark files — the highest-signal subset.
+	if code := r.DarkCodeCounts(); len(code) > 0 {
+		fmt.Fprintln(w)
+		fmt.Fprintf(w, "Dark code:  %s  ◀ investigate\n", formatCodeCounts(code))
+	}
+}
+
+// codeKindOrder fixes the display order of code kinds in summaries.
+var codeKindOrder = []image.FileKind{
+	image.KindExecutable,
+	image.KindSharedLibrary,
+	image.KindScript,
+	image.KindStaticLibrary,
+}
+
+func formatCodeCounts(counts map[image.FileKind]int) string {
+	var parts []string
+	for _, k := range codeKindOrder {
+		if n := counts[k]; n > 0 {
+			parts = append(parts, fmt.Sprintf("%d %s", n, pluralize(k.String(), n)))
+		}
+	}
+	return strings.Join(parts, ", ")
+}
+
+func pluralize(s string, n int) string {
+	if n == 1 {
+		return s
+	}
+	if strings.HasSuffix(s, "y") {
+		return s[:len(s)-1] + "ies" // library -> libraries
+	}
+	return s + "s"
 }
 
 // PrintJSON writes full stats plus per-category counts as JSON to w.
@@ -76,6 +110,11 @@ func PrintJSON(w io.Writer, r *Result) error {
 		cats[cat.String()] = catSummary{Count: len(files), Bytes: sz}
 	}
 
+	code := map[string]int{}
+	for k, n := range r.DarkCodeCounts() {
+		code[k.String()] = n
+	}
+
 	out := map[string]interface{}{
 		"image":          r.ImageRef,
 		"distro":         r.Distro,
@@ -88,6 +127,7 @@ func PrintJSON(w io.Writer, r *Result) error {
 		"dark_file_pct":  r.DarkFilePct(),
 		"dark_bytes_pct": r.DarkBytesPct(),
 		"categories":     cats,
+		"dark_code":      code,
 	}
 	enc := json.NewEncoder(w)
 	enc.SetIndent("", "  ")
@@ -115,9 +155,17 @@ func PrintDarkFilesDetailed(w io.Writer, r *Result, grouped bool) {
 	}
 	tw := tabwriter.NewWriter(w, 0, 0, 2, ' ', 0)
 	for _, f := range sortedFiles(r.DarkFiles) {
-		fmt.Fprintf(tw, "%s\t%s\n", f.Path, humanBytes(f.Size))
+		fmt.Fprintf(tw, "%s\t%s%s\n", f.Path, humanBytes(f.Size), kindTag(f))
 	}
 	tw.Flush()
+}
+
+// kindTag returns a "  [executable]" style suffix for code files, else "".
+func kindTag(f CategorizedFile) string {
+	if f.Kind.IsCode() {
+		return "  [" + f.Kind.String() + "]"
+	}
+	return ""
 }
 
 func printGrouped(w io.Writer, r *Result, detailed bool) {
@@ -131,7 +179,7 @@ func printGrouped(w io.Writer, r *Result, detailed bool) {
 		fmt.Fprintf(w, "\n── %s (%d) ──\n", cat.String(), len(files))
 		for _, f := range sortedFiles(files) {
 			if detailed {
-				fmt.Fprintf(tw, "  %s\t%s\n", f.Path, humanBytes(f.Size))
+				fmt.Fprintf(tw, "  %s\t%s%s\n", f.Path, humanBytes(f.Size), kindTag(f))
 			} else {
 				fmt.Fprintln(w, " ", f.Path)
 			}
@@ -146,7 +194,7 @@ func printGrouped(w io.Writer, r *Result, detailed bool) {
 // that introduced them, with size and mode. When showCat is true, each file is
 // tagged with its category — useful when the selection mixes expected and
 // unexpected dark files.
-func PrintByLayer(w io.Writer, layers []image.Layer, files []CategorizedFile, showCat bool) {
+func PrintByLayer(w io.Writer, layers []image.Layer, files []CategorizedFile, showCat, color bool) {
 	byLayer := map[int][]CategorizedFile{}
 	for _, f := range files {
 		byLayer[f.LayerIndex] = append(byLayer[f.LayerIndex], f)
@@ -177,17 +225,42 @@ func PrintByLayer(w io.Writer, layers []image.Layer, files []CategorizedFile, sh
 		fmt.Fprintf(w, "│  %d file(s)\n", len(lf))
 		fmt.Fprintln(w, "│")
 
-		tw := tabwriter.NewWriter(w, 0, 0, 2, ' ', 0)
+		// StripEscape lets us wrap ANSI colour codes so tabwriter ignores their
+		// width and columns stay aligned.
+		tw := tabwriter.NewWriter(w, 0, 0, 2, ' ', tabwriter.StripEscape)
 		for _, f := range sortedFiles(lf) {
-			cat := ""
+			tag := kindTag(f)
 			if showCat {
-				cat = fmt.Sprintf("  [%s]", f.Cat)
+				tag += fmt.Sprintf("  [%s]", f.Cat)
 			}
-			fmt.Fprintf(tw, "│  ├── %s\t%s\t%s%s\n", f.Path, humanBytes(f.Size), formatMode(f.File), cat)
+			path, size, mode := f.Path, humanBytes(f.Size), formatMode(f.File)
+			if color && f.Kind.IsCode() {
+				path = paint(codeColor, path)
+				size = paint(codeColor, size)
+				mode = paint(codeColor, mode)
+				tag = paint(codeColor, tag)
+			}
+			fmt.Fprintf(tw, "│  ├── %s\t%s\t%s%s\n", path, size, mode, tag)
 		}
 		tw.Flush()
 		fmt.Fprintln(w, "└"+strings.Repeat("─", 60))
 	}
+}
+
+const (
+	codeColor = "\033[1;31m" // bold red
+	ansiReset = "\033[0m"
+)
+
+// paint wraps s in an ANSI colour, bracketing the escape sequences with
+// tabwriter.Escape (\xff) bytes so the formatter does not count them toward
+// column width. Used only with a tabwriter created with tabwriter.StripEscape.
+func paint(code, s string) string {
+	if s == "" {
+		return s
+	}
+	esc := string([]byte{tabwriter.Escape})
+	return esc + code + esc + s + esc + ansiReset + esc
 }
 
 func shortDigest(d string) string {

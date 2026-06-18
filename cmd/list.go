@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/chainguard-dev/darkfiles2/internal/pkgdb"
 	"github.com/chainguard-dev/darkfiles2/internal/report"
 	"github.com/spf13/cobra"
 )
@@ -26,12 +25,10 @@ var listCmd = &cobra.Command{
 			return err
 		}
 
-		tracked, distro, err := pkgdb.TrackedFiles(fs)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "warning: %v\n", err)
+		r, tracked, warnErr := analyzeImage(ref, fs)
+		if warnErr != nil {
+			fmt.Fprintf(os.Stderr, "warning: %v\n", warnErr)
 		}
-
-		r := report.Analyze(ref, distro, fs, tracked)
 
 		switch listFlags.set {
 		case "all":

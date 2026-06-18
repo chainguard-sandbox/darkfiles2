@@ -25,12 +25,10 @@ var scanCmd = &cobra.Command{
 			return err
 		}
 
-		tracked, distro, err := pkgdb.TrackedFiles(fs)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "warning: %v\n", err)
+		r, _, warnErr := analyzeImage(ref, fs)
+		if warnErr != nil {
+			fmt.Fprintf(os.Stderr, "warning: %v\n", warnErr)
 		}
-
-		r := report.Analyze(ref, distro, fs, tracked)
 
 		switch scanFlags.format {
 		case "json":
@@ -47,9 +45,27 @@ func init() {
 	scanCmd.Flags().StringVar(&scanFlags.tar, "tar", "", "Load image from local OCI tar file instead of a registry")
 }
 
+// analyzeImage runs the package-db scan and dark-file analysis under a spinner,
+// since both can be slow on large images. The returned warnErr is non-fatal (a
+// failed pkgdb scan) and should be surfaced but not abort the command.
+func analyzeImage(ref string, fs *image.ImageFS) (r *report.Result, tracked map[string]struct{}, warnErr error) {
+	_ = withSpinner("Analyzing files", func() error {
+		var distro string
+		tracked, distro, warnErr = pkgdb.TrackedFiles(fs)
+		r = report.Analyze(ref, distro, fs, tracked)
+		return nil
+	})
+	return r, tracked, warnErr
+}
+
 func loadFS(args []string, tarPath string) (string, *image.ImageFS, error) {
 	if tarPath != "" {
-		fs, err := image.LoadFromTar(tarPath)
+		var fs *image.ImageFS
+		err := withSpinner(fmt.Sprintf("Loading image from %s", tarPath), func() error {
+			var e error
+			fs, e = image.LoadFromTar(tarPath)
+			return e
+		})
 		if err != nil {
 			return "", nil, err
 		}
@@ -59,7 +75,12 @@ func loadFS(args []string, tarPath string) (string, *image.ImageFS, error) {
 		return "", nil, fmt.Errorf("an image reference is required (or use --tar)")
 	}
 	ref := args[0]
-	fs, err := image.Load(ref)
+	var fs *image.ImageFS
+	err := withSpinner(fmt.Sprintf("Pulling and extracting %s", ref), func() error {
+		var e error
+		fs, e = image.Load(ref)
+		return e
+	})
 	if err != nil {
 		return "", nil, err
 	}

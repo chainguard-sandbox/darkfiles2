@@ -9,7 +9,6 @@ import (
 	"text/tabwriter"
 
 	"github.com/chainguard-dev/darkfiles2/internal/image"
-	"github.com/chainguard-dev/darkfiles2/internal/pkgdb"
 	"github.com/chainguard-dev/darkfiles2/internal/report"
 	"github.com/spf13/cobra"
 )
@@ -34,12 +33,10 @@ expected files (package manager state, device files, etc.).`,
 			return err
 		}
 
-		tracked, distro, err := pkgdb.TrackedFiles(imgFS)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "warning: %v\n", err)
+		r, _, warnErr := analyzeImage(ref, imgFS)
+		if warnErr != nil {
+			fmt.Fprintf(os.Stderr, "warning: %v\n", warnErr)
 		}
-
-		r := report.Analyze(ref, distro, imgFS, tracked)
 
 		candidates := r.DarkFiles
 		if !inspectFlags.all {

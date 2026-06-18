@@ -322,7 +322,7 @@ func isOpaqueWhiteout(path string) bool { return filepath.Base(path) == ".wh..wh
 func whiteoutTarget(whiteoutPath string) string {
 	dir := filepath.Dir(whiteoutPath)
 	base := strings.TrimPrefix(filepath.Base(whiteoutPath), ".wh.")
-	return dir + "/" + base
+	return cleanPath(dir + "/" + base)
 }
 
 func cleanPath(name string) string {

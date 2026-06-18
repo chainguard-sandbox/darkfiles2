@@ -76,6 +76,7 @@ func Analyze(ref, distro string, fs *image.ImageFS, tracked map[string]struct{})
 		ImageRef: ref,
 		Distro:   distro,
 	}
+	tracked = canonicalizeTracked(tracked, fs)
 	for _, f := range fs.Files {
 		r.TotalFiles++
 		r.TotalBytes += f.Size
@@ -90,6 +91,23 @@ func Analyze(ref, distro string, fs *image.ImageFS, tracked map[string]struct{})
 		}
 	}
 	return r
+}
+
+// canonicalizeTracked returns a tracked set augmented with the symlink-resolved
+// form of every path. Package databases often record a file under a path that
+// runs through a symlinked directory — e.g. APK records libffi under
+// /usr/lib64/... while /usr/lib64 -> lib, so the real file lives at /usr/lib/...
+// Resolving each tracked path lets the canonical on-disk file match. Both the
+// original and resolved spellings are kept so direct matches still work.
+func canonicalizeTracked(tracked map[string]struct{}, fs *image.ImageFS) map[string]struct{} {
+	out := make(map[string]struct{}, len(tracked)*2)
+	for p := range tracked {
+		out[p] = struct{}{}
+		if resolved := fs.ResolveSymlink(p); resolved != p {
+			out[resolved] = struct{}{}
+		}
+	}
+	return out
 }
 
 func isTracked(f image.File, tracked map[string]struct{}, fs *image.ImageFS) bool {

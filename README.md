@@ -114,7 +114,7 @@ darkfiles scan --paths --set all img
 
 | `--set`   | meaning                                                  |
 |-----------|----------------------------------------------------------|
-| `unknown` | unrecognised dark files — the ones to investigate (default) |
+| `unknown` | unrecognised dark files (default)                        |
 | `dark`    | all dark files, including expected (pkg state, `/dev`, …) |
 | `tracked` | files owned by a package or SBOM                         |
 | `all`     | every file in the image                                  |

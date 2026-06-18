@@ -57,12 +57,12 @@ func TestCategoryString(t *testing.T) {
 		cat  Category
 		want string
 	}{
-		{CategoryUnknown, "Unknown (investigate)"},
+		{CategoryUnknown, "Unknown"},
 		{CategoryDeviceFile, "Device files"},
 		{CategoryPkgManagerState, "Package manager state"},
 		{CategoryRuntimeGenerated, "Runtime-generated"},
 		{CategoryBuildMetadata, "Build metadata"},
-		{Category(999), "Unknown (investigate)"},
+		{Category(999), "Unknown"},
 	}
 	for _, tt := range tests {
 		if got := tt.cat.String(); got != tt.want {

@@ -43,7 +43,7 @@ func (c Category) String() string {
 	case CategoryBuildMetadata:
 		return "Build metadata"
 	default:
-		return "Unknown (investigate)"
+		return "Unknown"
 	}
 }
 

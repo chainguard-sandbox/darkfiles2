@@ -52,18 +52,14 @@ func PrintStats(w io.Writer, r *Result) {
 		for _, f := range files {
 			sz += f.Size
 		}
-		marker := ""
-		if cat == CategoryUnknown {
-			marker = "  ◀ investigate"
-		}
-		fmt.Fprintf(tw, "  %s:\t%d files,  %s%s\n", cat.String(), len(files), humanBytes(sz), marker)
+		fmt.Fprintf(tw, "  %s:\t%d files,  %s\n", cat.String(), len(files), humanBytes(sz))
 	}
 	tw.Flush()
 
-	// Highlight executable code among the dark files — the highest-signal subset.
+	// Surface executable code among the dark files — the highest-signal subset.
 	if code := r.DarkCodeCounts(); len(code) > 0 {
 		fmt.Fprintln(w)
-		fmt.Fprintf(w, "Dark code:  %s  ◀ investigate\n", formatCodeCounts(code))
+		fmt.Fprintf(w, "Dark code:  %s\n", formatCodeCounts(code))
 	}
 }
 

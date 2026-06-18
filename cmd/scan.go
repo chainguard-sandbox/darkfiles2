@@ -33,7 +33,7 @@ them, or --paths to emit a plain list of file paths for scripting.
 
 The --set flag selects which files the --detailed and --paths views operate
 on:
-  unknown  unrecognised dark files — the ones to investigate (default)
+  unknown  unrecognised dark files (default)
   dark     all dark files, including expected ones (pkg state, /dev, etc.)
   tracked  files owned by a package or SBOM
   all      every file in the image`,
@@ -79,22 +79,27 @@ on:
 		// Default text view: stats summary, optionally + per-layer breakdown.
 		report.PrintStats(os.Stdout, r)
 
-		if scanFlags.detailed {
-			files := selectFiles(r, fs, scanFlags.set, scanFlags.code)
-			if len(files) == 0 {
-				switch {
-				case scanFlags.code:
-					fmt.Println("\nNo dark code files found.")
-				case scanFlags.set == "unknown":
-					fmt.Println("\nNo unexpected dark files found. Use --set dark to include expected dark files.")
-				default:
-					fmt.Println("\nNo files to show.")
-				}
-				return nil
+		if !scanFlags.detailed {
+			if r.DarkCount() > 0 {
+				fmt.Println("\nUse -d to see further detail on dark file findings.")
 			}
-			// Tag categories whenever the selection can mix categories.
-			report.PrintByLayer(os.Stdout, fs.Layers, files, scanFlags.set != "unknown", isTerminal(os.Stdout))
+			return nil
 		}
+
+		files := selectFiles(r, fs, scanFlags.set, scanFlags.code)
+		if len(files) == 0 {
+			switch {
+			case scanFlags.code:
+				fmt.Println("\nNo dark code files found.")
+			case scanFlags.set == "unknown":
+				fmt.Println("\nNo unexpected dark files found. Use --set dark to include expected dark files.")
+			default:
+				fmt.Println("\nNo files to show.")
+			}
+			return nil
+		}
+		// Tag categories whenever the selection can mix categories.
+		report.PrintByLayer(os.Stdout, fs.Layers, files, scanFlags.set != "unknown", isTerminal(os.Stdout))
 		return nil
 	},
 }

@@ -1,0 +1,60 @@
+package report
+
+import (
+	"bytes"
+	"strings"
+	"testing"
+
+	"github.com/chainguard-dev/darkfiles2/internal/image"
+)
+
+func layerFiles() (layers []image.Layer, files []CategorizedFile) {
+	layers = []image.Layer{{Index: 0, CreatedBy: "apko build"}}
+	files = []CategorizedFile{
+		{File: image.File{Path: "/opt/bin", Size: 100, Mode: 0o755, Kind: image.KindExecutable}, Cat: CategoryUnknown},
+		{File: image.File{Path: "/etc/cfg", Size: 10, Mode: 0o644, Kind: image.KindOther}, Cat: CategoryUnknown},
+	}
+	return layers, files
+}
+
+func TestPrintByLayerKindTagAndNoColor(t *testing.T) {
+	layers, files := layerFiles()
+	var buf bytes.Buffer
+	PrintByLayer(&buf, layers, files, false, false)
+	out := buf.String()
+
+	if !strings.Contains(out, "[executable]") {
+		t.Errorf("expected [executable] tag, got:\n%s", out)
+	}
+	// Without color: no ANSI sequences and no raw tabwriter escape bytes.
+	if strings.Contains(out, "\033[") {
+		t.Errorf("color disabled but ANSI escape present:\n%q", out)
+	}
+	if strings.ContainsRune(out, '\xff') {
+		t.Errorf("raw tabwriter escape byte leaked into output:\n%q", out)
+	}
+}
+
+func TestPrintByLayerColorEscaping(t *testing.T) {
+	layers, files := layerFiles()
+	var buf bytes.Buffer
+	PrintByLayer(&buf, layers, files, false, true)
+	out := buf.String()
+
+	// Color enabled: the code file is wrapped in ANSI, escape bytes are stripped.
+	if !strings.Contains(out, codeColor) {
+		t.Errorf("color enabled but no ANSI colour code emitted:\n%q", out)
+	}
+	if !strings.Contains(out, ansiReset) {
+		t.Errorf("color enabled but no ANSI reset emitted:\n%q", out)
+	}
+	if strings.ContainsRune(out, '\xff') {
+		t.Errorf("tabwriter escape byte (0xff) leaked into output:\n%q", out)
+	}
+	// The non-code file should not be coloured: the only colour codes belong to
+	// the executable's row, so there should be exactly one reset per coloured
+	// cell (path, size, mode, tag) and none around /etc/cfg.
+	if strings.Count(out, codeColor) != strings.Count(out, ansiReset) {
+		t.Errorf("unbalanced colour/reset sequences:\n%q", out)
+	}
+}

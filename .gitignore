@@ -1,0 +1,6 @@
+# Compiled binaries
+/df
+/darkfiles
+
+# Stray scan artifacts
+/sbom.json

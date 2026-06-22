@@ -1,6 +1,8 @@
 package pkgdb
 
 import (
+	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/chainguard-dev/darkfiles2/internal/image"
@@ -150,24 +152,77 @@ func TestScanRPMEmpty(t *testing.T) {
 	}
 }
 
-func TestTrackedFilesMergesSBOM(t *testing.T) {
-	// Wolfi image: APK db + an apko SBOM. TrackedFiles should union both and
-	// report the detected distro.
-	apk := "P:base\nF:usr/bin\nR:sh\n"
-	spdx := `{"files":[{"fileName":"/usr/local/extra"}]}`
-	fs := &image.ImageFS{
+// wolfiWithSBOM builds a Wolfi image fixture carrying both an APK db and an
+// apko SBOM, each tracking a distinct file, so tests can confirm which source
+// a given mode consults.
+func wolfiWithSBOM() *image.ImageFS {
+	return &image.ImageFS{
 		OsRelease: map[string]string{"ID": "wolfi"},
 		FileContent: map[string][]byte{
-			"/usr/lib/apk/db/installed":       []byte(apk),
-			"/var/lib/db/sbom/base.spdx.json": []byte(spdx),
+			"/usr/lib/apk/db/installed":       []byte("P:base\nF:usr/bin\nR:sh\n"),
+			"/var/lib/db/sbom/base.spdx.json": []byte(`{"files":[{"fileName":"/usr/local/extra"}]}`),
 		},
 	}
-	tracked, distro, err := TrackedFiles(fs)
+}
+
+func TestTrackedFilesDefaultIgnoresSBOM(t *testing.T) {
+	// Default mode uses only the package database; the SBOM-only file is ignored.
+	tracked, distro, err := TrackedFiles(wolfiWithSBOM(), Options{})
 	if err != nil {
 		t.Fatalf("TrackedFiles: %v", err)
 	}
 	if distro != "wolfi" {
 		t.Errorf("distro = %q, want wolfi", distro)
 	}
-	hasAll(t, tracked, "/usr/bin/sh", "/usr/local/extra")
+	hasAll(t, tracked, "/usr/bin/sh")
+	if _, ok := tracked["/usr/local/extra"]; ok {
+		t.Errorf("default mode tracked SBOM-only file /usr/local/extra; want it ignored")
+	}
+}
+
+func TestTrackedFilesSBOMModeIgnoresPkgDB(t *testing.T) {
+	// SBOM mode uses only the embedded SBOM; the APK-only file is ignored.
+	tracked, distro, err := TrackedFiles(wolfiWithSBOM(), Options{SBOM: true})
+	if err != nil {
+		t.Fatalf("TrackedFiles: %v", err)
+	}
+	if distro != "wolfi" {
+		t.Errorf("distro = %q, want wolfi", distro)
+	}
+	hasAll(t, tracked, "/usr/local/extra")
+	if _, ok := tracked["/usr/bin/sh"]; ok {
+		t.Errorf("SBOM mode tracked APK-only file /usr/bin/sh; want it ignored")
+	}
+}
+
+func TestTrackedFilesSBOMFile(t *testing.T) {
+	// An external SBOM file takes precedence over in-image sources and implies
+	// SBOM mode (no SBOM bool set).
+	dir := t.TempDir()
+	path := filepath.Join(dir, "ext.spdx.json")
+	if err := os.WriteFile(path, []byte(`{"files":[{"fileName":"/opt/from-file"}]}`), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	tracked, _, err := TrackedFiles(wolfiWithSBOM(), Options{SBOMFile: path})
+	if err != nil {
+		t.Fatalf("TrackedFiles: %v", err)
+	}
+	hasAll(t, tracked, "/opt/from-file")
+	for _, p := range []string{"/usr/bin/sh", "/usr/local/extra"} {
+		if _, ok := tracked[p]; ok {
+			t.Errorf("external SBOM file mode tracked in-image file %s; want it ignored", p)
+		}
+	}
+}
+
+func TestTrackedFilesSBOMFileMalformed(t *testing.T) {
+	// Unlike embedded discovery, a bad external file is a hard error.
+	dir := t.TempDir()
+	path := filepath.Join(dir, "bad.spdx.json")
+	if err := os.WriteFile(path, []byte("{not json"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if _, _, err := TrackedFiles(wolfiWithSBOM(), Options{SBOMFile: path}); err == nil {
+		t.Errorf("TrackedFiles with malformed --sbom-file: want error, got nil")
+	}
 }

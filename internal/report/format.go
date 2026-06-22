@@ -45,7 +45,9 @@ func PrintStats(w io.Writer, r *Result) {
 	tw = tabwriter.NewWriter(w, 0, 0, 2, ' ', 0)
 	for _, cat := range categoryOrder {
 		files := bycat[cat]
-		if len(files) == 0 {
+		// Always surface the unknown count — "0 files" is a meaningful,
+		// reassuring result, so don't omit the line when it's empty.
+		if len(files) == 0 && cat != CategoryUnknown {
 			continue
 		}
 		var sz int64

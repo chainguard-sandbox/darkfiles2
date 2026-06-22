@@ -2,10 +2,30 @@ package pkgdb
 
 import (
 	"encoding/json"
+	"os"
 	"strings"
 
 	"github.com/chainguard-dev/darkfiles2/internal/image"
 )
+
+// trackedFromSBOM returns the file paths tracked by SBOMs. When path is set it
+// reads that external SPDX JSON file (a parse failure there is fatal, since the
+// user asked for it explicitly); otherwise it discovers SBOMs embedded in the
+// image under /var/lib/db/sbom/.
+func trackedFromSBOM(fs *image.ImageFS, path string) (map[string]struct{}, error) {
+	if path == "" {
+		return scanSBOM(fs)
+	}
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return nil, err
+	}
+	tracked := map[string]struct{}{}
+	if err := parseSPDX(data, tracked); err != nil {
+		return nil, err
+	}
+	return tracked, nil
+}
 
 // scanSBOM reads any SPDX JSON SBOMs embedded in the image (e.g. the per-package
 // SBOMs that apko writes to /var/lib/db/sbom/*.spdx.json) and returns all file

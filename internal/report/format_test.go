@@ -17,6 +17,38 @@ func layerFiles() (layers []image.Layer, files []CategorizedFile) {
 	return layers, files
 }
 
+func TestPrintStatsShowsZeroUnknown(t *testing.T) {
+	// Dark files exist, but all are expected (pkg-manager state) — none unknown.
+	// The breakdown should still state "Unknown: 0 files" rather than omit it.
+	r := &Result{
+		ImageRef:   "example:latest",
+		Distro:     "wolfi",
+		TotalFiles: 10,
+		DarkFiles: []CategorizedFile{
+			{File: image.File{Path: "/var/lib/apk/db/installed", Size: 100}, Cat: CategoryPkgManagerState},
+		},
+	}
+	var buf bytes.Buffer
+	PrintStats(&buf, r)
+	out := buf.String()
+
+	// tabwriter expands the tab to a variable number of spaces, so check the
+	// label and the count on the same line independently.
+	var unknownLine string
+	for _, line := range strings.Split(out, "\n") {
+		if strings.Contains(line, "Unknown:") {
+			unknownLine = line
+			break
+		}
+	}
+	if unknownLine == "" {
+		t.Fatalf("expected an Unknown line in the breakdown, got:\n%s", out)
+	}
+	if !strings.Contains(unknownLine, "0 files") {
+		t.Errorf("expected Unknown to report 0 files, got line: %q", unknownLine)
+	}
+}
+
 func TestPrintByLayerKindTagAndNoColor(t *testing.T) {
 	layers, files := layerFiles()
 	var buf bytes.Buffer

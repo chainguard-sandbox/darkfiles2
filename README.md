@@ -1,7 +1,7 @@
 # darkfiles
 
 Find "dark" files in container images — files that exist in the image but are not
-tracked by any package manager or embedded SBOM.
+tracked by the package manager database (or, with `--sbom`, by an SBOM).
 
 Dark files represent an unknown attack surface: they won't show up in vulnerability
 scanners that rely on package databases, they can hide malware or supply-chain
@@ -15,7 +15,10 @@ files, injected binaries).
 - **Handles merged-usr layouts** and busybox multi-call symlinks correctly (the
   original darkfiles got negative file counts because of double-counting; this
   version deduplicates paths and resolves full symlink chains)
-- **Reads in-image SBOMs** (apko-generated SPDX files in `/var/lib/db/sbom/`)
+- **Optional SBOM mode** (`--sbom` / `--sbom-file`) — treat an SBOM as the
+  authoritative source instead of the package database, to audit what the SBOM
+  fails to account for. Reads in-image SPDX SBOMs (apko-generated files in
+  `/var/lib/db/sbom/`) or an external SPDX JSON file
 - **Reports by file count and bytes** — a 1 000-file shell script collection is
   less alarming than a single 200 MB injected binary
 - **JSON output** for integration with pipelines and dashboards
@@ -130,12 +133,13 @@ darkfiles scan --tar ./myimage.tar -d --set dark
 
 A file is dark if:
 
-1. It is **not listed** in any installed-package manifest (`/lib/apk/db/installed`,
-   `/usr/lib/apk/db/installed`, `/var/lib/dpkg/info/*.list`)
+1. It is **not listed** in the tracked-file source. By default that's the
+   installed-package manifest (`/lib/apk/db/installed`, `/usr/lib/apk/db/installed`,
+   `/var/lib/dpkg/info/*.list`). In `--sbom` mode it's instead the SPDX SBOM — an
+   external file (`--sbom-file`) or apko's per-package SBOMs in `/var/lib/db/sbom/`.
+   The package database and the SBOM are mutually exclusive sources, not merged.
 2. It is **not a symlink** whose fully-resolved target is a tracked file — this
    correctly handles multi-call busybox, merged-usr hierarchies, etc.
-3. It is **not referenced** by an embedded SPDX SBOM (e.g. apko's per-package
-   SBOM files in `/var/lib/db/sbom/`)
 
 The percentage shown is `dark_files / total_files` and `dark_bytes / total_bytes`
 independently, because a single large binary is more concerning than many tiny

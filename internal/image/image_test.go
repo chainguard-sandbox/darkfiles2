@@ -148,7 +148,7 @@ func TestIsPkgDBPath(t *testing.T) {
 		{"/var/lib/dpkg/info/bash.list", true},
 		{"/var/lib/dpkg/info/bash.md5sums", false},
 		{"/var/lib/rpm/Packages", true},
-		{"/var/lib/db/sbom/foo.spdx.json", true},
+		{"/var/lib/db/sbom/foo.spdx.json", false},
 		{"/etc/passwd", false},
 		{"/usr/bin/curl", false},
 	}

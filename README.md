@@ -1,7 +1,7 @@
 # darkfiles
 
 Find "dark" files in container images — files that exist in the image but are not
-tracked by the package manager database (or, with `--sbom`, by an SBOM).
+tracked by the package manager database.
 
 Dark files represent an unknown attack surface: they won't show up in vulnerability
 scanners that rely on package databases, they can hide malware or supply-chain
@@ -15,10 +15,6 @@ files, injected binaries).
 - **Handles merged-usr layouts** and busybox multi-call symlinks correctly (the
   original darkfiles got negative file counts because of double-counting; this
   version deduplicates paths and resolves full symlink chains)
-- **Optional SBOM mode** (`--sbom` / `--sbom-file`) — treat an SBOM as the
-  authoritative source instead of the package database, to audit what the SBOM
-  fails to account for. Reads in-image SPDX SBOMs (apko-generated files in
-  `/var/lib/db/sbom/`) or an external SPDX JSON file
 - **Reports by file count and bytes** — a 1 000-file shell script collection is
   less alarming than a single 200 MB injected binary
 - **JSON output** for integration with pipelines and dashboards
@@ -119,7 +115,7 @@ darkfiles scan --paths --set all img
 |-----------|----------------------------------------------------------|
 | `unknown` | unrecognised dark files (default)                        |
 | `dark`    | all dark files, including expected (pkg state, `/dev`, …) |
-| `tracked` | files owned by a package or SBOM                         |
+| `tracked` | files owned by a package                                 |
 | `all`     | every file in the image                                  |
 
 ### Load from a local tar
@@ -133,11 +129,8 @@ darkfiles scan --tar ./myimage.tar -d --set dark
 
 A file is dark if:
 
-1. It is **not listed** in the tracked-file source. By default that's the
-   installed-package manifest (`/lib/apk/db/installed`, `/usr/lib/apk/db/installed`,
-   `/var/lib/dpkg/info/*.list`). In `--sbom` mode it's instead the SPDX SBOM — an
-   external file (`--sbom-file`) or apko's per-package SBOMs in `/var/lib/db/sbom/`.
-   The package database and the SBOM are mutually exclusive sources, not merged.
+1. It is **not listed** in any installed-package manifest (`/lib/apk/db/installed`,
+   `/usr/lib/apk/db/installed`, `/var/lib/dpkg/info/*.list`)
 2. It is **not a symlink** whose fully-resolved target is a tracked file — this
    correctly handles multi-call busybox, merged-usr hierarchies, etc.
 
@@ -155,7 +148,6 @@ was archived after several correctness issues:
   packages was subtracted multiple times
 - **No OS auto-detection** ([#7](https://github.com/chainguard-dev/darkfiles/issues/7))
   — required manual `--distro` flag
-- **No SBOM support** — couldn't use in-image SBOMs to classify files
 - **Symlink handling** — busybox multi-call symlinks and merged-usr layouts were
   not resolved, causing nearly all of Alpine's `bin/` to appear dark
 

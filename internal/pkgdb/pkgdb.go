@@ -7,32 +7,10 @@ import (
 	"github.com/chainguard-dev/darkfiles2/internal/image"
 )
 
-// Options selects which source TrackedFiles consults. The package manager
-// database and SBOMs are treated as mutually exclusive sources: by default the
-// package database is authoritative, and only when SBOM mode is requested are
-// SBOMs used instead.
-type Options struct {
-	// SBOM, when true, uses SBOMs as the sole tracked-file source and ignores
-	// the package manager database.
-	SBOM bool
-	// SBOMFile is an optional path to an external SPDX JSON SBOM. When set it is
-	// used instead of any in-image SBOMs, and implies SBOM mode.
-	SBOMFile string
-}
-
-// TrackedFiles returns the set of file paths tracked by the selected source —
-// the package manager database by default, or SBOMs when SBOM mode is
-// requested — plus the detected distro name.
-func TrackedFiles(fs *image.ImageFS, opts Options) (map[string]struct{}, string, error) {
+// TrackedFiles returns the set of file paths tracked by the package manager
+// database, plus the detected distro name.
+func TrackedFiles(fs *image.ImageFS) (map[string]struct{}, string, error) {
 	distro, scanner := detect(fs)
-
-	if opts.SBOM || opts.SBOMFile != "" {
-		tracked, err := trackedFromSBOM(fs, opts.SBOMFile)
-		if err != nil {
-			return nil, distro, fmt.Errorf("scanning SBOM: %w", err)
-		}
-		return tracked, distro, nil
-	}
 
 	tracked, err := scanner(fs)
 	if err != nil {

@@ -85,7 +85,7 @@ type ImageFS struct {
 	Files       []File
 	Layers      []Layer           // all history entries (including empty)
 	OsRelease   map[string]string
-	FileContent map[string][]byte // pkg DB and SBOM files
+	FileContent map[string][]byte // package manager database files
 	Symlinks    map[string]string // path -> raw link target
 }
 
@@ -145,9 +145,6 @@ func isPkgDBPath(path string) bool {
 		return true
 	}
 	if strings.HasPrefix(path, "/var/lib/rpm/") {
-		return true
-	}
-	if strings.HasPrefix(path, "/var/lib/db/sbom/") {
 		return true
 	}
 	return false

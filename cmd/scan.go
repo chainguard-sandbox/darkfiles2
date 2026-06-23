@@ -19,8 +19,6 @@ var scanFlags struct {
 	sizes    bool
 	code     bool
 	tar      string
-	sbom     bool
-	sbomFile string
 }
 
 var scanCmd = &cobra.Command{
@@ -28,10 +26,6 @@ var scanCmd = &cobra.Command{
 	Short: "Scan an image and report dark files",
 	Long: `scan analyzes a container image for dark files — files not referenced by
 the package manager database.
-
-By default the package manager database is the authoritative source. Pass
---sbom to instead treat an SBOM as authoritative and ignore the package
-database, or --sbom-file to supply an external SPDX JSON SBOM.
 
 By default it prints a statistics summary. Add --detailed to also list the
 dark files grouped by the layer (Dockerfile instruction) that introduced
@@ -41,7 +35,7 @@ The --set flag selects which files the --detailed and --paths views operate
 on:
   unknown  unrecognised dark files (default)
   dark     all dark files, including expected ones (pkg state, /dev, etc.)
-  tracked  files owned by a package or SBOM
+  tracked  files owned by a package
   all      every file in the image`,
 	Args: cobra.MaximumNArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
@@ -57,8 +51,7 @@ on:
 			return err
 		}
 
-		opts := pkgdb.Options{SBOM: scanFlags.sbom, SBOMFile: scanFlags.sbomFile}
-		r, _, warnErr := analyzeImage(ref, fs, opts)
+		r, _, warnErr := analyzeImage(ref, fs)
 		if warnErr != nil {
 			fmt.Fprintf(os.Stderr, "warning: %v\n", warnErr)
 		}
@@ -124,10 +117,6 @@ func init() {
 	scanCmd.Flags().BoolVar(&scanFlags.code, "code", false,
 		"Show only code files: executables, shared/static libraries, and scripts")
 	scanCmd.Flags().StringVar(&scanFlags.tar, "tar", "", "Load image from local OCI tar file instead of a registry")
-	scanCmd.Flags().BoolVar(&scanFlags.sbom, "sbom", false,
-		"Use SBOMs as the tracked-file source instead of the package manager database")
-	scanCmd.Flags().StringVar(&scanFlags.sbomFile, "sbom-file", "",
-		"Path to an external SPDX JSON SBOM to use as the tracked-file source (implies --sbom)")
 }
 
 func validSet(s string) bool {
@@ -177,10 +166,10 @@ func selectFiles(r *report.Result, fs *image.ImageFS, set string, codeOnly bool)
 // analyzeImage runs the package-db scan and dark-file analysis under a spinner,
 // since both can be slow on large images. The returned warnErr is non-fatal (a
 // failed pkgdb scan) and should be surfaced but not abort the command.
-func analyzeImage(ref string, fs *image.ImageFS, opts pkgdb.Options) (r *report.Result, tracked map[string]struct{}, warnErr error) {
+func analyzeImage(ref string, fs *image.ImageFS) (r *report.Result, tracked map[string]struct{}, warnErr error) {
 	_ = withSpinner("Analyzing files", func() error {
 		var distro string
-		tracked, distro, warnErr = pkgdb.TrackedFiles(fs, opts)
+		tracked, distro, warnErr = pkgdb.TrackedFiles(fs)
 		r = report.Analyze(ref, distro, fs, tracked)
 		return nil
 	})

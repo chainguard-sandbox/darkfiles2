@@ -35,16 +35,16 @@ go build -o darkfiles .
 
 ## Usage
 
-Everything is done through a single `scan` command. By default it prints a
-statistics summary; flags switch on more detailed views.
+Run `darkfiles <image>` to scan an image. By default it prints a statistics
+summary; flags switch on more detailed views.
 
 ### Statistics summary (default)
 
 ```
-darkfiles scan alpine:latest
-darkfiles scan debian:latest
-darkfiles scan cgr.dev/chainguard/wolfi-base:latest
-darkfiles scan --format json cgr.dev/chainguard/static:latest
+darkfiles alpine:latest
+darkfiles debian:latest
+darkfiles cgr.dev/chainguard/wolfi-base:latest
+darkfiles --format json cgr.dev/chainguard/static:latest
 ```
 
 Example output:
@@ -66,7 +66,7 @@ Dark size:      2.1 KiB (0.0%)
 (Dockerfile instruction) that introduced them, with size and mode:
 
 ```
-darkfiles scan -d alpine:latest
+darkfiles -d alpine:latest
 ```
 
 ### Plain path list (for scripting)
@@ -74,9 +74,9 @@ darkfiles scan -d alpine:latest
 `--paths` emits matching file paths, one per line:
 
 ```
-darkfiles scan --paths debian:latest            # unknown files (default)
-darkfiles scan --paths --sizes debian:latest    # add file sizes
-darkfiles scan --paths --group debian:latest    # group by category
+darkfiles --paths debian:latest            # unknown files (default)
+darkfiles --paths --sizes debian:latest    # add file sizes
+darkfiles --paths --group debian:latest    # group by category
 ```
 
 ### Highlighting executable code
@@ -93,8 +93,8 @@ disambiguated by mode and path) and:
 Use `--code` to show only code files (composes with `--set`):
 
 ```
-darkfiles scan -d --code img            # dark binaries/libs/scripts, by layer
-darkfiles scan --paths --code img       # just their paths, for scripting
+darkfiles -d --code img            # dark binaries/libs/scripts, by layer
+darkfiles --paths --code img       # just their paths, for scripting
 ```
 
 The JSON output includes a `dark_code` object with per-kind counts.
@@ -105,10 +105,10 @@ The `--set` flag controls which files the `--detailed` and `--paths` views
 operate on (the summary always reports on everything):
 
 ```
-darkfiles scan -d --set unknown img    # unrecognised dark files only (default)
-darkfiles scan -d --set dark    img    # all dark files, incl. expected ones
-darkfiles scan --paths --set tracked img
-darkfiles scan --paths --set all img
+darkfiles -d --set unknown img    # unrecognised dark files only (default)
+darkfiles -d --set dark    img    # all dark files, incl. expected ones
+darkfiles --paths --set tracked img
+darkfiles --paths --set all img
 ```
 
 | `--set`   | meaning                                                  |
@@ -121,8 +121,8 @@ darkfiles scan --paths --set all img
 ### Load from a local tar
 
 ```
-docker save myimage:latest | darkfiles scan --tar /dev/stdin
-darkfiles scan --tar ./myimage.tar -d --set dark
+docker save myimage:latest | darkfiles --tar /dev/stdin
+darkfiles --tar ./myimage.tar -d --set dark
 ```
 
 ## What counts as "dark"?

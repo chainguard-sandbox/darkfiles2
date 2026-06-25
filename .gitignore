@@ -2,5 +2,8 @@
 /df
 /darkfiles
 
+# GoReleaser build output
+/dist/
+
 # Stray scan artifacts
 /sbom.json

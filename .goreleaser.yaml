@@ -35,7 +35,7 @@ kos:
   - id: darkfiles
     build: darkfiles
     repositories:
-      - ghcr.io/{{ tolower .Env.GITHUB_REPOSITORY }}
+      - ghcr.io/chainguard-sandbox/darkfiles2
     bare: true
     tags:
       - "{{ .Version }}"

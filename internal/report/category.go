@@ -3,7 +3,7 @@ package report
 import (
 	"strings"
 
-	"github.com/chainguard-dev/darkfiles2/internal/image"
+	"github.com/chainguard-sandbox/darkfiles2/internal/image"
 )
 
 // Category classifies a dark file into a bucket so users can distinguish

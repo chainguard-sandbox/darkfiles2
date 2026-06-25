@@ -1,7 +1,7 @@
 package pkgdb
 
 import (
-	"github.com/chainguard-dev/darkfiles2/internal/image"
+	"github.com/chainguard-sandbox/darkfiles2/internal/image"
 )
 
 // scanRPM returns file paths tracked by RPM.

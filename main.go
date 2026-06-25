@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/chainguard-dev/darkfiles2/cmd"
+	"github.com/chainguard-sandbox/darkfiles2/cmd"
 )
 
 func main() {

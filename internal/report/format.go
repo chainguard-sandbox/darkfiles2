@@ -9,7 +9,7 @@ import (
 	"strings"
 	"text/tabwriter"
 
-	"github.com/chainguard-dev/darkfiles2/internal/image"
+	"github.com/chainguard-sandbox/darkfiles2/internal/image"
 )
 
 // categoryOrder controls the display order of categories in stats output.

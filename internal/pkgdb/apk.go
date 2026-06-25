@@ -5,7 +5,7 @@ import (
 	"bytes"
 	"strings"
 
-	"github.com/chainguard-dev/darkfiles2/internal/image"
+	"github.com/chainguard-sandbox/darkfiles2/internal/image"
 )
 
 // apkDBPaths lists the known locations for the APK installed database.

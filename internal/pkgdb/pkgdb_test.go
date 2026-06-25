@@ -3,7 +3,7 @@ package pkgdb
 import (
 	"testing"
 
-	"github.com/chainguard-dev/darkfiles2/internal/image"
+	"github.com/chainguard-sandbox/darkfiles2/internal/image"
 )
 
 func TestDetect(t *testing.T) {

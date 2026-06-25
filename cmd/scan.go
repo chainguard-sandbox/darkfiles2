@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/chainguard-dev/darkfiles2/internal/image"
-	"github.com/chainguard-dev/darkfiles2/internal/pkgdb"
-	"github.com/chainguard-dev/darkfiles2/internal/report"
-	"github.com/chainguard-dev/darkfiles2/internal/sbom"
+	"github.com/chainguard-sandbox/darkfiles2/internal/image"
+	"github.com/chainguard-sandbox/darkfiles2/internal/pkgdb"
+	"github.com/chainguard-sandbox/darkfiles2/internal/report"
+	"github.com/chainguard-sandbox/darkfiles2/internal/sbom"
 	"github.com/spf13/cobra"
 )
 

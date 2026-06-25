@@ -68,9 +68,11 @@ func TestParsePathsInvalid(t *testing.T) {
 
 func TestNormalize(t *testing.T) {
 	cases := map[string]string{
-		"usr/bin/vault":   "/usr/bin/vault",
-		"./usr/bin/vault": "/usr/bin/vault",
-		"/usr/bin/vault":  "/usr/bin/vault",
+		"usr/bin/vault":         "/usr/bin/vault",
+		"./usr/bin/vault":       "/usr/bin/vault",
+		"/usr/bin/vault":        "/usr/bin/vault",
+		"./usr/../bin/vault":    "/bin/vault",     // dot-dot cleaned
+		"usr//bin//vault":       "/usr/bin/vault", // double slashes cleaned
 	}
 	for in, want := range cases {
 		if got := normalize(in); got != want {

@@ -186,3 +186,54 @@ func TestScanLayerTarOpaqueWhiteout(t *testing.T) {
 		t.Error("/other/c outside the opaque dir should be untouched")
 	}
 }
+
+func TestScanLayerTarOsReleaseLastWriterWins(t *testing.T) {
+	// A later layer replacing /etc/os-release must take precedence (last-writer-wins),
+	// consistent with overlay FS semantics.
+	fs, origin, info := newScanState()
+	l0 := buildTar(t, []tarEntry{
+		{name: "etc/os-release", body: "ID=alpine\n"},
+	})
+	l1 := buildTar(t, []tarEntry{
+		{name: "etc/os-release", body: "ID=wolfi\n"},
+	})
+
+	if err := scanLayerTar(bytes.NewReader(l0), 0, fs, origin, info); err != nil {
+		t.Fatal(err)
+	}
+	if err := scanLayerTar(bytes.NewReader(l1), 1, fs, origin, info); err != nil {
+		t.Fatal(err)
+	}
+
+	if got := fs.OsRelease["ID"]; got != "wolfi" {
+		t.Errorf("OsRelease[ID] = %q, want wolfi (later layer should win)", got)
+	}
+}
+
+func TestScanLayerTarHardLink(t *testing.T) {
+	// A hard link (TypeLink) must NOT be recorded as a symlink and must NOT be
+	// added to the Symlinks map; it is a distinct file entry.
+	fs, origin, info := newScanState()
+	layer := buildTar(t, []tarEntry{
+		{name: "usr/bin/busybox", mode: 0o755, body: "ELF"},
+		{name: "usr/bin/sh", typeflag: tar.TypeLink, linkname: "usr/bin/busybox"},
+	})
+
+	if err := scanLayerTar(bytes.NewReader(layer), 0, fs, origin, info); err != nil {
+		t.Fatalf("scanLayerTar: %v", err)
+	}
+
+	f, ok := info["/usr/bin/sh"]
+	if !ok {
+		t.Fatal("/usr/bin/sh hard link not recorded in fileInfo")
+	}
+	if f.IsSymlink {
+		t.Error("/usr/bin/sh hard link incorrectly marked IsSymlink=true")
+	}
+	if _, inSymlinks := fs.Symlinks["/usr/bin/sh"]; inSymlinks {
+		t.Error("/usr/bin/sh hard link incorrectly added to Symlinks map")
+	}
+	if origin["/usr/bin/sh"] != 0 {
+		t.Errorf("/usr/bin/sh origin = %d, want 0", origin["/usr/bin/sh"])
+	}
+}

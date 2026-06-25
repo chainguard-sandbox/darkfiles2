@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path/filepath"
 	"runtime"
 	"strings"
 
@@ -159,11 +160,11 @@ func parsePaths(data []byte) (map[string]struct{}, error) {
 }
 
 // normalize turns an SPDX fileName (recorded relative, e.g. "usr/bin/vault" or
-// "./usr/bin/vault") into the absolute form used by the image filesystem.
+// "./usr/bin/vault") into the absolute, clean form used by the image filesystem.
 func normalize(p string) string {
 	p = strings.TrimPrefix(p, "./")
 	if !strings.HasPrefix(p, "/") {
 		p = "/" + p
 	}
-	return p
+	return filepath.Clean(p)
 }

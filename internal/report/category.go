@@ -172,9 +172,9 @@ func isRuntimeGenerated(p string) bool {
 
 func isBuildMetadata(p string) bool {
 	exact := map[string]bool{
-		"/etc/apko.json":          true,
-		"/etc/ko-app":             true, // ko build metadata
-		"/var/lib/db/sbom":        true,
+		"/etc/apko.json":   true,
+		"/etc/ko-app":      true, // ko build metadata
+		"/var/lib/db/sbom": true,
 	}
 	if exact[p] {
 		return true

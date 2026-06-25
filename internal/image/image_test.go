@@ -109,10 +109,10 @@ func repeat(s string, n int) string {
 
 func TestWhiteoutDetection(t *testing.T) {
 	tests := []struct {
-		path      string
-		whiteout  bool
-		opaque    bool
-		wantTgt   string
+		path     string
+		whiteout bool
+		opaque   bool
+		wantTgt  string
 	}{
 		{"/app/.wh.foo", true, false, "/app/foo"},
 		{"/app/.wh..wh..opq", false, true, ""},
@@ -148,7 +148,7 @@ func TestIsPkgDBPath(t *testing.T) {
 		{"/var/lib/dpkg/info/bash.list", true},
 		{"/var/lib/dpkg/info/bash.md5sums", false},
 		{"/var/lib/rpm/Packages", true},
-		{"/var/lib/db/sbom/foo.spdx.json", true},
+		{"/var/lib/db/sbom/foo.spdx.json", false},
 		{"/etc/passwd", false},
 		{"/usr/bin/curl", false},
 	}
@@ -239,12 +239,12 @@ func TestLooksLikeLibrary(t *testing.T) {
 func TestResolveSymlink(t *testing.T) {
 	fs := &ImageFS{
 		Symlinks: map[string]string{
-			"/bin":       "/usr/bin",       // merged-usr directory symlink
-			"/usr/bin/sh": "busybox",       // relative symlink in same dir
-			"/a":         "/b",
-			"/b":         "/c",             // chain
-			"/loop1":     "/loop2",
-			"/loop2":     "/loop1",         // cycle
+			"/bin":        "/usr/bin", // merged-usr directory symlink
+			"/usr/bin/sh": "busybox",  // relative symlink in same dir
+			"/a":          "/b",
+			"/b":          "/c", // chain
+			"/loop1":      "/loop2",
+			"/loop2":      "/loop1", // cycle
 		},
 	}
 	tests := []struct {

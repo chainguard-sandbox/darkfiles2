@@ -104,42 +104,6 @@ func TestScanDpkgArchSuffix(t *testing.T) {
 	hasAll(t, got, "/usr/lib/libz.so.1")
 }
 
-func TestScanSBOM(t *testing.T) {
-	spdx := `{
-		"packages": [{"name": "mytool", "versionInfo": "1.0"}],
-		"files": [
-			{"fileName": "/usr/local/bin/mytool"},
-			{"fileName": "./etc/mytool/config"},
-			{"fileName": "relative/thing"}
-		]
-	}`
-	fs := &image.ImageFS{
-		FileContent: map[string][]byte{
-			"/var/lib/db/sbom/mytool.spdx.json": []byte(spdx),
-		},
-	}
-	got, err := scanSBOM(fs)
-	if err != nil {
-		t.Fatalf("scanSBOM: %v", err)
-	}
-	// Absolute kept; "./" and bare-relative normalized to absolute.
-	hasAll(t, got, "/usr/local/bin/mytool", "/etc/mytool/config", "/relative/thing")
-}
-
-func TestScanSBOMMalformedSkipped(t *testing.T) {
-	fs := &image.ImageFS{
-		FileContent: map[string][]byte{
-			"/var/lib/db/sbom/bad.spdx.json":  []byte("{not json"),
-			"/var/lib/db/sbom/good.spdx.json": []byte(`{"files":[{"fileName":"/ok"}]}`),
-		},
-	}
-	got, err := scanSBOM(fs)
-	if err != nil {
-		t.Fatalf("scanSBOM should not error on malformed input: %v", err)
-	}
-	hasAll(t, got, "/ok")
-}
-
 func TestScanRPMEmpty(t *testing.T) {
 	got, err := scanRPM(&image.ImageFS{})
 	if err != nil {
@@ -150,16 +114,12 @@ func TestScanRPMEmpty(t *testing.T) {
 	}
 }
 
-func TestTrackedFilesMergesSBOM(t *testing.T) {
-	// Wolfi image: APK db + an apko SBOM. TrackedFiles should union both and
-	// report the detected distro.
-	apk := "P:base\nF:usr/bin\nR:sh\n"
-	spdx := `{"files":[{"fileName":"/usr/local/extra"}]}`
+func TestTrackedFilesPkgDB(t *testing.T) {
+	// TrackedFiles uses the package database and reports the detected distro.
 	fs := &image.ImageFS{
 		OsRelease: map[string]string{"ID": "wolfi"},
 		FileContent: map[string][]byte{
-			"/usr/lib/apk/db/installed":       []byte(apk),
-			"/var/lib/db/sbom/base.spdx.json": []byte(spdx),
+			"/usr/lib/apk/db/installed": []byte("P:base\nF:usr/bin\nR:sh\n"),
 		},
 	}
 	tracked, distro, err := TrackedFiles(fs)
@@ -169,5 +129,5 @@ func TestTrackedFilesMergesSBOM(t *testing.T) {
 	if distro != "wolfi" {
 		t.Errorf("distro = %q, want wolfi", distro)
 	}
-	hasAll(t, tracked, "/usr/bin/sh", "/usr/local/extra")
+	hasAll(t, tracked, "/usr/bin/sh")
 }

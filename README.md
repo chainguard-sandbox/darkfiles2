@@ -1,7 +1,7 @@
 # darkfiles
 
 Find "dark" files in container images — files that exist in the image but are not
-tracked by any package manager or embedded SBOM.
+tracked by the package manager database.
 
 Dark files represent an unknown attack surface: they won't show up in vulnerability
 scanners that rely on package databases, they can hide malware or supply-chain
@@ -15,9 +15,11 @@ files, injected binaries).
 - **Handles merged-usr layouts** and busybox multi-call symlinks correctly (the
   original darkfiles got negative file counts because of double-counting; this
   version deduplicates paths and resolves full symlink chains)
-- **Reads in-image SBOMs** (apko-generated SPDX files in `/var/lib/db/sbom/`)
 - **Reports by file count and bytes** — a 1 000-file shell script collection is
   less alarming than a single 200 MB injected binary
+- **Cross-references an SBOM** (`--sbom`) — fetches the image's SPDX SBOM
+  attestation and excludes the files it documents from the dark set, reporting
+  them separately (primarily for DHI images)
 - **JSON output** for integration with pipelines and dashboards
 
 ## Installation
@@ -36,16 +38,16 @@ go build -o darkfiles .
 
 ## Usage
 
-Everything is done through a single `scan` command. By default it prints a
-statistics summary; flags switch on more detailed views.
+Run `darkfiles <image>` to scan an image. By default it prints a statistics
+summary; flags switch on more detailed views.
 
 ### Statistics summary (default)
 
 ```
-darkfiles scan alpine:latest
-darkfiles scan debian:latest
-darkfiles scan cgr.dev/chainguard/wolfi-base:latest
-darkfiles scan --format json cgr.dev/chainguard/static:latest
+darkfiles alpine:latest
+darkfiles debian:latest
+darkfiles cgr.dev/chainguard/wolfi-base:latest
+darkfiles --format json cgr.dev/chainguard/static:latest
 ```
 
 Example output:
@@ -67,7 +69,7 @@ Dark size:      2.1 KiB (0.0%)
 (Dockerfile instruction) that introduced them, with size and mode:
 
 ```
-darkfiles scan -d alpine:latest
+darkfiles -d alpine:latest
 ```
 
 ### Plain path list (for scripting)
@@ -75,9 +77,9 @@ darkfiles scan -d alpine:latest
 `--paths` emits matching file paths, one per line:
 
 ```
-darkfiles scan --paths debian:latest            # unknown files (default)
-darkfiles scan --paths --sizes debian:latest    # add file sizes
-darkfiles scan --paths --group debian:latest    # group by category
+darkfiles --paths debian:latest            # unknown files (default)
+darkfiles --paths --sizes debian:latest    # add file sizes
+darkfiles --paths --group debian:latest    # group by category
 ```
 
 ### Highlighting executable code
@@ -94,11 +96,53 @@ disambiguated by mode and path) and:
 Use `--code` to show only code files (composes with `--set`):
 
 ```
-darkfiles scan -d --code img            # dark binaries/libs/scripts, by layer
-darkfiles scan --paths --code img       # just their paths, for scripting
+darkfiles -d --code img            # dark binaries/libs/scripts, by layer
+darkfiles --paths --code img       # just their paths, for scripting
 ```
 
 The JSON output includes a `dark_code` object with per-kind counts.
+
+### Cross-referencing against an SBOM
+
+`--sbom` fetches the image's SPDX SBOM — published by DHI (Docker Hardened
+Images) and similar builders as an in-toto attestation attached via the OCI
+referrers API — and extracts every file path it records. Dark files that the
+SBOM documents are **not** treated as dark: they are accounted for by the SBOM,
+so they move into their own `In SBOM` bucket between tracked and dark:
+
+```
+darkfiles --sbom dhi.io/vault:2
+```
+
+```
+Image:          dhi.io/vault:2
+Distro:         debian
+Total files:    1050
+Total size:     432.4 MiB
+Tracked files:  287 (27.3%)
+Tracked size:   13.2 MiB (3.1%)
+In SBOM:        644 (61.3%)
+In SBOM size:   418.7 MiB (96.8%)
+Dark files:     119 (11.3%)
+Dark size:      536.8 KiB (0.1%)
+```
+
+The `Dark file breakdown` and `Dark code` lines then describe only the files
+that remain unaccounted for — neither tracked by a package nor documented by the
+SBOM. `Tracked`, `In SBOM`, and `Dark` partition every file in the image.
+
+Use `--sbom-file <path>` to cross-reference against a local SPDX file (an
+in-toto statement or a bare SPDX document) instead of fetching from the
+registry; this is required when scanning a `--tar` image. List the
+SBOM-accounted paths with `--set in-sbom`:
+
+```
+darkfiles --sbom --paths --set in-sbom dhi.io/vault:2
+darkfiles --sbom-file ./vault.spdx.json --tar ./vault.tar
+```
+
+The JSON output gains an `in_sbom` object (`{count, bytes}`) whenever an SBOM
+was applied, and `dark_files`/`dark_bytes` exclude the SBOM-accounted files.
 
 ### Selecting which files to show
 
@@ -106,24 +150,25 @@ The `--set` flag controls which files the `--detailed` and `--paths` views
 operate on (the summary always reports on everything):
 
 ```
-darkfiles scan -d --set unknown img    # unrecognised dark files only (default)
-darkfiles scan -d --set dark    img    # all dark files, incl. expected ones
-darkfiles scan --paths --set tracked img
-darkfiles scan --paths --set all img
+darkfiles -d --set unknown img    # unrecognised dark files only (default)
+darkfiles -d --set dark    img    # all dark files, incl. expected ones
+darkfiles --paths --set tracked img
+darkfiles --paths --set all img
 ```
 
 | `--set`   | meaning                                                  |
 |-----------|----------------------------------------------------------|
 | `unknown` | unrecognised dark files (default)                        |
 | `dark`    | all dark files, including expected (pkg state, `/dev`, …) |
-| `tracked` | files owned by a package or SBOM                         |
+| `tracked` | files owned by a package                                 |
 | `all`     | every file in the image                                  |
+| `in-sbom` | files accounted for by the SBOM (requires `--sbom`)      |
 
 ### Load from a local tar
 
 ```
-docker save myimage:latest | darkfiles scan --tar /dev/stdin
-darkfiles scan --tar ./myimage.tar -d --set dark
+docker save myimage:latest | darkfiles --tar /dev/stdin
+darkfiles --tar ./myimage.tar -d --set dark
 ```
 
 ## What counts as "dark"?
@@ -134,8 +179,6 @@ A file is dark if:
    `/usr/lib/apk/db/installed`, `/var/lib/dpkg/info/*.list`)
 2. It is **not a symlink** whose fully-resolved target is a tracked file — this
    correctly handles multi-call busybox, merged-usr hierarchies, etc.
-3. It is **not referenced** by an embedded SPDX SBOM (e.g. apko's per-package
-   SBOM files in `/var/lib/db/sbom/`)
 
 The percentage shown is `dark_files / total_files` and `dark_bytes / total_bytes`
 independently, because a single large binary is more concerning than many tiny
@@ -151,7 +194,6 @@ was archived after several correctness issues:
   packages was subtracted multiple times
 - **No OS auto-detection** ([#7](https://github.com/chainguard-dev/darkfiles/issues/7))
   — required manual `--distro` flag
-- **No SBOM support** — couldn't use in-image SBOMs to classify files
 - **Symlink handling** — busybox multi-call symlinks and merged-usr layouts were
   not resolved, causing nearly all of Alpine's `bin/` to appear dark
 

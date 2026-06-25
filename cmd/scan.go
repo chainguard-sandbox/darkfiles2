@@ -7,6 +7,7 @@ import (
 	"github.com/chainguard-dev/darkfiles2/internal/image"
 	"github.com/chainguard-dev/darkfiles2/internal/pkgdb"
 	"github.com/chainguard-dev/darkfiles2/internal/report"
+	"github.com/chainguard-dev/darkfiles2/internal/sbom"
 	"github.com/spf13/cobra"
 )
 
@@ -19,109 +20,109 @@ var scanFlags struct {
 	sizes    bool
 	code     bool
 	tar      string
+	sbom     bool
+	sbomFile string
 }
 
-var scanCmd = &cobra.Command{
-	Use:   "scan <image>",
-	Short: "Scan an image and report dark files",
-	Long: `scan analyzes a container image for dark files — files not referenced by
-any package manager database or attached SBOM.
+func runScan(cmd *cobra.Command, args []string) error {
+	if scanFlags.detailed && scanFlags.paths {
+		return fmt.Errorf("--detailed and --paths are mutually exclusive")
+	}
+	if !validSet(scanFlags.set) {
+		return fmt.Errorf("invalid --set %q: want unknown, dark, tracked, all, or in-sbom", scanFlags.set)
+	}
+	sbomEnabled := scanFlags.sbom || scanFlags.sbomFile != ""
+	if scanFlags.set == "in-sbom" && !sbomEnabled {
+		return fmt.Errorf("--set in-sbom requires --sbom or --sbom-file")
+	}
 
-By default it prints a statistics summary. Add --detailed to also list the
-dark files grouped by the layer (Dockerfile instruction) that introduced
-them, or --paths to emit a plain list of file paths for scripting.
+	ref, fs, err := loadFS(args, scanFlags.tar)
+	if err != nil {
+		return err
+	}
 
-The --set flag selects which files the --detailed and --paths views operate
-on:
-  unknown  unrecognised dark files (default)
-  dark     all dark files, including expected ones (pkg state, /dev, etc.)
-  tracked  files owned by a package or SBOM
-  all      every file in the image`,
-	Args: cobra.MaximumNArgs(1),
-	RunE: func(cmd *cobra.Command, args []string) error {
-		if scanFlags.detailed && scanFlags.paths {
-			return fmt.Errorf("--detailed and --paths are mutually exclusive")
-		}
-		if !validSet(scanFlags.set) {
-			return fmt.Errorf("invalid --set %q: want unknown, dark, tracked, or all", scanFlags.set)
-		}
+	r, _, warnErr := analyzeImage(ref, fs)
+	if warnErr != nil {
+		fmt.Fprintf(os.Stderr, "warning: %v\n", warnErr)
+	}
 
-		ref, fs, err := loadFS(args, scanFlags.tar)
+	if sbomEnabled {
+		paths, err := loadSBOM(args, scanFlags.tar, scanFlags.sbomFile)
 		if err != nil {
-			return err
+			return fmt.Errorf("cross-referencing SBOM: %w", err)
 		}
+		r.ApplySBOM(paths)
+	}
 
-		r, _, warnErr := analyzeImage(ref, fs)
-		if warnErr != nil {
-			fmt.Fprintf(os.Stderr, "warning: %v\n", warnErr)
+	// JSON always emits the structured summary, regardless of view flags.
+	if scanFlags.format == "json" {
+		return report.PrintJSON(os.Stdout, r)
+	}
+
+	// Plain path listing for scripting.
+	if scanFlags.paths {
+		sub := &report.Result{
+			ImageRef:  r.ImageRef,
+			Distro:    r.Distro,
+			DarkFiles: selectFiles(r, fs, scanFlags.set, scanFlags.code),
 		}
-
-		// JSON always emits the structured summary, regardless of view flags.
-		if scanFlags.format == "json" {
-			return report.PrintJSON(os.Stdout, r)
+		if scanFlags.sizes {
+			report.PrintDarkFilesDetailed(os.Stdout, sub, scanFlags.group)
+		} else {
+			report.PrintDarkFiles(os.Stdout, sub, scanFlags.group)
 		}
-
-		// Plain path listing for scripting.
-		if scanFlags.paths {
-			sub := &report.Result{
-				ImageRef:  r.ImageRef,
-				Distro:    r.Distro,
-				DarkFiles: selectFiles(r, fs, scanFlags.set, scanFlags.code),
-			}
-			if scanFlags.sizes {
-				report.PrintDarkFilesDetailed(os.Stdout, sub, scanFlags.group)
-			} else {
-				report.PrintDarkFiles(os.Stdout, sub, scanFlags.group)
-			}
-			return nil
-		}
-
-		// Default text view: stats summary, optionally + per-layer breakdown.
-		report.PrintStats(os.Stdout, r)
-
-		if !scanFlags.detailed {
-			if r.DarkCount() > 0 {
-				fmt.Println("\nUse -d to see further detail on dark file findings.")
-			}
-			return nil
-		}
-
-		files := selectFiles(r, fs, scanFlags.set, scanFlags.code)
-		if len(files) == 0 {
-			switch {
-			case scanFlags.code:
-				fmt.Println("\nNo dark code files found.")
-			case scanFlags.set == "unknown":
-				fmt.Println("\nNo unexpected dark files found. Use --set dark to include expected dark files.")
-			default:
-				fmt.Println("\nNo files to show.")
-			}
-			return nil
-		}
-		// Tag categories whenever the selection can mix categories.
-		report.PrintByLayer(os.Stdout, fs.Layers, files, scanFlags.set != "unknown", isTerminal(os.Stdout))
 		return nil
-	},
+	}
+
+	// Default text view: stats summary, optionally + per-layer breakdown.
+	report.PrintStats(os.Stdout, r)
+
+	if !scanFlags.detailed {
+		if r.DarkCount() > 0 {
+			fmt.Println("\nUse -d to see further detail on dark file findings.")
+		}
+		return nil
+	}
+
+	files := selectFiles(r, fs, scanFlags.set, scanFlags.code)
+	if len(files) == 0 {
+		switch {
+		case scanFlags.code:
+			fmt.Println("\nNo dark code files found.")
+		case scanFlags.set == "unknown":
+			fmt.Println("\nNo unexpected dark files found. Use --set dark to include expected dark files.")
+		default:
+			fmt.Println("\nNo files to show.")
+		}
+		return nil
+	}
+	// Tag categories whenever the selection can mix categories.
+	report.PrintByLayer(os.Stdout, fs.Layers, files, scanFlags.set != "unknown", isTerminal(os.Stdout))
+	return nil
 }
 
 func init() {
-	scanCmd.Flags().StringVar(&scanFlags.format, "format", "text", "Output format: text or json")
-	scanCmd.Flags().BoolVarP(&scanFlags.detailed, "detailed", "d", false,
+	rootCmd.Flags().StringVar(&scanFlags.format, "format", "text", "Output format: text or json")
+	rootCmd.Flags().BoolVarP(&scanFlags.detailed, "detailed", "d", false,
 		"List dark files grouped by the layer that introduced them")
-	scanCmd.Flags().BoolVar(&scanFlags.paths, "paths", false,
+	rootCmd.Flags().BoolVar(&scanFlags.paths, "paths", false,
 		"Print matching file paths only, one per line (for scripting)")
-	scanCmd.Flags().StringVar(&scanFlags.set, "set", "unknown",
+	rootCmd.Flags().StringVar(&scanFlags.set, "set", "unknown",
 		"Which files the --detailed/--paths views show: unknown, dark, tracked, or all")
-	scanCmd.Flags().BoolVar(&scanFlags.group, "group", false, "With --paths, group output by category")
-	scanCmd.Flags().BoolVar(&scanFlags.sizes, "sizes", false, "With --paths, show file sizes")
-	scanCmd.Flags().BoolVar(&scanFlags.code, "code", false,
+	rootCmd.Flags().BoolVar(&scanFlags.group, "group", false, "With --paths, group output by category")
+	rootCmd.Flags().BoolVar(&scanFlags.sizes, "sizes", false, "With --paths, show file sizes")
+	rootCmd.Flags().BoolVar(&scanFlags.code, "code", false,
 		"Show only code files: executables, shared/static libraries, and scripts")
-	scanCmd.Flags().StringVar(&scanFlags.tar, "tar", "", "Load image from local OCI tar file instead of a registry")
+	rootCmd.Flags().StringVar(&scanFlags.tar, "tar", "", "Load image from local OCI tar file instead of a registry")
+	rootCmd.Flags().BoolVar(&scanFlags.sbom, "sbom", false,
+		"Cross-reference dark files against the image's SPDX SBOM attestation and report which are listed in it")
+	rootCmd.Flags().StringVar(&scanFlags.sbomFile, "sbom-file", "",
+		"Cross-reference against a local SPDX SBOM file instead of fetching from the registry (implies --sbom)")
 }
 
 func validSet(s string) bool {
 	switch s {
-	case "unknown", "dark", "tracked", "all":
+	case "unknown", "dark", "tracked", "all", "in-sbom":
 		return true
 	default:
 		return false
@@ -134,6 +135,8 @@ func validSet(s string) bool {
 func selectFiles(r *report.Result, fs *image.ImageFS, set string, codeOnly bool) []report.CategorizedFile {
 	var files []report.CategorizedFile
 	switch set {
+	case "in-sbom":
+		files = r.SBOMFiles
 	case "dark":
 		files = r.DarkFiles
 	case "tracked", "all":
@@ -174,6 +177,33 @@ func analyzeImage(ref string, fs *image.ImageFS) (r *report.Result, tracked map[
 		return nil
 	})
 	return r, tracked, warnErr
+}
+
+// loadSBOM returns the set of file paths recorded in the image's SBOM, either
+// fetched from the registry (by image reference) or read from a local file.
+// Fetching from the registry needs a real image reference, so it is incompatible
+// with --tar unless --sbom-file is also supplied.
+func loadSBOM(args []string, tarPath, sbomFile string) (map[string]struct{}, error) {
+	ref := ""
+	if len(args) > 0 {
+		ref = args[0]
+	}
+	if sbomFile == "" {
+		if tarPath != "" {
+			return nil, fmt.Errorf("--sbom fetches the SBOM attestation from the registry and cannot be used with --tar; supply the SBOM with --sbom-file instead")
+		}
+		if ref == "" {
+			return nil, fmt.Errorf("--sbom requires an image reference")
+		}
+	}
+
+	var paths map[string]struct{}
+	err := withSpinner("Fetching and cross-referencing SBOM", func() error {
+		var e error
+		paths, e = sbom.FilePaths(ref, sbomFile)
+		return e
+	})
+	return paths, err
 }
 
 func loadFS(args []string, tarPath string) (string, *image.ImageFS, error) {

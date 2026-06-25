@@ -7,8 +7,8 @@ import (
 	"github.com/chainguard-dev/darkfiles2/internal/image"
 )
 
-// TrackedFiles returns the set of file paths tracked by any package manager
-// or embedded SBOM found in the image, plus the detected distro name.
+// TrackedFiles returns the set of file paths tracked by the package manager
+// database, plus the detected distro name.
 func TrackedFiles(fs *image.ImageFS) (map[string]struct{}, string, error) {
 	distro, scanner := detect(fs)
 
@@ -16,17 +16,6 @@ func TrackedFiles(fs *image.ImageFS) (map[string]struct{}, string, error) {
 	if err != nil {
 		return nil, distro, fmt.Errorf("scanning %s package db: %w", distro, err)
 	}
-
-	// Also merge in any in-image SBOMs (e.g. apko-generated SPDX files).
-	sbomTracked, err := scanSBOM(fs)
-	if err != nil {
-		// Non-fatal: log via caller if needed.
-		_ = err
-	}
-	for p := range sbomTracked {
-		tracked[p] = struct{}{}
-	}
-
 	return tracked, distro, nil
 }
 

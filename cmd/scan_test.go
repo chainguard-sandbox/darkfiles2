@@ -4,8 +4,8 @@ import (
 	"sort"
 	"testing"
 
-	"github.com/chainguard-dev/darkfiles2/internal/image"
-	"github.com/chainguard-dev/darkfiles2/internal/report"
+	"github.com/chainguard-sandbox/darkfiles2/internal/image"
+	"github.com/chainguard-sandbox/darkfiles2/internal/report"
 )
 
 func TestValidSet(t *testing.T) {

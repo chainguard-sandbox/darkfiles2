@@ -1,4 +1,4 @@
-module github.com/chainguard-dev/darkfiles2
+module github.com/chainguard-sandbox/darkfiles2
 
 go 1.26.2
 

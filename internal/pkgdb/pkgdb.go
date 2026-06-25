@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/chainguard-dev/darkfiles2/internal/image"
+	"github.com/chainguard-sandbox/darkfiles2/internal/image"
 )
 
 // TrackedFiles returns the set of file paths tracked by the package manager

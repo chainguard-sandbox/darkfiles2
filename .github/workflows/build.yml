@@ -1,0 +1,39 @@
+name: Build and push image
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  KO_DOCKER_REPO: ghcr.io/${{ github.repository }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Set up Go
+        uses: actions/setup-go@v6
+        with:
+          go-version-file: go.mod
+
+      - name: Set up ko
+        uses: ko-build/setup-ko@v0.9
+        with:
+          login: true
+
+      - name: Build and push image
+        run: |
+          ko build ./ \
+            --bare \
+            --tags "${GITHUB_REF_NAME},${GITHUB_SHA}"

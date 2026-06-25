@@ -29,8 +29,14 @@ func PrintStats(w io.Writer, r *Result) {
 	fmt.Fprintf(tw, "Distro:\t%s\n", r.Distro)
 	fmt.Fprintf(tw, "Total files:\t%d\n", r.TotalFiles)
 	fmt.Fprintf(tw, "Total size:\t%s\n", humanBytes(r.TotalBytes))
-	fmt.Fprintf(tw, "Tracked files:\t%d (%.1f%%)\n", r.TrackedFiles, 100-r.DarkFilePct())
-	fmt.Fprintf(tw, "Tracked size:\t%s (%.1f%%)\n", humanBytes(r.TrackedBytes), 100-r.DarkBytesPct())
+	fmt.Fprintf(tw, "Tracked files:\t%d (%.1f%%)\n", r.TrackedFiles, r.TrackedFilePct())
+	fmt.Fprintf(tw, "Tracked size:\t%s (%.1f%%)\n", humanBytes(r.TrackedBytes), r.TrackedBytesPct())
+	// When an SBOM was applied, the files it accounts for form a third bucket
+	// between tracked and dark: not package-tracked, but not dark either.
+	if r.SBOMChecked {
+		fmt.Fprintf(tw, "In SBOM:\t%d (%.1f%%)\n", r.SBOMCount(), r.SBOMFilePct())
+		fmt.Fprintf(tw, "In SBOM size:\t%s (%.1f%%)\n", humanBytes(r.SBOMBytes()), r.SBOMBytesPct())
+	}
 	fmt.Fprintf(tw, "Dark files:\t%d (%.1f%%)\n", r.DarkCount(), r.DarkFilePct())
 	fmt.Fprintf(tw, "Dark size:\t%s (%.1f%%)\n", humanBytes(r.DarkBytes()), r.DarkBytesPct())
 	tw.Flush()
@@ -126,6 +132,15 @@ func PrintJSON(w io.Writer, r *Result) error {
 		"dark_bytes_pct": r.DarkBytesPct(),
 		"categories":     cats,
 		"dark_code":      code,
+	}
+
+	// Only present when an SBOM was cross-referenced, so consumers can tell
+	// "no SBOM checked" apart from "checked, nothing matched".
+	if r.SBOMChecked {
+		out["in_sbom"] = map[string]int64{
+			"count": int64(r.SBOMCount()),
+			"bytes": r.SBOMBytes(),
+		}
 	}
 	enc := json.NewEncoder(w)
 	enc.SetIndent("", "  ")

@@ -19,7 +19,17 @@ type Result struct {
 	TrackedFiles int
 	TrackedBytes int64
 	// DarkFiles contains every untracked file, each tagged with a category.
+	// When an SBOM has been applied (see ApplySBOM), files the SBOM documents
+	// are moved out of this slice and into SBOMFiles, so they no longer count
+	// as dark.
 	DarkFiles []CategorizedFile
+	// SBOMFiles holds the untracked files that the image's SBOM documents. They
+	// are accounted for by the SBOM and therefore excluded from the dark set.
+	// Only populated after ApplySBOM.
+	SBOMFiles []CategorizedFile
+	// SBOMChecked is true once ApplySBOM has run, enabling the "In SBOM" summary
+	// line even when nothing matched.
+	SBOMChecked bool
 }
 
 func (r *Result) DarkCount() int { return len(r.DarkFiles) }
@@ -56,6 +66,69 @@ func (r *Result) UnknownFiles() []CategorizedFile {
 		}
 	}
 	return out
+}
+
+// ApplySBOM removes from the dark set every untracked file whose path the image's
+// SBOM documents, moving it into SBOMFiles. Such files are not tracked by the
+// package database but are accounted for by the SBOM, so they should not count
+// as dark. It records that the cross-reference ran so the summary can report on
+// it even when nothing matched.
+func (r *Result) ApplySBOM(paths map[string]struct{}) {
+	r.SBOMChecked = true
+	var dark []CategorizedFile
+	for _, f := range r.DarkFiles {
+		if _, ok := paths[f.Path]; ok {
+			r.SBOMFiles = append(r.SBOMFiles, f)
+		} else {
+			dark = append(dark, f)
+		}
+	}
+	r.DarkFiles = dark
+}
+
+// SBOMCount returns the number of files accounted for by the SBOM (i.e. moved
+// out of the dark set).
+func (r *Result) SBOMCount() int { return len(r.SBOMFiles) }
+
+// SBOMBytes returns the total size of the files accounted for by the SBOM.
+func (r *Result) SBOMBytes() int64 {
+	var n int64
+	for _, f := range r.SBOMFiles {
+		n += f.Size
+	}
+	return n
+}
+
+// SBOMFilePct returns the SBOM-accounted files as a percentage of all files.
+func (r *Result) SBOMFilePct() float64 {
+	if r.TotalFiles == 0 {
+		return 0
+	}
+	return 100.0 * float64(r.SBOMCount()) / float64(r.TotalFiles)
+}
+
+// SBOMBytesPct returns the SBOM-accounted bytes as a percentage of all bytes.
+func (r *Result) SBOMBytesPct() float64 {
+	if r.TotalBytes == 0 {
+		return 0
+	}
+	return 100.0 * float64(r.SBOMBytes()) / float64(r.TotalBytes)
+}
+
+// TrackedFilePct returns package-tracked files as a percentage of all files.
+func (r *Result) TrackedFilePct() float64 {
+	if r.TotalFiles == 0 {
+		return 0
+	}
+	return 100.0 * float64(r.TrackedFiles) / float64(r.TotalFiles)
+}
+
+// TrackedBytesPct returns package-tracked bytes as a percentage of all bytes.
+func (r *Result) TrackedBytesPct() float64 {
+	if r.TotalBytes == 0 {
+		return 0
+	}
+	return 100.0 * float64(r.TrackedBytes) / float64(r.TotalBytes)
 }
 
 // DarkCodeCounts counts dark files that are executable code, keyed by kind.

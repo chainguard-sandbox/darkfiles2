@@ -18,11 +18,11 @@ type FileKind int
 
 const (
 	// KindOther is anything not recognised as executable code.
-	KindOther FileKind = iota
-	KindExecutable    // ELF/Mach-O/PE executable
-	KindSharedLibrary // .so / .dylib shared object
-	KindScript        // shebang (#!) script
-	KindStaticLibrary // ar archive (.a)
+	KindOther         FileKind = iota
+	KindExecutable             // ELF/Mach-O/PE executable
+	KindSharedLibrary          // .so / .dylib shared object
+	KindScript                 // shebang (#!) script
+	KindStaticLibrary          // ar archive (.a)
 )
 
 func (k FileKind) String() string {
@@ -83,7 +83,7 @@ func (l Layer) Command() string {
 // ImageFS holds the flattened filesystem and image metadata.
 type ImageFS struct {
 	Files       []File
-	Layers      []Layer           // all history entries (including empty)
+	Layers      []Layer // all history entries (including empty)
 	OsRelease   map[string]string
 	FileContent map[string][]byte // package manager database files
 	Symlinks    map[string]string // path -> raw link target
@@ -190,8 +190,8 @@ func fromImage(img v1.Image) (*ImageFS, error) {
 	layerIdxMap := buildLayerIndexMap(layers)
 
 	// Overlay state: last writer wins.
-	fileOrigin := map[string]int{}  // path -> Layers slice index
-	fileInfo   := map[string]File{} // path -> latest File metadata
+	fileOrigin := map[string]int{} // path -> Layers slice index
+	fileInfo := map[string]File{}  // path -> latest File metadata
 
 	for realIdx, imgLayer := range imgLayers {
 		lIdx, ok := layerIdxMap[realIdx]
@@ -371,8 +371,8 @@ func cleanPath(name string) string {
 const magicLen = 18
 
 var (
-	elfMagic = []byte{0x7f, 'E', 'L', 'F'}
-	arMagic  = []byte("!<arch>\n")
+	elfMagic  = []byte{0x7f, 'E', 'L', 'F'}
+	arMagic   = []byte("!<arch>\n")
 	wasmMagic = []byte{0x00, 'a', 's', 'm'}
 )
 

@@ -16,10 +16,10 @@ func newFS(files []image.File, symlinks map[string]string) *image.ImageFS {
 
 func TestAnalyzeBasic(t *testing.T) {
 	files := []image.File{
-		{Path: "/usr/bin/curl", Size: 100},   // tracked
-		{Path: "/lib/libc.so", Size: 200},     // tracked
-		{Path: "/app/server", Size: 50},        // dark, unknown
-		{Path: "/etc/passwd", Size: 10},         // dark, runtime
+		{Path: "/usr/bin/curl", Size: 100}, // tracked
+		{Path: "/lib/libc.so", Size: 200},  // tracked
+		{Path: "/app/server", Size: 50},    // dark, unknown
+		{Path: "/etc/passwd", Size: 10},    // dark, runtime
 	}
 	tracked := map[string]struct{}{
 		"/usr/bin/curl": {},
@@ -160,6 +160,67 @@ func TestUnknownFilesAndByCategory(t *testing.T) {
 	}
 	if len(grouped[CategoryDeviceFile]) != 1 {
 		t.Errorf("ByCategory()[Device] = %d, want 1", len(grouped[CategoryDeviceFile]))
+	}
+}
+
+func TestApplySBOM(t *testing.T) {
+	r := &Result{
+		TotalFiles: 3,
+		TotalBytes: 180,
+		DarkFiles: []CategorizedFile{
+			{File: image.File{Path: "/usr/local/bin/vault", Size: 100}, Cat: CategoryUnknown},
+			{File: image.File{Path: "/app/mystery", Size: 50}, Cat: CategoryUnknown},
+			{File: image.File{Path: "/usr/bin/tini", Size: 30}, Cat: CategoryUnknown},
+		},
+	}
+	if r.SBOMChecked {
+		t.Fatal("SBOMChecked should be false before ApplySBOM")
+	}
+
+	r.ApplySBOM(map[string]struct{}{
+		"/usr/local/bin/vault": {},
+		"/usr/bin/tini":        {},
+		"/not/in/image":        {}, // SBOM path with no matching dark file
+	})
+
+	if !r.SBOMChecked {
+		t.Error("SBOMChecked should be true after ApplySBOM")
+	}
+	// Matched files are moved out of the dark set.
+	if got := r.SBOMCount(); got != 2 {
+		t.Errorf("SBOMCount() = %d, want 2", got)
+	}
+	if got := r.SBOMBytes(); got != 130 {
+		t.Errorf("SBOMBytes() = %d, want 130", got)
+	}
+	if got := r.DarkCount(); got != 1 {
+		t.Errorf("DarkCount() = %d, want 1 (SBOM files excluded)", got)
+	}
+	if got := r.DarkBytes(); got != 50 {
+		t.Errorf("DarkBytes() = %d, want 50", got)
+	}
+	if len(r.DarkFiles) != 1 || r.DarkFiles[0].Path != "/app/mystery" {
+		t.Errorf("DarkFiles should be only /app/mystery, got %+v", r.DarkFiles)
+	}
+	if len(r.SBOMFiles) != 2 {
+		t.Fatalf("SBOMFiles has %d, want 2", len(r.SBOMFiles))
+	}
+}
+
+func TestApplySBOMEmptyStillRecorded(t *testing.T) {
+	// Applying with no matches must still flip SBOMChecked, so the summary can
+	// show "0" rather than omitting the line entirely, and must not disturb the
+	// dark set.
+	r := &Result{DarkFiles: []CategorizedFile{{File: image.File{Path: "/a"}}}}
+	r.ApplySBOM(map[string]struct{}{})
+	if !r.SBOMChecked {
+		t.Error("SBOMChecked should be true even when nothing matched")
+	}
+	if r.SBOMCount() != 0 {
+		t.Errorf("SBOMCount() = %d, want 0", r.SBOMCount())
+	}
+	if r.DarkCount() != 1 {
+		t.Errorf("DarkCount() = %d, want 1 (unchanged)", r.DarkCount())
 	}
 }
 

@@ -17,6 +17,9 @@ files, injected binaries).
   version deduplicates paths and resolves full symlink chains)
 - **Reports by file count and bytes** — a 1 000-file shell script collection is
   less alarming than a single 200 MB injected binary
+- **Cross-references an SBOM** (`--sbom`) — fetches the image's SPDX SBOM
+  attestation and excludes the files it documents from the dark set, reporting
+  them separately (primarily for DHI images)
 - **JSON output** for integration with pipelines and dashboards
 
 ## Installation
@@ -99,6 +102,48 @@ darkfiles --paths --code img       # just their paths, for scripting
 
 The JSON output includes a `dark_code` object with per-kind counts.
 
+### Cross-referencing against an SBOM
+
+`--sbom` fetches the image's SPDX SBOM — published by DHI (Docker Hardened
+Images) and similar builders as an in-toto attestation attached via the OCI
+referrers API — and extracts every file path it records. Dark files that the
+SBOM documents are **not** treated as dark: they are accounted for by the SBOM,
+so they move into their own `In SBOM` bucket between tracked and dark:
+
+```
+darkfiles --sbom dhi.io/vault:2
+```
+
+```
+Image:          dhi.io/vault:2
+Distro:         debian
+Total files:    1050
+Total size:     432.4 MiB
+Tracked files:  287 (27.3%)
+Tracked size:   13.2 MiB (3.1%)
+In SBOM:        644 (61.3%)
+In SBOM size:   418.7 MiB (96.8%)
+Dark files:     119 (11.3%)
+Dark size:      536.8 KiB (0.1%)
+```
+
+The `Dark file breakdown` and `Dark code` lines then describe only the files
+that remain unaccounted for — neither tracked by a package nor documented by the
+SBOM. `Tracked`, `In SBOM`, and `Dark` partition every file in the image.
+
+Use `--sbom-file <path>` to cross-reference against a local SPDX file (an
+in-toto statement or a bare SPDX document) instead of fetching from the
+registry; this is required when scanning a `--tar` image. List the
+SBOM-accounted paths with `--set in-sbom`:
+
+```
+darkfiles --sbom --paths --set in-sbom dhi.io/vault:2
+darkfiles --sbom-file ./vault.spdx.json --tar ./vault.tar
+```
+
+The JSON output gains an `in_sbom` object (`{count, bytes}`) whenever an SBOM
+was applied, and `dark_files`/`dark_bytes` exclude the SBOM-accounted files.
+
 ### Selecting which files to show
 
 The `--set` flag controls which files the `--detailed` and `--paths` views
@@ -117,6 +162,7 @@ darkfiles --paths --set all img
 | `dark`    | all dark files, including expected (pkg state, `/dev`, …) |
 | `tracked` | files owned by a package                                 |
 | `all`     | every file in the image                                  |
+| `in-sbom` | files accounted for by the SBOM (requires `--sbom`)      |
 
 ### Load from a local tar
 

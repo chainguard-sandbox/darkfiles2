@@ -79,8 +79,11 @@ func dpkgInstalledPackages(fs *image.ImageFS) map[string]struct{} {
 		if strings.HasPrefix(line, "Package:") {
 			currentPkg = strings.TrimSpace(strings.TrimPrefix(line, "Package:"))
 		} else if strings.HasPrefix(line, "Status:") {
-			// Status: install ok installed
-			isInstalled = strings.Contains(line, "installed")
+			// Status field format: "Status: <want> <flag> <status>"
+			// Only "install ok installed" is fully installed; states like
+			// "half-installed" or "half-configured" must not be counted.
+			fields := strings.Fields(strings.TrimPrefix(line, "Status:"))
+			isInstalled = len(fields) >= 3 && fields[2] == "installed"
 		}
 	}
 	if currentPkg != "" && isInstalled {

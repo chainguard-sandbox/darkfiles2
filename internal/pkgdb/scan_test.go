@@ -104,6 +104,39 @@ func TestScanDpkgArchSuffix(t *testing.T) {
 	hasAll(t, got, "/usr/lib/libz.so.1")
 }
 
+func TestScanDpkgHalfInstalled(t *testing.T) {
+	// Packages in "half-installed" or "half-configured" states must NOT be
+	// treated as fully installed; only "install ok installed" qualifies.
+	status := "" +
+		"Package: broken\n" +
+		"Status: install ok half-installed\n" +
+		"\n" +
+		"Package: partial\n" +
+		"Status: install ok half-configured\n" +
+		"\n" +
+		"Package: good\n" +
+		"Status: install ok installed\n"
+	fs := &image.ImageFS{
+		FileContent: map[string][]byte{
+			"/var/lib/dpkg/status":           []byte(status),
+			"/var/lib/dpkg/info/broken.list": []byte("/usr/bin/broken\n"),
+			"/var/lib/dpkg/info/partial.list": []byte("/usr/bin/partial\n"),
+			"/var/lib/dpkg/info/good.list":   []byte("/usr/bin/good\n"),
+		},
+	}
+	got, err := scanDpkg(fs)
+	if err != nil {
+		t.Fatalf("scanDpkg: %v", err)
+	}
+	hasAll(t, got, "/usr/bin/good")
+	if _, ok := got["/usr/bin/broken"]; ok {
+		t.Error("half-installed package files should not be tracked")
+	}
+	if _, ok := got["/usr/bin/partial"]; ok {
+		t.Error("half-configured package files should not be tracked")
+	}
+}
+
 func TestScanRPMEmpty(t *testing.T) {
 	got, err := scanRPM(&image.ImageFS{})
 	if err != nil {

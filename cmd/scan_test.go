@@ -9,7 +9,7 @@ import (
 )
 
 func TestValidSet(t *testing.T) {
-	for _, s := range []string{"unknown", "dark", "tracked", "all"} {
+	for _, s := range []string{"unknown", "dark", "tracked", "all", "in-sbom"} {
 		if !validSet(s) {
 			t.Errorf("validSet(%q) = false, want true", s)
 		}

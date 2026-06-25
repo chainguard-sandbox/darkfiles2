@@ -108,7 +108,7 @@ func init() {
 	rootCmd.Flags().BoolVar(&scanFlags.paths, "paths", false,
 		"Print matching file paths only, one per line (for scripting)")
 	rootCmd.Flags().StringVar(&scanFlags.set, "set", "unknown",
-		"Which files the --detailed/--paths views show: unknown, dark, tracked, or all")
+		"Which files the --detailed/--paths views show: unknown, dark, tracked, all, or in-sbom")
 	rootCmd.Flags().BoolVar(&scanFlags.group, "group", false, "With --paths, group output by category")
 	rootCmd.Flags().BoolVar(&scanFlags.sizes, "sizes", false, "With --paths, show file sizes")
 	rootCmd.Flags().BoolVar(&scanFlags.code, "code", false,

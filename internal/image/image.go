@@ -257,7 +257,10 @@ func scanLayerTar(
 
 		if name == "/etc/os-release" || name == "/usr/lib/os-release" {
 			data, _ := io.ReadAll(tr)
-			if hdr.Typeflag != tar.TypeSymlink && len(fs.OsRelease) == 0 {
+			// Last layer wins — consistent with overlay FS semantics. Symlink
+			// entries (e.g. /etc/os-release -> /usr/lib/os-release on Alpine) are
+			// skipped so we only parse real files.
+			if hdr.Typeflag != tar.TypeSymlink {
 				fs.OsRelease = parseOsRelease(string(data))
 			}
 			continue
@@ -282,12 +285,18 @@ func scanLayerTar(
 			Size: hdr.Size,
 			Mode: uint32(hdr.Mode),
 		}
-		if hdr.Typeflag == tar.TypeSymlink || hdr.Typeflag == tar.TypeLink {
+		switch hdr.Typeflag {
+		case tar.TypeSymlink:
 			f.IsSymlink = true
 			f.LinkTarget = hdr.Linkname
 			fs.Symlinks[name] = hdr.Linkname
 			io.Copy(io.Discard, tr)
-		} else {
+		case tar.TypeLink:
+			// Hard links share an inode with another file in the archive; there
+			// is no body to read. Classify by name and mode only (no magic bytes)
+			// and do NOT add to Symlinks — hard links are not symbolic links.
+			f.Kind = classifyKind(name, hdr.Mode, nil)
+		default:
 			// Sniff the leading bytes to classify executables/libraries, then
 			// drain the rest. We never retain full file content.
 			magic := make([]byte, magicLen)
@@ -307,8 +316,6 @@ func buildLayerMetadata(img v1.Image) ([]Layer, error) {
 		return nil, fmt.Errorf("reading image config: %w", err)
 	}
 	rootfs := cf.RootFS
-	if err != nil {
-	}
 
 	var layers []Layer
 	realIdx := 0

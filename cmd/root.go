@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -31,6 +32,12 @@ on:
 	Args:         cobra.MaximumNArgs(1),
 	RunE:         runScan,
 	SilenceUsage: true,
+}
+
+// SetVersionInfo wires build metadata into the --version output. The values
+// are injected at build time by GoReleaser via -ldflags -X main.{version,commit,date}.
+func SetVersionInfo(version, commit, date string) {
+	rootCmd.Version = fmt.Sprintf("%s (commit %s, built %s)", version, commit, date)
 }
 
 func Execute() {

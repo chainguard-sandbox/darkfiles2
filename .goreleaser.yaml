@@ -1,0 +1,54 @@
+version: 2
+
+before:
+  hooks:
+    - go mod tidy
+
+builds:
+  - id: darkfiles
+    binary: darkfiles
+    main: .
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - darwin
+    goarch:
+      - amd64
+      - arm64
+    ldflags:
+      - -s -w
+      - -X main.version={{.Version}}
+      - -X main.commit={{.Commit}}
+      - -X main.date={{.Date}}
+
+archives:
+  - id: darkfiles
+    formats: [tar.gz]
+    name_template: >-
+      {{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}
+
+checksum:
+  name_template: "checksums.txt"
+
+kos:
+  - id: darkfiles
+    build: darkfiles
+    repositories:
+      - ghcr.io/{{ tolower .Env.GITHUB_REPOSITORY }}
+    bare: true
+    tags:
+      - "{{ .Version }}"
+      - latest
+    platforms:
+      - linux/amd64
+      - linux/arm64
+
+release:
+  github:
+    owner: chainguard-sandbox
+    name: darkfiles2
+
+changelog:
+  use: github
+  sort: asc

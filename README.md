@@ -184,27 +184,12 @@ The percentage shown is `dark_files / total_files` and `dark_bytes / total_bytes
 independently, because a single large binary is more concerning than many tiny
 config files.
 
-## Why not the original darkfiles?
+## Why Darkfiles*2*
 
-The original [chainguard-dev/darkfiles](https://github.com/chainguard-dev/darkfiles)
-was archived after several correctness issues:
+There was an original [chainguard-dev/darkfiles](https://github.com/chainguard-dev/darkfiles) project that was archived. This is a rewrite that fixes several shortcomings and improves reporting.
 
-- **Negative file counts** ([#3](https://github.com/chainguard-dev/darkfiles/issues/3))
-  — caused by not deduplicating the tracked-file set; a file owned by multiple
-  packages was subtracted multiple times
-- **No OS auto-detection** ([#7](https://github.com/chainguard-dev/darkfiles/issues/7))
-  — required manual `--distro` flag
-- **Symlink handling** — busybox multi-call symlinks and merged-usr layouts were
-  not resolved, causing nearly all of Alpine's `bin/` to appear dark
-
-This rewrite addresses all of the above.
 
 ## Limitations
 
-- **RPM-based images** (RHEL, Fedora, Rocky): the RPM database is a BDB/SQLite
-  file that requires CGO or native tooling to read. A pure-Go implementation is
-  on the roadmap; for now RPM images will report all files as dark.
-- **Multi-platform images**: the tool pulls the platform that matches the host
-  by default (via `crane`'s default keychain).
-- **Opaque layers**: `.wh.` whiteout entries are correctly handled by
-  `crane.Export`'s flattening logic.
+- **RPM-based images** (RHEL, Fedora, Rocky): there is currently no support for RPM based distros.
+- **Multi-platform images**: the tool pulls the platform that matches the host.

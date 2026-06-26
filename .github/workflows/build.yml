@@ -18,15 +18,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: chainguard-actions/actions-checkout@v7.0.0
+        uses: chainguard-actions/actions-checkout@5c571b05fb026b9251781bee09aadc0d09736c72 # v7.0.0
 
       - name: Set up Go
-        uses: chainguard-actions/actions-setup-go@v6.4.0
+        uses: chainguard-actions/actions-setup-go@cc864fd2bb59d9b99b8c323236ab64187b3d3e1e # v6.4.0
         with:
           go-version-file: go.mod
 
       - name: Set up ko
-        uses: chainguard-actions/ko-build-setup-ko@v0.9
+        uses: chainguard-actions/ko-build-setup-ko@dca4262918741e59f4bb4ee4d96203c61fb10a19 # v0.9
         with:
           login: true
 

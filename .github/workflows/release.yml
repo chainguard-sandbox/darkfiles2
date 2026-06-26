@@ -14,24 +14,24 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: chainguard-actions/actions-checkout@v7.0.0
+        uses: chainguard-actions/actions-checkout@5c571b05fb026b9251781bee09aadc0d09736c72 # v7.0.0
         with:
           fetch-depth: 0
 
       - name: Set up Go
-        uses: chainguard-actions/actions-setup-go@v6.4.0
+        uses: chainguard-actions/actions-setup-go@cc864fd2bb59d9b99b8c323236ab64187b3d3e1e # v6.4.0
         with:
           go-version-file: go.mod
 
       - name: Log in to ghcr.io
-        uses: chainguard-actions/docker-login-action@v4.2.0
+        uses: chainguard-actions/docker-login-action@2ec1a61ac7d5854002f4e3df1f32cc1d02994f76 # v4.2.0
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Run GoReleaser
-        uses: chainguard-actions/goreleaser-goreleaser-action@v7.2.2
+        uses: chainguard-actions/goreleaser-goreleaser-action@7c64773cc04d3281910fe0c87f70511960b2f971 # v7.2.2
         with:
           version: "~> v2"
           args: release --clean

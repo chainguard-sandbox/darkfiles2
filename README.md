@@ -184,7 +184,7 @@ The percentage shown is `dark_files / total_files` and `dark_bytes / total_bytes
 independently, because a single large binary is more concerning than many tiny
 config files.
 
-## Why Darkfiles*2*
+## Why the 2 in Darkfiles2?
 
 There was an original [chainguard-dev/darkfiles](https://github.com/chainguard-dev/darkfiles) project that was archived. This is a rewrite that fixes several shortcomings and improves reporting.
 

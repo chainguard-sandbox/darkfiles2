@@ -90,3 +90,50 @@ func TestPrintByLayerColorEscaping(t *testing.T) {
 		t.Errorf("unbalanced colour/reset sequences:\n%q", out)
 	}
 }
+
+func TestSanitize(t *testing.T) {
+	cases := []struct {
+		name, in, want string
+	}{
+		{"plain", "/usr/bin/vault", "/usr/bin/vault"},
+		{"unicode kept", "/usr/share/café", "/usr/share/café"},
+		{"esc", "/bin/\x1b[31mevil", `/bin/\x1b[31mevil`},
+		{"newline", "a\nb", `a\x0ab`},
+		{"carriage return", "a\rb", `a\x0db`},
+		{"tab", "a\tb", `a\x09b`},
+		{"del", "a\x7fb", `a\x7fb`},
+		{"c1 rune", "a\u009bb", `a\x9bb`},
+		{"invalid utf8", "a\x9bb", `a\ufffdb`},
+	}
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			if got := sanitize(c.in); got != c.want {
+				t.Errorf("sanitize(%q) = %q, want %q", c.in, got, c.want)
+			}
+		})
+	}
+}
+
+func TestPrintByLayerSanitizesUntrustedStrings(t *testing.T) {
+	// A malicious image embeds ANSI escapes and newlines in the layer command,
+	// a file path, and a symlink target. None should reach the output verbatim.
+	layers := []image.Layer{{Index: 0, CreatedBy: "RUN \033[2Jevil"}}
+	files := []CategorizedFile{
+		{File: image.File{Path: "/x\033[31m/p", Size: 1, Mode: 0o644}, Cat: CategoryUnknown},
+		{File: image.File{Path: "/link", Size: 0, Mode: 0o777, IsSymlink: true, LinkTarget: "/target\nFAKE"}, Cat: CategoryUnknown},
+	}
+	var buf bytes.Buffer
+	PrintByLayer(&buf, layers, files, false, false)
+	out := buf.String()
+
+	if strings.Contains(out, "\033") {
+		t.Errorf("raw ESC leaked into output:\n%q", out)
+	}
+	// The injected newline in the symlink target must be escaped, not literal.
+	if strings.Contains(out, "/target\nFAKE") {
+		t.Errorf("raw newline leaked from symlink target:\n%q", out)
+	}
+	if !strings.Contains(out, `\x1b`) {
+		t.Errorf("expected escaped ESC sequence in output:\n%q", out)
+	}
+}

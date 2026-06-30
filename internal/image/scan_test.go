@@ -187,6 +187,80 @@ func TestScanLayerTarOpaqueWhiteout(t *testing.T) {
 	}
 }
 
+func TestScanLayerTarWhiteoutClearsPkgDB(t *testing.T) {
+	fs, origin, info := newScanState()
+	l0 := buildTar(t, []tarEntry{
+		{name: "usr/lib/apk/db/installed", body: "C:Q1\nP:curl\nF:usr/bin\nR:curl\n"},
+		{name: "usr/bin/curl", mode: 0o755, body: "ELF..."},
+	})
+	// A later layer removes the package db (e.g. image slimming) while leaving
+	// the installed files in place.
+	l1 := buildTar(t, []tarEntry{
+		{name: "usr/lib/apk/db/.wh.installed"},
+	})
+
+	if err := scanLayerTar(bytes.NewReader(l0), 0, fs, origin, info); err != nil {
+		t.Fatal(err)
+	}
+	if err := scanLayerTar(bytes.NewReader(l1), 1, fs, origin, info); err != nil {
+		t.Fatal(err)
+	}
+
+	if _, ok := fs.FileContent["/usr/lib/apk/db/installed"]; ok {
+		t.Error("apk db content should be cleared after its whiteout")
+	}
+	// The installed file itself still exists; it just isn't tracked anymore.
+	if _, ok := info["/usr/bin/curl"]; !ok {
+		t.Error("/usr/bin/curl should survive the db whiteout")
+	}
+}
+
+func TestScanLayerTarWhiteoutClearsOsRelease(t *testing.T) {
+	fs, origin, info := newScanState()
+	l0 := buildTar(t, []tarEntry{
+		{name: "etc/os-release", body: "ID=alpine\n"},
+	})
+	l1 := buildTar(t, []tarEntry{
+		{name: "etc/.wh.os-release"},
+	})
+
+	if err := scanLayerTar(bytes.NewReader(l0), 0, fs, origin, info); err != nil {
+		t.Fatal(err)
+	}
+	if err := scanLayerTar(bytes.NewReader(l1), 1, fs, origin, info); err != nil {
+		t.Fatal(err)
+	}
+
+	if id := fs.OsRelease["ID"]; id != "" {
+		t.Errorf("OsRelease[ID] = %q, want empty after os-release whiteout", id)
+	}
+}
+
+func TestScanLayerTarOpaqueWhiteoutClearsCache(t *testing.T) {
+	fs, origin, info := newScanState()
+	l0 := buildTar(t, []tarEntry{
+		{name: "var/lib/dpkg/status", body: "Package: curl\nStatus: install ok installed\n"},
+		{name: "var/lib/dpkg/info/curl.list", body: "/usr/bin/curl\n"},
+	})
+	// Opaque whiteout on the dpkg dir wipes the whole tree.
+	l1 := buildTar(t, []tarEntry{
+		{name: "var/lib/dpkg/.wh..wh..opq"},
+	})
+
+	if err := scanLayerTar(bytes.NewReader(l0), 0, fs, origin, info); err != nil {
+		t.Fatal(err)
+	}
+	if err := scanLayerTar(bytes.NewReader(l1), 1, fs, origin, info); err != nil {
+		t.Fatal(err)
+	}
+
+	for _, gone := range []string{"/var/lib/dpkg/status", "/var/lib/dpkg/info/curl.list"} {
+		if _, ok := fs.FileContent[gone]; ok {
+			t.Errorf("%s should be cleared by opaque whiteout", gone)
+		}
+	}
+}
+
 func TestScanLayerTarOsReleaseLastWriterWins(t *testing.T) {
 	// A later layer replacing /etc/os-release must take precedence (last-writer-wins),
 	// consistent with overlay FS semantics.

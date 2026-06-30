@@ -107,6 +107,10 @@ func platformDigest(r name.Reference, opts []remote.Option) (name.Digest, error)
 	return name.Digest{}, fmt.Errorf("no manifest for platform %s/%s in %s", want.OS, want.Architecture, r)
 }
 
+// maxAttestationSize bounds the attestation blob we buffer. Referrer content is
+// untrusted registry data; SPDX SBOMs are well under this even for large images.
+const maxAttestationSize = 512 << 20 // 512 MiB
+
 // readAttestation pulls a referrer manifest and returns its first layer — the
 // in-toto statement blob.
 func readAttestation(d name.Digest, opts []remote.Option) ([]byte, error) {
@@ -126,7 +130,14 @@ func readAttestation(d name.Digest, opts []remote.Option) ([]byte, error) {
 		return nil, fmt.Errorf("opening attestation layer: %w", err)
 	}
 	defer rc.Close()
-	return io.ReadAll(rc)
+	data, err := io.ReadAll(io.LimitReader(rc, maxAttestationSize+1))
+	if err != nil {
+		return nil, err
+	}
+	if int64(len(data)) > maxAttestationSize {
+		return nil, fmt.Errorf("attestation %s exceeds %d byte limit", d, maxAttestationSize)
+	}
+	return data, nil
 }
 
 // parsePaths extracts file paths from data, which may be an in-toto statement

@@ -8,9 +8,42 @@ import (
 	"sort"
 	"strings"
 	"text/tabwriter"
+	"unicode/utf8"
 
 	"github.com/chainguard-sandbox/darkfiles2/internal/image"
 )
+
+// sanitize makes an untrusted string from the image — a file path, symlink
+// target, or layer command — safe to print to a terminal. Control characters
+// (C0 including ESC/CR/LF/tab, DEL, and the C1 range) and invalid UTF-8 are
+// replaced with a visible \xNN/\uNNNN escape, so a malicious image cannot inject
+// terminal escape sequences or forge the report layout via embedded newlines.
+func sanitize(s string) string {
+	if !strings.ContainsFunc(s, unsafeForTerminal) {
+		return s
+	}
+	var b strings.Builder
+	b.Grow(len(s))
+	for _, r := range s {
+		switch {
+		case !unsafeForTerminal(r):
+			b.WriteRune(r)
+		case r < 0x100:
+			fmt.Fprintf(&b, `\x%02x`, r)
+		default:
+			fmt.Fprintf(&b, `\u%04x`, r)
+		}
+	}
+	return b.String()
+}
+
+// unsafeForTerminal reports whether r is a control character or invalid UTF-8,
+// neither of which should reach the terminal verbatim from untrusted content.
+// Tab and newline are included: the printers supply their own \t/\n separators,
+// so any in the content itself would corrupt column alignment or line structure.
+func unsafeForTerminal(r rune) bool {
+	return r < 0x20 || r == 0x7f || (r >= 0x80 && r <= 0x9f) || r == utf8.RuneError
+}
 
 // categoryOrder controls the display order of categories in stats output.
 var categoryOrder = []Category{
@@ -156,7 +189,7 @@ func PrintDarkFiles(w io.Writer, r *Result, grouped bool) {
 	}
 	paths := sortedPaths(r.DarkFiles)
 	for _, p := range paths {
-		fmt.Fprintln(w, p)
+		fmt.Fprintln(w, sanitize(p))
 	}
 }
 
@@ -168,7 +201,7 @@ func PrintDarkFilesDetailed(w io.Writer, r *Result, grouped bool) {
 	}
 	tw := tabwriter.NewWriter(w, 0, 0, 2, ' ', 0)
 	for _, f := range sortedFiles(r.DarkFiles) {
-		fmt.Fprintf(tw, "%s\t%s%s\n", f.Path, humanBytes(f.Size), kindTag(f))
+		fmt.Fprintf(tw, "%s\t%s%s\n", sanitize(f.Path), humanBytes(f.Size), kindTag(f))
 	}
 	tw.Flush()
 }
@@ -192,9 +225,9 @@ func printGrouped(w io.Writer, r *Result, detailed bool) {
 		fmt.Fprintf(w, "\n── %s (%d) ──\n", cat.String(), len(files))
 		for _, f := range sortedFiles(files) {
 			if detailed {
-				fmt.Fprintf(tw, "  %s\t%s%s\n", f.Path, humanBytes(f.Size), kindTag(f))
+				fmt.Fprintf(tw, "  %s\t%s%s\n", sanitize(f.Path), humanBytes(f.Size), kindTag(f))
 			} else {
-				fmt.Fprintln(w, " ", f.Path)
+				fmt.Fprintln(w, " ", sanitize(f.Path))
 			}
 		}
 		if detailed {
@@ -234,7 +267,7 @@ func PrintByLayer(w io.Writer, layers []image.Layer, files []CategorizedFile, sh
 			fmt.Fprintf(w, " [%s]", diffID)
 		}
 		fmt.Fprintln(w)
-		fmt.Fprintf(w, "│  %s\n", cmd)
+		fmt.Fprintf(w, "│  %s\n", sanitize(cmd))
 		fmt.Fprintf(w, "│  %d file(s)\n", len(lf))
 		fmt.Fprintln(w, "│")
 
@@ -246,7 +279,7 @@ func PrintByLayer(w io.Writer, layers []image.Layer, files []CategorizedFile, sh
 			if showCat {
 				tag += fmt.Sprintf("  [%s]", f.Cat)
 			}
-			path, size, mode := f.Path, humanBytes(f.Size), formatMode(f.File)
+			path, size, mode := sanitize(f.Path), humanBytes(f.Size), formatMode(f.File)
 			if color && f.Kind.IsCode() {
 				path = paint(codeColor, path)
 				size = paint(codeColor, size)
@@ -286,7 +319,7 @@ func shortDigest(d string) string {
 
 func formatMode(f image.File) string {
 	if f.IsSymlink {
-		return fmt.Sprintf("-> %s", f.LinkTarget)
+		return fmt.Sprintf("-> %s", sanitize(f.LinkTarget))
 	}
 	return iofs.FileMode(f.Mode).String()
 }

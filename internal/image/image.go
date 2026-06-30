@@ -150,6 +150,33 @@ func isPkgDBPath(path string) bool {
 	return false
 }
 
+func isOsReleasePath(path string) bool {
+	return path == "/etc/os-release" || path == "/usr/lib/os-release"
+}
+
+// forgetCachedPath drops cached pkg-db bytes and distro info for a path removed
+// by a whiteout, keeping fs.FileContent/fs.OsRelease consistent with overlay
+// state. Without this, a deleted package db would still mark its files tracked.
+func forgetCachedPath(fs *ImageFS, path string) {
+	delete(fs.FileContent, path)
+	if isOsReleasePath(path) {
+		fs.OsRelease = map[string]string{}
+	}
+}
+
+// forgetCachedPrefix is forgetCachedPath for an opaque whiteout, which removes
+// every entry under dir (prefix ends in "/").
+func forgetCachedPrefix(fs *ImageFS, prefix string) {
+	for p := range fs.FileContent {
+		if strings.HasPrefix(p, prefix) {
+			delete(fs.FileContent, p)
+		}
+	}
+	if strings.HasPrefix("/etc/os-release", prefix) || strings.HasPrefix("/usr/lib/os-release", prefix) {
+		fs.OsRelease = map[string]string{}
+	}
+}
+
 // Load pulls an image by reference and returns its layered filesystem.
 func Load(ref string) (*ImageFS, error) {
 	img, err := crane.Pull(ref, crane.WithAuthFromKeychain(defaultKeychain()))
@@ -240,6 +267,7 @@ func scanLayerTar(
 			target := whiteoutTarget(name)
 			delete(fileOrigin, target)
 			delete(fileInfo, target)
+			forgetCachedPath(fs, target)
 			io.Copy(io.Discard, tr)
 			continue
 		}
@@ -251,6 +279,7 @@ func scanLayerTar(
 					delete(fileInfo, p)
 				}
 			}
+			forgetCachedPrefix(fs, dir+"/")
 			io.Copy(io.Discard, tr)
 			continue
 		}

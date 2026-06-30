@@ -285,7 +285,10 @@ func scanLayerTar(
 		}
 
 		if name == "/etc/os-release" || name == "/usr/lib/os-release" {
-			data, _ := io.ReadAll(tr)
+			data, err := readCapped(tr, maxOsReleaseSize)
+			if err != nil {
+				return fmt.Errorf("reading %s: %w", name, err)
+			}
 			// Last layer wins — consistent with overlay FS semantics. Symlink
 			// entries (e.g. /etc/os-release -> /usr/lib/os-release on Alpine) are
 			// skipped so we only parse real files.
@@ -296,7 +299,7 @@ func scanLayerTar(
 		}
 
 		if isPkgDBPath(name) {
-			data, err := io.ReadAll(tr)
+			data, err := readCapped(tr, maxPkgDBSize)
 			if err != nil {
 				return fmt.Errorf("reading %s: %w", name, err)
 			}
@@ -405,6 +408,29 @@ func cleanPath(name string) string {
 // enough to reach the ELF e_type field (offset 16) which splits executables
 // from shared objects.
 const magicLen = 18
+
+// Caps on members we buffer entirely. Images are untrusted input, so a
+// malicious entry could otherwise consume unbounded memory.
+const (
+	// maxOsReleaseSize bounds /etc/os-release. Real files are well under 1 KB.
+	maxOsReleaseSize = 1 << 20 // 1 MiB
+	// maxPkgDBSize bounds a package-manager database file. Legitimate dpkg/rpm
+	// databases reach tens of MiB on large images; this leaves ample headroom.
+	maxPkgDBSize = 512 << 20 // 512 MiB
+)
+
+// readCapped reads up to max+1 bytes from r and reports an error if the member
+// exceeds max, so an oversized entry can't exhaust memory.
+func readCapped(r io.Reader, max int64) ([]byte, error) {
+	data, err := io.ReadAll(io.LimitReader(r, max+1))
+	if err != nil {
+		return nil, err
+	}
+	if int64(len(data)) > max {
+		return nil, fmt.Errorf("member exceeds %d byte limit", max)
+	}
+	return data, nil
+}
 
 var (
 	elfMagic  = []byte{0x7f, 'E', 'L', 'F'}

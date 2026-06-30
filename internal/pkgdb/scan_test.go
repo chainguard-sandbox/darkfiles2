@@ -118,10 +118,10 @@ func TestScanDpkgHalfInstalled(t *testing.T) {
 		"Status: install ok installed\n"
 	fs := &image.ImageFS{
 		FileContent: map[string][]byte{
-			"/var/lib/dpkg/status":           []byte(status),
-			"/var/lib/dpkg/info/broken.list": []byte("/usr/bin/broken\n"),
+			"/var/lib/dpkg/status":            []byte(status),
+			"/var/lib/dpkg/info/broken.list":  []byte("/usr/bin/broken\n"),
 			"/var/lib/dpkg/info/partial.list": []byte("/usr/bin/partial\n"),
-			"/var/lib/dpkg/info/good.list":   []byte("/usr/bin/good\n"),
+			"/var/lib/dpkg/info/good.list":    []byte("/usr/bin/good\n"),
 		},
 	}
 	got, err := scanDpkg(fs)

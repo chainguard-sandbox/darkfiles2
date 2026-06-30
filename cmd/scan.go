@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"errors"
 	"fmt"
 	"os"
 
@@ -22,6 +23,8 @@ var scanFlags struct {
 	tar      string
 	sbom     bool
 	sbomFile string
+	sbomKey  string
+	insecure bool
 }
 
 func runScan(cmd *cobra.Command, args []string) error {
@@ -47,11 +50,18 @@ func runScan(cmd *cobra.Command, args []string) error {
 	}
 
 	if sbomEnabled {
-		paths, err := loadSBOM(args, scanFlags.tar, scanFlags.sbomFile)
-		if err != nil {
+		paths, err := loadSBOM(args, scanFlags.tar, scanFlags.sbomFile, scanFlags.sbomKey, scanFlags.insecure)
+		switch {
+		case errors.Is(err, sbom.ErrUnverified):
+			// The SBOM could not be tied to a trusted key. Don't trust it to hide
+			// dark files; warn and leave the dark set intact.
+			fmt.Fprintf(os.Stderr, "warning: not applying SBOM: %v\n", err)
+			fmt.Fprintf(os.Stderr, "         (pass --insecure-sbom to cross-reference an unverified SBOM)\n")
+		case err != nil:
 			return fmt.Errorf("cross-referencing SBOM: %w", err)
+		default:
+			r.ApplySBOM(paths)
 		}
-		r.ApplySBOM(paths)
 	}
 
 	// JSON always emits the structured summary, regardless of view flags.
@@ -118,6 +128,10 @@ func init() {
 		"Cross-reference dark files against the image's SPDX SBOM attestation and report which are listed in it")
 	rootCmd.Flags().StringVar(&scanFlags.sbomFile, "sbom-file", "",
 		"Cross-reference against a local SPDX SBOM file instead of fetching from the registry (implies --sbom)")
+	rootCmd.Flags().StringVar(&scanFlags.sbomKey, "sbom-key", "",
+		"PEM public key to verify the registry SBOM attestation signature (default: embedded Docker Hardened Images key)")
+	rootCmd.Flags().BoolVar(&scanFlags.insecure, "insecure-sbom", false,
+		"Skip signature verification of the registry SBOM attestation (trust it unverified)")
 }
 
 func validSet(s string) bool {
@@ -183,7 +197,7 @@ func analyzeImage(ref string, fs *image.ImageFS) (r *report.Result, tracked map[
 // fetched from the registry (by image reference) or read from a local file.
 // Fetching from the registry needs a real image reference, so it is incompatible
 // with --tar unless --sbom-file is also supplied.
-func loadSBOM(args []string, tarPath, sbomFile string) (map[string]struct{}, error) {
+func loadSBOM(args []string, tarPath, sbomFile, keyFile string, insecure bool) (map[string]struct{}, error) {
 	ref := ""
 	if len(args) > 0 {
 		ref = args[0]
@@ -197,10 +211,19 @@ func loadSBOM(args []string, tarPath, sbomFile string) (map[string]struct{}, err
 		}
 	}
 
+	opts := sbom.Options{SBOMFile: sbomFile, Insecure: insecure}
+	if keyFile != "" {
+		key, err := os.ReadFile(keyFile)
+		if err != nil {
+			return nil, fmt.Errorf("reading --sbom-key: %w", err)
+		}
+		opts.KeyPEM = key
+	}
+
 	var paths map[string]struct{}
 	err := withSpinner("Fetching and cross-referencing SBOM", func() error {
 		var e error
-		paths, e = sbom.FilePaths(ref, sbomFile)
+		paths, e = sbom.FilePaths(ref, opts)
 		return e
 	})
 	return paths, err

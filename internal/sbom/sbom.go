@@ -50,19 +50,35 @@ func readCappedFile(path string, max int64) ([]byte, error) {
 	return data, nil
 }
 
+// Options configures how the SBOM is located and trusted.
+type Options struct {
+	// SBOMFile, when set, is a local SPDX file to parse instead of fetching from
+	// the registry. It is supplied by the user and therefore trusted as-is — no
+	// signature verification is performed on it.
+	SBOMFile string
+	// KeyPEM overrides the public key used to verify a registry-fetched SBOM
+	// attestation. When nil, the embedded Docker Hardened Images key is used.
+	KeyPEM []byte
+	// Insecure skips signature verification of a registry-fetched SBOM. The
+	// resulting paths are then trusted without provenance.
+	Insecure bool
+}
+
 // FilePaths returns the set of absolute file paths recorded in the image's SPDX
-// SBOM. When sbomFile is non-empty it parses that local file (an in-toto
+// SBOM. When o.SBOMFile is non-empty it parses that local file (an in-toto
 // statement or a bare SPDX document); otherwise it fetches the SPDX attestation
-// from the registry via the OCI referrers API.
-func FilePaths(ref, sbomFile string) (map[string]struct{}, error) {
+// from the registry via the OCI referrers API and, unless o.Insecure, verifies
+// its cosign signature against the trusted key. A verification failure is wrapped
+// with ErrUnverified so the caller can skip cross-referencing rather than abort.
+func FilePaths(ref string, o Options) (map[string]struct{}, error) {
 	var data []byte
 	var err error
-	if sbomFile != "" {
-		if data, err = readCappedFile(sbomFile, maxSBOMFileSize); err != nil {
+	if o.SBOMFile != "" {
+		if data, err = readCappedFile(o.SBOMFile, maxSBOMFileSize); err != nil {
 			return nil, err
 		}
 	} else {
-		if data, err = fetchSPDX(ref); err != nil {
+		if data, err = fetchSPDX(ref, o); err != nil {
 			return nil, err
 		}
 	}
@@ -70,8 +86,9 @@ func FilePaths(ref, sbomFile string) (map[string]struct{}, error) {
 }
 
 // fetchSPDX resolves the image to its host-platform manifest, queries the OCI
-// referrers API for an SPDX attestation, and returns the raw in-toto statement.
-func fetchSPDX(ref string) ([]byte, error) {
+// referrers API for an SPDX attestation, optionally verifies its signature, and
+// returns the raw in-toto statement.
+func fetchSPDX(ref string, o Options) ([]byte, error) {
 	r, err := name.ParseReference(ref)
 	if err != nil {
 		return nil, fmt.Errorf("parsing reference %q: %w", ref, err)
@@ -96,7 +113,21 @@ func fetchSPDX(ref string) ([]byte, error) {
 		if m.Annotations[predicateTypeAnnotation] != spdxPredicateType {
 			continue
 		}
-		return readAttestation(r.Context().Digest(m.Digest.String()), opts)
+		attDigest := r.Context().Digest(m.Digest.String())
+		if !o.Insecure {
+			keyPEM := o.KeyPEM
+			if keyPEM == nil {
+				keyPEM = dhiKeyPEM
+			}
+			key, err := parseECDSAKey(keyPEM)
+			if err != nil {
+				return nil, fmt.Errorf("loading SBOM verification key: %w", err)
+			}
+			if err := verifyAttestation(attDigest, key, opts); err != nil {
+				return nil, err // wrapped with ErrUnverified
+			}
+		}
+		return readAttestation(attDigest, opts)
 	}
 	return nil, fmt.Errorf("no SPDX SBOM attestation found for %s (predicate-type %s)", imgDigest, spdxPredicateType)
 }

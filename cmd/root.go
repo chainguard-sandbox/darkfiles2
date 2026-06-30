@@ -21,6 +21,9 @@ them, or --paths to emit a plain list of file paths for scripting.
 Add --sbom to cross-reference against the image's SPDX SBOM attestation
 (primarily for DHI images). Files the SBOM documents are treated as
 accounted-for and excluded from the dark set, reported on their own line.
+The attestation's cosign signature is verified against Docker's published
+DHI key (override with --sbom-key); if it cannot be verified the SBOM is
+not applied unless --insecure-sbom is given.
 
 The --set flag selects which files the --detailed and --paths views operate
 on:

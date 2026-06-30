@@ -131,6 +131,16 @@ The `Dark file breakdown` and `Dark code` lines then describe only the files
 that remain unaccounted for — neither tracked by a package nor documented by the
 SBOM. `Tracked`, `In SBOM`, and `Dark` partition every file in the image.
 
+Because the SBOM determines which files are excluded from the dark set, a
+registry-fetched SBOM is only trusted once its cosign signature is verified.
+darkfiles verifies the SPDX attestation against Docker's published DHI signing
+key (embedded in the binary; Rekor is ignored, as DHI does not always publish to
+the transparency log). If verification fails — a non-DHI image, a missing
+signature, or a bad one — the SBOM is **not** applied and the files stay dark,
+with a warning. Override the key with `--sbom-key <pem>`, or skip verification
+entirely with `--insecure-sbom`. A local `--sbom-file` is trusted as supplied and
+is not verified.
+
 Use `--sbom-file <path>` to cross-reference against a local SPDX file (an
 in-toto statement or a bare SPDX document) instead of fetching from the
 registry; this is required when scanning a `--tar` image. List the

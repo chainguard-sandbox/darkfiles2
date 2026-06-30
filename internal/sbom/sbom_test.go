@@ -119,7 +119,7 @@ func TestFilePathsLocalFileTooLarge(t *testing.T) {
 		t.Error("expected oversized SBOM file to be rejected")
 	}
 	// Sanity check: within a generous limit it still parses correctly.
-	got, err := FilePaths("", path)
+	got, err := FilePaths("", Options{SBOMFile: path})
 	if err != nil {
 		t.Fatalf("FilePaths: %v", err)
 	}

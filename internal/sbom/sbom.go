@@ -26,6 +26,30 @@ const predicateTypeAnnotation = "in-toto.io/predicate-type"
 // spdxPredicateType is the in-toto predicate type for an SPDX document.
 const spdxPredicateType = "https://spdx.dev/Document"
 
+// maxSBOMFileSize bounds a local --sbom-file we read into memory before parsing.
+// An SBOM may come from an untrusted source (a downloaded artifact, a CI output),
+// and parsePaths buffers and json.Unmarshals the whole document, so an oversized
+// file could otherwise consume unbounded memory. Real SPDX SBOMs are far smaller.
+const maxSBOMFileSize = 512 << 20 // 512 MiB
+
+// readCappedFile reads up to max bytes from path, erroring if the file is larger
+// rather than buffering it whole.
+func readCappedFile(path string, max int64) ([]byte, error) {
+	f, err := os.Open(path)
+	if err != nil {
+		return nil, err
+	}
+	defer f.Close()
+	data, err := io.ReadAll(io.LimitReader(f, max+1))
+	if err != nil {
+		return nil, err
+	}
+	if int64(len(data)) > max {
+		return nil, fmt.Errorf("SBOM file %s exceeds %d byte limit", path, max)
+	}
+	return data, nil
+}
+
 // FilePaths returns the set of absolute file paths recorded in the image's SPDX
 // SBOM. When sbomFile is non-empty it parses that local file (an in-toto
 // statement or a bare SPDX document); otherwise it fetches the SPDX attestation
@@ -34,7 +58,7 @@ func FilePaths(ref, sbomFile string) (map[string]struct{}, error) {
 	var data []byte
 	var err error
 	if sbomFile != "" {
-		if data, err = os.ReadFile(sbomFile); err != nil {
+		if data, err = readCappedFile(sbomFile, maxSBOMFileSize); err != nil {
 			return nil, err
 		}
 	} else {

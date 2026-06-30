@@ -1,7 +1,10 @@
 package sbom
 
 import (
+	"os"
+	"path/filepath"
 	"reflect"
+	"strings"
 	"testing"
 )
 
@@ -68,16 +71,60 @@ func TestParsePathsInvalid(t *testing.T) {
 
 func TestNormalize(t *testing.T) {
 	cases := map[string]string{
-		"usr/bin/vault":         "/usr/bin/vault",
-		"./usr/bin/vault":       "/usr/bin/vault",
-		"/usr/bin/vault":        "/usr/bin/vault",
-		"./usr/../bin/vault":    "/bin/vault",     // dot-dot cleaned
-		"usr//bin//vault":       "/usr/bin/vault", // double slashes cleaned
+		"usr/bin/vault":      "/usr/bin/vault",
+		"./usr/bin/vault":    "/usr/bin/vault",
+		"/usr/bin/vault":     "/usr/bin/vault",
+		"./usr/../bin/vault": "/bin/vault",     // dot-dot cleaned
+		"usr//bin//vault":    "/usr/bin/vault", // double slashes cleaned
 	}
 	for in, want := range cases {
 		if got := normalize(in); got != want {
 			t.Errorf("normalize(%q) = %q, want %q", in, got, want)
 		}
+	}
+}
+
+func TestReadCappedFile(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, "sbom.json")
+	if err := os.WriteFile(path, []byte("0123456789"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	// At or under the limit: returns the full contents.
+	if got, err := readCappedFile(path, 10); err != nil || string(got) != "0123456789" {
+		t.Errorf("readCappedFile(max=10) = %q, %v; want full contents, nil", got, err)
+	}
+
+	// Over the limit: errors instead of buffering.
+	if _, err := readCappedFile(path, 5); err == nil {
+		t.Error("readCappedFile(max=5) should error on an oversized file")
+	}
+
+	// Missing file: surfaces the open error.
+	if _, err := readCappedFile(filepath.Join(dir, "nope.json"), 10); err == nil {
+		t.Error("readCappedFile on a missing file should error")
+	}
+}
+
+func TestFilePathsLocalFileTooLarge(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, "huge.json")
+	// A valid-looking but oversized document must be rejected before parsing.
+	big := `{"files":[` + strings.Repeat(`{"fileName":"/a"},`, 100) + `{"fileName":"/b"}]}`
+	if err := os.WriteFile(path, []byte(big), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := readCappedFile(path, 16); err == nil {
+		t.Error("expected oversized SBOM file to be rejected")
+	}
+	// Sanity check: within a generous limit it still parses correctly.
+	got, err := FilePaths("", path)
+	if err != nil {
+		t.Fatalf("FilePaths: %v", err)
+	}
+	if _, ok := got["/a"]; !ok {
+		t.Errorf("FilePaths() = %v, want to include /a", keys(got))
 	}
 }
 

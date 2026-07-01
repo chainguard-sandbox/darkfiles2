@@ -1,0 +1,63 @@
+name: Test
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  # Manual and weekly runs also exercise the network-dependent system tests.
+  workflow_dispatch:
+  schedule:
+    - cron: "0 6 * * 1" # Mondays 06:00 UTC
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: chainguard-actions/actions-checkout@5c571b05fb026b9251781bee09aadc0d09736c72 # v7.0.0
+
+      - name: Set up Go
+        uses: chainguard-actions/actions-setup-go@cc864fd2bb59d9b99b8c323236ab64187b3d3e1e # v6.4.0
+        with:
+          go-version-file: go.mod
+
+      - name: gofmt
+        run: |
+          unformatted=$(gofmt -l .)
+          if [ -n "$unformatted" ]; then
+            echo "These files are not gofmt-clean:"
+            echo "$unformatted"
+            exit 1
+          fi
+
+      - name: go vet
+        run: go vet ./...
+
+      - name: Build
+        run: go build ./...
+
+      - name: Test
+        run: go test -short ./...
+
+  # Snapshot tests that pull real images from public registries. Run only on
+  # manual dispatch and the weekly schedule, not on every PR.
+  system-tests:
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: chainguard-actions/actions-checkout@5c571b05fb026b9251781bee09aadc0d09736c72 # v7.0.0
+
+      - name: Set up Go
+        uses: chainguard-actions/actions-setup-go@cc864fd2bb59d9b99b8c323236ab64187b3d3e1e # v6.4.0
+        with:
+          go-version-file: go.mod
+
+      - name: System snapshot tests
+        env:
+          RUN_SYSTEM_TESTS: "1"
+        run: go test ./test/system/...

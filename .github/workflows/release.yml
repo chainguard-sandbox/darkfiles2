@@ -19,7 +19,7 @@ jobs:
           fetch-depth: 0
 
       - name: Set up Go
-        uses: chainguard-actions/actions-setup-go@cc864fd2bb59d9b99b8c323236ab64187b3d3e1e # v6.4.0
+        uses: chainguard-actions/actions-setup-go@a5e8c9530cdd8d86c8c1e22fe4e2d0668896f7c7 # v6.5.0
         with:
           go-version-file: go.mod
 

@@ -1,0 +1,30 @@
+{
+  "categories": {
+    "Package manager state": {
+      "count": 57,
+      "bytes": 165315
+    },
+    "Runtime-generated": {
+      "count": 3,
+      "bytes": 201
+    },
+    "Unknown": {
+      "count": 44,
+      "bytes": 63898767
+    }
+  },
+  "dark_bytes": 64064283,
+  "dark_bytes_pct": 68.67855250770215,
+  "dark_code": {
+    "executable": 3,
+    "shared library": 4
+  },
+  "dark_file_pct": 9.344115004492362,
+  "dark_files": 104,
+  "distro": "debian",
+  "image": "dhi.io/redis@sha256:66bdfc025c61d246509621e078846ab4c9a33c7125fe55450d55e7c8a853c4f9",
+  "total_bytes": 93281353,
+  "total_files": 1113,
+  "tracked_bytes": 29217070,
+  "tracked_files": 1009
+}

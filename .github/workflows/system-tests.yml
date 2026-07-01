@@ -1,0 +1,47 @@
+name: System tests
+
+# Snapshot tests that pull real, digest-pinned images from public registries and
+# compare darkfiles' output to golden baselines. They run on pull requests that
+# touch analysis code (path-filtered so docs/CI-only PRs skip them) and on manual
+# dispatch. Because they depend on external registries, the run is retried to ride
+# out transient availability blips.
+on:
+  pull_request:
+    paths:
+      - "internal/**"
+      - "cmd/**"
+      - "main.go"
+      - "go.mod"
+      - "go.sum"
+      - "test/system/**"
+      - ".github/workflows/system-tests.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  system-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: chainguard-actions/actions-checkout@5c571b05fb026b9251781bee09aadc0d09736c72 # v7.0.0
+
+      - name: Set up Go
+        uses: chainguard-actions/actions-setup-go@cc864fd2bb59d9b99b8c323236ab64187b3d3e1e # v6.4.0
+        with:
+          go-version-file: go.mod
+
+      - name: System snapshot tests
+        env:
+          RUN_SYSTEM_TESTS: "1"
+        run: |
+          for attempt in 1 2 3; do
+            if go test -count=1 ./test/system/...; then
+              exit 0
+            fi
+            echo "::warning::system tests attempt $attempt failed; retrying"
+            sleep 10
+          done
+          echo "::error::system tests failed after 3 attempts"
+          exit 1

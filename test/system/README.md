@@ -29,10 +29,16 @@ Each image is pinned to its **linux/amd64 manifest digest** (not the multi-arch
 index) so the pulled bytes, and therefore the output, are identical regardless of
 host architecture:
 
-- `cgr.dev/chainguard/static` — Wolfi/apk, minimal
-- `cgr.dev/chainguard/wolfi-base` — Wolfi/apk, more packages
+- `cgr.dev/chainguard/static` — Wolfi/apk, minimal (anonymous pull)
+- `cgr.dev/chainguard/wolfi-base` — Wolfi/apk, more packages (anonymous pull)
 - `dhi.io/redis` — Debian/dpkg; also exercises signed SPDX SBOM verification
   (`--sbom`) and reclassification
+
+The `dhi.io` cases require a Docker account: run `docker login` first. Without
+credentials the pull returns 401 and those cases **skip** (rather than fail), so
+the anonymously-pullable `cgr.dev` cases still run — this is what happens on CI's
+anonymous runners. To cover the DHI/SBOM cases in CI, add a registry login step
+with credentials.
 
 To bump an image, update the digest const in `system_test.go`, run with
 `-update`, and commit the new baseline.

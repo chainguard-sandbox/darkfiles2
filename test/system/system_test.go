@@ -22,6 +22,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -71,18 +72,31 @@ func TestSnapshots(t *testing.T) {
 	cases := []struct {
 		name   string
 		golden string
-		args   []string
+		// needsAuth marks images (DHI) that are not anonymously pullable. When the
+		// pull fails with an auth error the case is skipped rather than failed, so
+		// anonymous CI still runs the cgr.dev cases while authed runs cover DHI.
+		needsAuth bool
+		args      []string
 	}{
-		{"static", "static.json", []string{"--format", "json", staticImg}},
-		{"wolfi-base", "wolfi-base.json", []string{"--format", "json", wolfiBaseImg}},
-		{"redis", "redis.json", []string{"--format", "json", redisImg}},
+		{"static", "static.json", false, []string{"--format", "json", staticImg}},
+		{"wolfi-base", "wolfi-base.json", false, []string{"--format", "json", wolfiBaseImg}},
+		{"redis", "redis.json", true, []string{"--format", "json", redisImg}},
 		// Exercises the SBOM signature-verification + reclassification path.
-		{"redis-sbom", "redis-sbom.json", []string{"--sbom", "--format", "json", redisImg}},
+		{"redis-sbom", "redis-sbom.json", true, []string{"--sbom", "--format", "json", redisImg}},
 	}
 
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			got := runDarkfiles(t, tc.args...)
+			got, stderr, err := runDarkfiles(tc.args...)
+			if err != nil {
+				if tc.needsAuth && isAuthError(stderr) {
+					t.Skipf("%s: image requires registry auth (run `docker login`); skipping.\nstderr:\n%s", tc.name, stderr)
+				}
+				t.Fatalf("darkfiles %v failed: %v\nstderr:\n%s", tc.args, err, stderr)
+			}
+			if stderr != "" {
+				t.Logf("stderr:\n%s", stderr)
+			}
 			goldenPath := filepath.Join("testdata", tc.golden)
 
 			if *update {
@@ -105,19 +119,20 @@ func TestSnapshots(t *testing.T) {
 	}
 }
 
-// runDarkfiles runs the built binary and returns stdout, failing on nonzero exit
-// (stderr, e.g. an unverified-SBOM warning, is surfaced via the test log).
-func runDarkfiles(t *testing.T, args ...string) []byte {
-	t.Helper()
-	var stdout, stderr bytes.Buffer
+// runDarkfiles runs the built binary and returns stdout, stderr, and the exit
+// error (nil on success).
+func runDarkfiles(args ...string) (stdout []byte, stderr string, err error) {
+	var out, errb bytes.Buffer
 	cmd := exec.Command(binPath, args...)
-	cmd.Stdout = &stdout
-	cmd.Stderr = &stderr
-	if err := cmd.Run(); err != nil {
-		t.Fatalf("darkfiles %v failed: %v\nstderr:\n%s", args, err, stderr.String())
-	}
-	if stderr.Len() > 0 {
-		t.Logf("stderr:\n%s", stderr.String())
-	}
-	return stdout.Bytes()
+	cmd.Stdout = &out
+	cmd.Stderr = &errb
+	err = cmd.Run()
+	return out.Bytes(), errb.String(), err
+}
+
+// isAuthError reports whether a pull failed for lack of registry credentials
+// (DHI images are gated behind a Docker account), as opposed to a real error.
+func isAuthError(stderr string) bool {
+	s := strings.ToLower(stderr)
+	return strings.Contains(s, "401") || strings.Contains(s, "unauthorized")
 }

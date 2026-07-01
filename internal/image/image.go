@@ -154,22 +154,29 @@ func isOsReleasePath(path string) bool {
 	return path == "/etc/os-release" || path == "/usr/lib/os-release"
 }
 
-// forgetCachedPath drops cached pkg-db bytes and distro info for a path removed
-// by a whiteout, keeping fs.FileContent/fs.OsRelease consistent with overlay
-// state. Without this, a deleted package db would still mark its files tracked.
-func forgetCachedPath(fs *ImageFS, path string) {
+// forgetPath drops all derived state for a path removed by a whiteout — cached
+// pkg-db bytes, distro info, and any symlink alias — keeping fs consistent with
+// overlay state. Without this, a deleted package db would still mark its files
+// tracked, and a deleted symlink could still redirect ResolveSymlink.
+func forgetPath(fs *ImageFS, path string) {
 	delete(fs.FileContent, path)
+	delete(fs.Symlinks, path)
 	if isOsReleasePath(path) {
 		fs.OsRelease = map[string]string{}
 	}
 }
 
-// forgetCachedPrefix is forgetCachedPath for an opaque whiteout, which removes
-// every entry under dir (prefix ends in "/").
-func forgetCachedPrefix(fs *ImageFS, prefix string) {
+// forgetPrefix is forgetPath for an opaque whiteout, which removes every entry
+// under dir (prefix ends in "/").
+func forgetPrefix(fs *ImageFS, prefix string) {
 	for p := range fs.FileContent {
 		if strings.HasPrefix(p, prefix) {
 			delete(fs.FileContent, p)
+		}
+	}
+	for p := range fs.Symlinks {
+		if strings.HasPrefix(p, prefix) {
+			delete(fs.Symlinks, p)
 		}
 	}
 	if strings.HasPrefix("/etc/os-release", prefix) || strings.HasPrefix("/usr/lib/os-release", prefix) {
@@ -267,7 +274,7 @@ func scanLayerTar(
 			target := whiteoutTarget(name)
 			delete(fileOrigin, target)
 			delete(fileInfo, target)
-			forgetCachedPath(fs, target)
+			forgetPath(fs, target)
 			io.Copy(io.Discard, tr)
 			continue
 		}
@@ -279,7 +286,7 @@ func scanLayerTar(
 					delete(fileInfo, p)
 				}
 			}
-			forgetCachedPrefix(fs, dir+"/")
+			forgetPrefix(fs, dir+"/")
 			io.Copy(io.Discard, tr)
 			continue
 		}
@@ -308,6 +315,9 @@ func scanLayerTar(
 		}
 
 		if hdr.Typeflag == tar.TypeDir {
+			// A directory overwrites any earlier symlink at this path; drop the
+			// stale alias so ResolveSymlink doesn't follow a path that is gone.
+			delete(fs.Symlinks, name)
 			io.Copy(io.Discard, tr)
 			continue
 		}
@@ -335,6 +345,11 @@ func scanLayerTar(
 			n, _ := io.ReadFull(tr, magic)
 			io.Copy(io.Discard, tr)
 			f.Kind = classifyKind(name, hdr.Mode, magic[:n])
+		}
+		if hdr.Typeflag != tar.TypeSymlink {
+			// A non-symlink entry overwrites any earlier symlink at this path; drop
+			// the stale alias so ResolveSymlink doesn't follow a path that is gone.
+			delete(fs.Symlinks, name)
 		}
 		fileOrigin[name] = layerIdx
 		fileInfo[name] = f

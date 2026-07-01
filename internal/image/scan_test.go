@@ -215,6 +215,89 @@ func TestScanLayerTarWhiteoutClearsPkgDB(t *testing.T) {
 	}
 }
 
+func TestScanLayerTarWhiteoutPrunesSymlink(t *testing.T) {
+	fs, origin, info := newScanState()
+	l0 := buildTar(t, []tarEntry{
+		{name: "usr/lib64", typeflag: tar.TypeSymlink, linkname: "lib"},
+	})
+	l1 := buildTar(t, []tarEntry{
+		{name: "usr/.wh.lib64"}, // whiteout deletes the /usr/lib64 symlink
+	})
+
+	if err := scanLayerTar(bytes.NewReader(l0), 0, fs, origin, info); err != nil {
+		t.Fatal(err)
+	}
+	if _, ok := fs.Symlinks["/usr/lib64"]; !ok {
+		t.Fatal("precondition: symlink should be recorded after layer 0")
+	}
+	if err := scanLayerTar(bytes.NewReader(l1), 1, fs, origin, info); err != nil {
+		t.Fatal(err)
+	}
+
+	// The deleted alias must not linger in Symlinks, else ResolveSymlink would
+	// still rewrite /usr/lib64/... paths after the symlink is gone.
+	if _, ok := fs.Symlinks["/usr/lib64"]; ok {
+		t.Error("whiteout should prune /usr/lib64 from fs.Symlinks")
+	}
+	if got := fs.ResolveSymlink("/usr/lib64/libc.so"); got != "/usr/lib64/libc.so" {
+		t.Errorf("ResolveSymlink after whiteout = %q, want unchanged path", got)
+	}
+}
+
+func TestScanLayerTarOpaqueWhiteoutPrunesSymlink(t *testing.T) {
+	fs, origin, info := newScanState()
+	l0 := buildTar(t, []tarEntry{
+		{name: "usr/lib64", typeflag: tar.TypeSymlink, linkname: "lib"},
+		{name: "usr/keep", body: "x"},
+	})
+	l1 := buildTar(t, []tarEntry{
+		{name: "usr/.wh..wh..opq"}, // clears everything previously under usr/
+	})
+
+	if err := scanLayerTar(bytes.NewReader(l0), 0, fs, origin, info); err != nil {
+		t.Fatal(err)
+	}
+	if err := scanLayerTar(bytes.NewReader(l1), 1, fs, origin, info); err != nil {
+		t.Fatal(err)
+	}
+
+	if _, ok := fs.Symlinks["/usr/lib64"]; ok {
+		t.Error("opaque whiteout should prune /usr/lib64 from fs.Symlinks")
+	}
+}
+
+func TestScanLayerTarOverwriteSymlinkPrunesAlias(t *testing.T) {
+	// A later layer replacing a symlink with a real file (or a directory) must
+	// drop the stale alias so ResolveSymlink no longer follows it.
+	cases := []struct {
+		name  string
+		entry tarEntry
+	}{
+		{"regular file", tarEntry{name: "opt/tool", body: "ELF..."}},
+		{"directory", tarEntry{name: "opt/tool", typeflag: tar.TypeDir}},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			fs, origin, info := newScanState()
+			l0 := buildTar(t, []tarEntry{
+				{name: "opt/tool", typeflag: tar.TypeSymlink, linkname: "../real/tool"},
+			})
+			l1 := buildTar(t, []tarEntry{tc.entry})
+
+			if err := scanLayerTar(bytes.NewReader(l0), 0, fs, origin, info); err != nil {
+				t.Fatal(err)
+			}
+			if err := scanLayerTar(bytes.NewReader(l1), 1, fs, origin, info); err != nil {
+				t.Fatal(err)
+			}
+
+			if _, ok := fs.Symlinks["/opt/tool"]; ok {
+				t.Errorf("overwriting the symlink with a %s should prune it from fs.Symlinks", tc.name)
+			}
+		})
+	}
+}
+
 func TestScanLayerTarWhiteoutClearsOsRelease(t *testing.T) {
 	fs, origin, info := newScanState()
 	l0 := buildTar(t, []tarEntry{

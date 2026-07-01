@@ -1,0 +1,27 @@
+{
+  "categories": {
+    "Build metadata": {
+      "count": 1,
+      "bytes": 815
+    },
+    "Device files": {
+      "count": 5,
+      "bytes": 0
+    },
+    "Package manager state": {
+      "count": 9,
+      "bytes": 3543
+    }
+  },
+  "dark_bytes": 4358,
+  "dark_bytes_pct": 0.21334372474253602,
+  "dark_code": {},
+  "dark_file_pct": 1.202886928628709,
+  "dark_files": 15,
+  "distro": "wolfi",
+  "image": "cgr.dev/chainguard/static@sha256:1fe35025bd06652914560fd01af12a705c645c5566a8d40766b2a4769f33a824",
+  "total_bytes": 2042713,
+  "total_files": 1247,
+  "tracked_bytes": 2038355,
+  "tracked_files": 1232
+}

@@ -6,6 +6,15 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
+    # Brief cooldown so freshly-published (possibly compromised or broken)
+    # releases have a little time to be caught and yanked before we bump.
+    cooldown:
+      default-days: 1
+      semver-major-days: 3
+      semver-minor-days: 2
+      semver-patch-days: 1
+      include:
+        - "*"
     groups:
       go-dependencies:
         patterns:
@@ -17,6 +26,9 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
+    # Actions support only default-days (no per-semver cooldown).
+    cooldown:
+      default-days: 1
     groups:
       github-actions:
         patterns:

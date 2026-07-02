@@ -24,14 +24,14 @@ jobs:
           go-version-file: go.mod
 
       - name: Log in to ghcr.io
-        uses: chainguard-actions/docker-login-action@2ec1a61ac7d5854002f4e3df1f32cc1d02994f76 # v4.2.0
+        uses: chainguard-actions/docker-login-action@83c21de9b7a888d92bea9105f8c5b6f4ae4e9eb7 # v4.3.0
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Run GoReleaser
-        uses: chainguard-actions/goreleaser-goreleaser-action@7c64773cc04d3281910fe0c87f70511960b2f971 # v7.2.2
+        uses: chainguard-actions/goreleaser-goreleaser-action@31ac5fd9e054e1085d9de67ca61955bc6bb2a8e8 # v7.2.3
         with:
           version: "~> v2"
           args: release --clean

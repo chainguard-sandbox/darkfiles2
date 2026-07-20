@@ -46,7 +46,7 @@ jobs:
 
       - name: Build and push image
         run: |
-           img=$(ko build ./ \ --bare \ --tags "${GITHUB_REF_NAME},${GITHUB_SHA}")
+           img=$(ko build ./ --bare --tags "${GITHUB_REF_NAME},${GITHUB_SHA}")
            cosign sign ${img} --yes \
                -a sha=${{ github.sha }} \
                -a run_id=${{ github.run_id }} \

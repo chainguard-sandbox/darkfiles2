@@ -9,6 +9,7 @@ on:
 permissions:
   contents: read
   packages: write
+  id-token: write #for cosign
 
 env:
   KO_DOCKER_REPO: ghcr.io/${{ github.repository }}
@@ -37,11 +38,15 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Set up ko
+      - name: Set-up cosign to sign image
+        uses: sigstore/cosign-installer@6f9f17788090df1f26f669e9d70d6ae9567deba6 # v4.1.2
+
+      - name: Set up ko to build image
         uses: chainguard-actions/ko-build-setup-ko@6e37741c941e9dc2933ec65e19f8ee2133627cbd # v0.10
 
       - name: Build and push image
         run: |
-          ko build ./ \
-            --bare \
-            --tags "${GITHUB_REF_NAME},${GITHUB_SHA}"
+           img=$(ko build ./ \ --bare \ --tags "${GITHUB_REF_NAME},${GITHUB_SHA}")
+           cosign sign ${img} --yes \
+               -a sha=${{ github.sha }} \
+               -a run_id=${{ github.run_id }} \

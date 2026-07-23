@@ -19,7 +19,7 @@ jobs:
           egress-policy: audit
 
       - name: Checkout
-        uses: chainguard-actions/actions-checkout@5c571b05fb026b9251781bee09aadc0d09736c72 # v7.0.0
+        uses: chainguard-actions/actions-checkout@77ae33bc0f88edf3dada8f2f8217f27a8f93df83 # v7.0.0
         with:
           fetch-depth: 0
 
@@ -29,7 +29,7 @@ jobs:
           go-version-file: go.mod
 
       - name: Log in to ghcr.io
-        uses: chainguard-actions/docker-login-action@5b8e28b8f3105686919812df987f85d42fa2d177 # v4.4.0
+        uses: chainguard-actions/docker-login-action@55afc46439a25c33df0f9cef726d509b00228d33 # v4.5.0
         with:
           registry: ghcr.io
           username: ${{ github.actor }}

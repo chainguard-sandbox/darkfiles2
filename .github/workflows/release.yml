@@ -19,7 +19,7 @@ jobs:
           egress-policy: audit
 
       - name: Checkout
-        uses: chainguard-actions/actions-checkout@5c571b05fb026b9251781bee09aadc0d09736c72 # v7.0.0
+        uses: chainguard-actions/actions-checkout@77ae33bc0f88edf3dada8f2f8217f27a8f93df83 # v7.0.0
         with:
           fetch-depth: 0
 
@@ -29,14 +29,14 @@ jobs:
           go-version-file: go.mod
 
       - name: Log in to ghcr.io
-        uses: chainguard-actions/docker-login-action@5b8e28b8f3105686919812df987f85d42fa2d177 # v4.4.0
+        uses: chainguard-actions/docker-login-action@93c9fb113ac946f14a332842652ec9600e25babc # v4.6.0
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Run GoReleaser
-        uses: chainguard-actions/goreleaser-goreleaser-action@31ac5fd9e054e1085d9de67ca61955bc6bb2a8e8 # v7.2.3
+        uses: chainguard-actions/goreleaser-goreleaser-action@2fd58e2e43dd840f1bc9e8c1e02b611632f03bc4 # v7.2.3
         with:
           version: "~> v2"
           args: release --clean

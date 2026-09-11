@@ -25,7 +25,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: chainguard-actions/actions-checkout@5c571b05fb026b9251781bee09aadc0d09736c72 # v7.0.0
+        uses: chainguard-actions/actions-checkout@77ae33bc0f88edf3dada8f2f8217f27a8f93df83 # v7.0.0
 
       - name: Set up Go
         uses: chainguard-actions/actions-setup-go@a5e8c9530cdd8d86c8c1e22fe4e2d0668896f7c7 # v6.5.0

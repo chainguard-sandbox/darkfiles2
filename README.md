@@ -12,17 +12,14 @@ files, injected binaries).
 
 - **Auto-detects the distro** from `/etc/os-release` — no `--distro` flag needed
 - **Supports Alpine, Wolfi/Chainguard, Debian/Ubuntu** package databases
-- **Handles merged-usr layouts** and busybox multi-call symlinks correctly (the
-  original darkfiles got negative file counts because of double-counting; this
-  version deduplicates paths and resolves full symlink chains)
-- **Reports by file count and bytes** — a 1 000-file shell script collection is
+- **Reports by file count and bytes** — a 1,000-file shell script collection is
   less alarming than a single 200 MB injected binary
 - **Cross-references an SBOM** (`--sbom`) — fetches the image's SPDX SBOM
   attestation and excludes the files it documents from the dark set, reporting
-  them separately (primarily for DHI images)
+  them separately
 - **Detects vendored libraries** (`--detect-libs`) — scans binaries for
-  statically-linked libraries and versions no package manager tracks, using
-  string-signature heuristics ported from cve-bin-tool
+  statically-linked libraries using string-signature heuristics ported from 
+  cve-bin-tool
 - **JSON output** for integration with pipelines and dashboards
 
 ## Installation
@@ -134,11 +131,9 @@ The `Dark file breakdown` and `Dark code` lines then describe only the files
 that remain unaccounted for — neither tracked by a package nor documented by the
 SBOM. `Tracked`, `In SBOM`, and `Dark` partition every file in the image.
 
-Because the SBOM determines which files are excluded from the dark set, a
-registry-fetched SBOM is only trusted once its cosign signature is verified.
+A registry-fetched SBOM is only trusted once its cosign signature is verified.
 darkfiles verifies the SPDX attestation against Docker's published DHI signing
-key (embedded in the binary; Rekor is ignored, as DHI does not always publish to
-the transparency log). If verification fails — a non-DHI image, a missing
+key. If verification fails — a non-DHI image, a missing
 signature, or a bad one — the SBOM is **not** applied and the files stay dark,
 with a warning. Override the key with `--sbom-key <pem>`, or skip verification
 entirely with `--insecure-sbom`. A local `--sbom-file` is trusted as supplied and
@@ -159,11 +154,10 @@ was applied, and `dark_files`/`dark_bytes` exclude the SBOM-accounted files.
 
 ### Detecting vendored libraries
 
-A dark binary is often dark because it statically links libraries the package
-manager never recorded. `--detect-libs` extracts printable strings from each
+Statically linked libraries are often missed from SBOMs, resulting in another
+kind of "dark matter". `--detect-libs` extracts printable strings from each
 selected file and matches them against a database of ~450 per-library
-signatures (ported from [cve-bin-tool](https://github.com/intel/cve-bin-tool)
-via [darkrustmaster](https://github.com/chainguard-sandbox/darkrustmaster)) to
+signatures (ported from [cve-bin-tool](https://github.com/intel/cve-bin-tool)) to
 recover which libraries — and, where possible, which versions — are baked in:
 
 ```
@@ -203,27 +197,6 @@ extraction with `--detect-libs-min-length`.
 
 The feature is off by default and reads full file content (a second pass over
 the image layers), unlike the metadata-only default scan.
-
-#### Presence detection (a deliberate divergence from cve-bin-tool)
-
-Some cve-bin-tool signatures detect a library only when its version string sits
-immediately next to a marker string in the binary. libevent, for example, is
-matched by `libevent using: %s ... X.Y.Z-stable`. Depending on how the compiler
-lays out the string table, the version constant can end up kilobytes away from
-its marker, so the anchored pattern misses even though the library is clearly
-present — and the same library statically linked into two different builds may be
-detected in one and not the other.
-
-To recover these cases, darkfiles adds a **presence fallback** that upstream
-cve-bin-tool (and `drm`) do not have: for signatures that rely solely on a
-version pattern, it also matches the pattern's distinctive literal marker on its
-own. When the marker is found but no version can be parsed, the library is
-reported present with version `UNKNOWN`. To keep false positives low, the marker
-must be specific — a multi-word phrase or one containing punctuation/digits;
-bare dictionary words (`unbound`, `coreutils`) are rejected so ordinary help text
-does not trigger a match. This trades a small amount of precision for meaningful
-recall on vendored static libraries, which is the point of running library
-detection on dark files.
 
 ### Selecting which files to show
 

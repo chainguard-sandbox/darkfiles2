@@ -6,8 +6,7 @@
 //
 // The pipeline mirrors cve-bin-tool: printable strings are extracted from the
 // file (see extractStrings), then each checker's regex patterns are matched
-// against the extracted blob. This is the Go port of the darkrustmaster (`drm`)
-// tool.
+// against the extracted blob. 
 package libdetect
 
 import (
@@ -25,7 +24,6 @@ import (
 //go:embed signatures.json
 var signaturesJSON []byte
 
-// rawDB is the JSON model produced by darkrustmaster's extract_checkers.py.
 type rawDB struct {
 	Checkers []rawChecker `json:"checkers"`
 }

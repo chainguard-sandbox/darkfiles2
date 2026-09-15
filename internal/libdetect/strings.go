@@ -3,7 +3,7 @@ package libdetect
 import "strings"
 
 // DefaultMinLength is the default minimum printable-run length for string
-// extraction, matching cve-bin-tool / darkrustmaster.
+// extraction, matching cve-bin-tool
 const DefaultMinLength = 3
 
 // extractStrings returns printable-character runs from data, joined by '\n'.

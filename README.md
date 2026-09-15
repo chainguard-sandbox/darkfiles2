@@ -12,14 +12,14 @@ files, injected binaries).
 
 - **Auto-detects the distro** from `/etc/os-release` — no `--distro` flag needed
 - **Supports Alpine, Wolfi/Chainguard, Debian/Ubuntu** package databases
-- **Handles merged-usr layouts** and busybox multi-call symlinks correctly (the
-  original darkfiles got negative file counts because of double-counting; this
-  version deduplicates paths and resolves full symlink chains)
-- **Reports by file count and bytes** — a 1 000-file shell script collection is
+- **Reports by file count and bytes** — a 1,000-file shell script collection is
   less alarming than a single 200 MB injected binary
 - **Cross-references an SBOM** (`--sbom`) — fetches the image's SPDX SBOM
   attestation and excludes the files it documents from the dark set, reporting
-  them separately (primarily for DHI images)
+  them separately
+- **Detects vendored libraries** (`--detect-libs`) — scans binaries for
+  statically-linked libraries using string-signature heuristics ported from 
+  cve-bin-tool
 - **JSON output** for integration with pipelines and dashboards
 
 ## Installation
@@ -131,11 +131,9 @@ The `Dark file breakdown` and `Dark code` lines then describe only the files
 that remain unaccounted for — neither tracked by a package nor documented by the
 SBOM. `Tracked`, `In SBOM`, and `Dark` partition every file in the image.
 
-Because the SBOM determines which files are excluded from the dark set, a
-registry-fetched SBOM is only trusted once its cosign signature is verified.
+A registry-fetched SBOM is only trusted once its cosign signature is verified.
 darkfiles verifies the SPDX attestation against Docker's published DHI signing
-key (embedded in the binary; Rekor is ignored, as DHI does not always publish to
-the transparency log). If verification fails — a non-DHI image, a missing
+key. If verification fails — a non-DHI image, a missing
 signature, or a bad one — the SBOM is **not** applied and the files stay dark,
 with a warning. Override the key with `--sbom-key <pem>`, or skip verification
 entirely with `--insecure-sbom`. A local `--sbom-file` is trusted as supplied and
@@ -153,6 +151,52 @@ darkfiles --sbom-file ./vault.spdx.json --tar ./vault.tar
 
 The JSON output gains an `in_sbom` object (`{count, bytes}`) whenever an SBOM
 was applied, and `dark_files`/`dark_bytes` exclude the SBOM-accounted files.
+
+### Detecting vendored libraries
+
+Statically linked libraries are often missed from SBOMs, resulting in another
+kind of "dark matter". `--detect-libs` extracts printable strings from each
+selected file and matches them against a database of ~450 per-library
+signatures (ported from [cve-bin-tool](https://github.com/intel/cve-bin-tool)) to
+recover which libraries — and, where possible, which versions — are baked in:
+
+```
+darkfiles --detect-libs --code img            # scan dark code files
+darkfiles --detect-libs --code --set all img  # scan every code file
+darkfiles --detect-libs --format json img     # machine-readable results
+```
+
+It operates on the same selection as the other views (`--set` and `--code`), so
+`--detect-libs --code` targets dark executables and libraries — usually what you
+want. It is **not limited to dark files**: because it honours `--set`, you can
+detect vendored libraries in package-owned binaries too:
+
+```
+darkfiles --detect-libs --code --set tracked img  # only package-owned code
+darkfiles --detect-libs --code --set all img      # every binary, dark or not
+```
+
+Each detected library is listed under its file as `library  version(s)  vendor(s)`.
+Example:
+
+```
+/usr/bin/busybox
+  busybox  1.38.0  busybox
+
+/usr/lib/libcrypto.so.3
+  openssl  3.6.4   openssl
+
+Scanned 29 file(s); 27 with detected libraries.
+```
+
+This is signature-based detection, not a bill of materials: false positives
+(e.g. a compiler build-id string reported as `gcc`) and false negatives are
+inherent to the heuristic. Detection is based purely on the file's contents;
+presence with no parseable version is reported as `UNKNOWN`. Tune string
+extraction with `--detect-libs-min-length`.
+
+The feature is off by default and reads full file content (a second pass over
+the image layers), unlike the metadata-only default scan.
 
 ### Selecting which files to show
 

@@ -87,6 +87,12 @@ type ImageFS struct {
 	OsRelease   map[string]string
 	FileContent map[string][]byte // package manager database files
 	Symlinks    map[string]string // path -> raw link target
+
+	// img is the source image, retained so file content can be re-extracted on
+	// demand (see ExtractContents). The initial scan deliberately discards file
+	// bodies, so a second pass over the layers is needed for features like
+	// library detection.
+	img v1.Image
 }
 
 // ResolveSymlink follows the full symlink chain for up to maxDepth hops.
@@ -213,6 +219,7 @@ func fromImage(img v1.Image) (*ImageFS, error) {
 		OsRelease:   map[string]string{},
 		FileContent: map[string][]byte{},
 		Symlinks:    map[string]string{},
+		img:         img,
 	}
 
 	imgLayers, err := img.Layers()

@@ -4,8 +4,11 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"runtime"
+	"sync"
 
 	"github.com/chainguard-sandbox/darkfiles2/internal/image"
+	"github.com/chainguard-sandbox/darkfiles2/internal/libdetect"
 	"github.com/chainguard-sandbox/darkfiles2/internal/pkgdb"
 	"github.com/chainguard-sandbox/darkfiles2/internal/report"
 	"github.com/chainguard-sandbox/darkfiles2/internal/sbom"
@@ -25,6 +28,9 @@ var scanFlags struct {
 	sbomFile string
 	sbomKey  string
 	insecure bool
+
+	detectLibs          bool
+	detectLibsMinLength int
 }
 
 func runScan(cmd *cobra.Command, args []string) error {
@@ -62,6 +68,12 @@ func runScan(cmd *cobra.Command, args []string) error {
 		default:
 			r.ApplySBOM(paths)
 		}
+	}
+
+	// Library detection takes over the output: it scans the selected file set for
+	// statically-linked libraries rather than reporting dark-file statistics.
+	if scanFlags.detectLibs {
+		return runDetectLibs(r, fs)
 	}
 
 	// JSON always emits the structured summary, regardless of view flags.
@@ -111,6 +123,96 @@ func runScan(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
+// runDetectLibs scans the selected file set for statically-linked libraries.
+// It re-extracts the content of those files from the image (the initial scan
+// keeps only metadata) and matches each against the library signature DB.
+func runDetectLibs(r *report.Result, fs *image.ImageFS) error {
+	files := selectFiles(r, fs, scanFlags.set, scanFlags.code)
+	if len(files) == 0 {
+		fmt.Fprintln(os.Stderr, "No files selected for library detection.")
+		return nil
+	}
+
+	db, err := libdetect.Load()
+	if err != nil {
+		return fmt.Errorf("loading library signatures: %w", err)
+	}
+	if db.Skipped > 0 {
+		fmt.Fprintf(os.Stderr, "note: %d library signature pattern(s) could not be compiled and were skipped\n", db.Skipped)
+	}
+
+	// Symlinks have no content of their own; skip them so we only scan real files.
+	want := make(map[string]bool, len(files))
+	for _, f := range files {
+		if f.IsSymlink {
+			continue
+		}
+		want[f.Path] = true
+	}
+
+	var contents map[string][]byte
+	err = withSpinner(fmt.Sprintf("Extracting %d file(s)", len(want)), func() error {
+		var e error
+		contents, e = fs.ExtractContents(want)
+		return e
+	})
+	if err != nil {
+		return fmt.Errorf("extracting file contents: %w", err)
+	}
+
+	results := detectLibsInFiles(db, contents)
+
+	if scanFlags.format == "json" {
+		return report.PrintDetectionsJSON(os.Stdout, results)
+	}
+	report.PrintDetections(os.Stdout, results)
+	return nil
+}
+
+// detectLibsInFiles runs the library-detection scan over every extracted file
+// concurrently and returns one result per file.
+func detectLibsInFiles(db *libdetect.DB, contents map[string][]byte) []report.FileDetections {
+	type job struct {
+		path string
+		data []byte
+	}
+	jobs := make([]job, 0, len(contents))
+	for p, d := range contents {
+		jobs = append(jobs, job{path: p, data: d})
+	}
+
+	results := make([]report.FileDetections, len(jobs))
+	workers := runtime.NumCPU()
+	if workers > len(jobs) {
+		workers = len(jobs)
+	}
+	if workers < 1 {
+		workers = 1
+	}
+
+	var wg sync.WaitGroup
+	ch := make(chan int)
+	for w := 0; w < workers; w++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			for i := range ch {
+				dets := db.Detect(jobs[i].data, scanFlags.detectLibsMinLength)
+				results[i] = report.FileDetections{Path: jobs[i].path, Detections: dets}
+			}
+		}()
+	}
+	_ = withSpinner(fmt.Sprintf("Scanning %d file(s) for libraries", len(jobs)), func() error {
+		for i := range jobs {
+			ch <- i
+		}
+		close(ch)
+		wg.Wait()
+		return nil
+	})
+	return results
+}
+
 func init() {
 	rootCmd.Flags().StringVar(&scanFlags.format, "format", "text", "Output format: text or json")
 	rootCmd.Flags().BoolVarP(&scanFlags.detailed, "detailed", "d", false,
@@ -118,7 +220,7 @@ func init() {
 	rootCmd.Flags().BoolVar(&scanFlags.paths, "paths", false,
 		"Print matching file paths only, one per line (for scripting)")
 	rootCmd.Flags().StringVar(&scanFlags.set, "set", "unknown",
-		"Which files the --detailed/--paths views show: unknown, dark, tracked, all, or in-sbom")
+		"Which files the --detailed/--paths/--detect-libs views act on: unknown, dark, tracked, all, or in-sbom")
 	rootCmd.Flags().BoolVar(&scanFlags.group, "group", false, "With --paths, group output by category")
 	rootCmd.Flags().BoolVar(&scanFlags.sizes, "sizes", false, "With --paths, show file sizes")
 	rootCmd.Flags().BoolVar(&scanFlags.code, "code", false,
@@ -132,6 +234,10 @@ func init() {
 		"PEM public key to verify the registry SBOM attestation signature (default: embedded Docker Hardened Images key)")
 	rootCmd.Flags().BoolVar(&scanFlags.insecure, "insecure-sbom", false,
 		"Skip signature verification of the registry SBOM attestation (trust it unverified)")
+	rootCmd.Flags().BoolVar(&scanFlags.detectLibs, "detect-libs", false,
+		"Scan the selected files (see --set/--code) for statically-linked libraries and versions")
+	rootCmd.Flags().IntVar(&scanFlags.detectLibsMinLength, "detect-libs-min-length", libdetect.DefaultMinLength,
+		"Minimum printable-run length for string extraction during library detection")
 }
 
 func validSet(s string) bool {

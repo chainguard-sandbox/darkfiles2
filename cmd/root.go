@@ -31,7 +31,14 @@ on:
   dark     all dark files, including expected ones (pkg state, /dev, etc.)
   tracked  files owned by a package
   all      every file in the image
-  in-sbom  files accounted for by the SBOM (requires --sbom)`,
+  in-sbom  files accounted for by the SBOM (requires --sbom)
+
+Add --fingerprint to scan the selected files (the same --set/--code selection)
+for statically-linked libraries and their versions, using string-fingerprint
+heuristics ported from cve-bin-tool. This is useful for spotting libraries
+vendored into dark binaries that no package manager tracks. It is off by
+default; combine with --code to restrict fingerprinting to executables and
+libraries.`,
 	Args:         cobra.MaximumNArgs(1),
 	RunE:         runScan,
 	SilenceUsage: true,

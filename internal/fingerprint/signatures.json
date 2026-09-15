@@ -1,0 +1,8457 @@
+{
+ "source": "cve-bin-tool",
+ "checker_count": 449,
+ "checkers": [
+  {
+   "name": "accountsservice",
+   "vendor_product": [
+    [
+     "canonical",
+     "accountsservice"
+    ],
+    [
+     "ray_stode",
+     "accountsservice"
+    ],
+    [
+     "accountsservice_project",
+     "accountsservice"
+    ],
+    [
+     "freedesktop",
+     "accountsservice"
+    ]
+   ],
+   "filename_patterns": [
+    "accountsservice"
+   ],
+   "contains_patterns": [],
+   "version_patterns": [
+    "accounts-daemon ([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "acpid",
+   "vendor_product": [
+    [
+     "tedfelix",
+     "acpid"
+    ],
+    [
+     "tedfelix",
+     "acpid2"
+    ],
+    [
+     "tim_hockin",
+     "acpid"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "acpid\\-([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "aomedia",
+   "vendor_product": [
+    [
+     "aomedia",
+     "aomedia"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "AOMedia[a-zA-Z0-9 ]*([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "apache_http_server",
+   "vendor_product": [
+    [
+     "apache",
+     "http_server"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [
+    "logs/apache_runtime_status",
+    "httpd not running, trying to start",
+    "-D HTTPD_ROOT=\\\"/etc/httpd\\\""
+   ],
+   "version_patterns": [
+    "Apache/([0-9]+\\.[0-9]+(\\.[0-9]+)?) "
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "apcupsd",
+   "vendor_product": [
+    [
+     "apc",
+     "apcupsd"
+    ],
+    [
+     "apcupsd",
+     "apcupsd"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "apcupsd ([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "apparmor",
+   "vendor_product": [
+    [
+     "apparmor",
+     "apparmor"
+    ],
+    [
+     "canonical",
+     "apparmor"
+    ],
+    [
+     "ubuntu",
+     "apparmor"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "%s version ([0-9]+\\.[0-9]+(\\.[0-9]+)?)[A-Za-z:%,/'_ \\-\\[\\]\\r\\n\\t]*apparmor"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "apr",
+   "vendor_product": [
+    [
+     "apache",
+     "portable_runtime"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "apr_initialize\\r?\\n([0-9]+\\.[0-9]+\\.[0-9]+)",
+    "([0-9]+\\.[0-9]+\\.[0-9]+)\\r?\\n/tmp/apr"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "apr_util",
+   "vendor_product": [
+    [
+     "apache",
+     "apr-util"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "apr-util-1[a-zA-Z0-9/%_\\-\\.\\r\\n]*([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "asn1c",
+   "vendor_product": [
+    [
+     "asn1c_project",
+     "asn1c"
+    ]
+   ],
+   "filename_patterns": [
+    "asn1c"
+   ],
+   "contains_patterns": [],
+   "version_patterns": [
+    "asn1c-([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "assimp",
+   "vendor_product": [
+    [
+     "assimp",
+     "assimp"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "assimp-([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "asterisk",
+   "vendor_product": [
+    [
+     "asterisk",
+     "asterisk"
+    ],
+    [
+     "asterisk",
+     "open_source"
+    ],
+    [
+     "digium",
+     "asterisk"
+    ],
+    [
+     "sangoma",
+     "asterisk"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "asterisk-([0-9]+\\.[0-9]+\\.[0-9]+)",
+    "ast_uuid_init\\r?\\n([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "atftp",
+   "vendor_product": [
+    [
+     "atftp_project",
+     "atftp"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "([0-9]+\\.[0-9]+\\.[0-9]+)\\r?\\natftp"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "augeas",
+   "vendor_product": [
+    [
+     "augeas",
+     "augeas"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "([0-9]+\\.[0-9]+\\.[0-9]+)\\r?\\n/augeas"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "avahi",
+   "vendor_product": [
+    [
+     "avahi",
+     "avahi"
+    ]
+   ],
+   "filename_patterns": [
+    "avahi-daemon"
+   ],
+   "contains_patterns": [],
+   "version_patterns": [
+    "avahi[a-zA-Z4 \\(\\)\\r\\n'-/.%:]*([0-9]+\\.[0-9]+\\.?[0-9]*)[/\\r\\n]"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "axel",
+   "vendor_product": [
+    [
+     "axel",
+     "axel"
+    ],
+    [
+     "axel_project",
+     "axel"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "Axel/([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "bash",
+   "vendor_product": [
+    [
+     "gnu",
+     "bash"
+    ]
+   ],
+   "filename_patterns": [
+    "bash"
+   ],
+   "contains_patterns": [
+    "save_bash_input: buffer already exists for new fd %d",
+    "cannot allocate new file descriptor for bash input from fd %d"
+   ],
+   "version_patterns": [
+    "Bash version ([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "bind",
+   "vendor_product": [
+    [
+     "isc",
+     "bind"
+    ]
+   ],
+   "filename_patterns": [
+    "named",
+    "liblwres\\.so",
+    "libdns([-_]?(\\d+\\.)+\\d.*)?\\.so",
+    "libirs([-_]?(\\d+\\.)+\\d.*)?\\.so",
+    "libisc([-_]?(\\d+\\.)+\\d.*)?\\.so",
+    "libisccc([-_]?(\\d+\\.)+\\d.*)?\\.so",
+    "libisccfg([-_]?(\\d+\\.)+\\d.*)?\\.so",
+    "libns([-_]?(\\d+\\.)+\\d.*)?\\.so",
+    "libbind9([-_]?(\\d+\\.)+\\d.*)?\\.so"
+   ],
+   "contains_patterns": [
+    "bind9_check_key",
+    "bind9_check_namedconf"
+   ],
+   "version_patterns": [
+    "version: BIND ([0-9]+\\.[0-9]+\\.[0-9]+)",
+    "(?:lib|/)bind[0-9]*-([0-9]+\\.[0-9]+\\.[0-9]+)",
+    "/bind9-([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "binutils",
+   "vendor_product": [
+    [
+     "gnu",
+     "binutils"
+    ]
+   ],
+   "filename_patterns": [
+    "libbfd-((\\d+\\.)*\\d+)[\\d\\w.-]*so",
+    "^ld$",
+    "^as$",
+    "addr2line",
+    "^ar$",
+    "c\\+{2}filt",
+    "dlltool",
+    "^gold$",
+    "gprof",
+    "nlmconv",
+    "^nm$",
+    "objcopy",
+    "objdump",
+    "ranlib",
+    "readelf",
+    "^size$",
+    "^strings$",
+    "^strip$",
+    "windmc",
+    "windres",
+    "ld.bfd"
+   ],
+   "contains_patterns": [
+    "\\(GNU Binutils\\) ",
+    "\\(GNU Binutils for Ubuntu\\) ",
+    "Auxiliary filter for shared object symbol table",
+    "Do not copy DT_NEEDED links mentioned inside DSOs that follow",
+    "%F%P:%S: error: memory region `%s' for alias `%s' does not exist",
+    "can't mix positional and keyword arguments",
+    ".bundle_lock sequence at %u bytes but .bundle_align_mode limit is %u bytes",
+    "%s: error: too many @-files encountered",
+    "Warning: '%s' has negative size, probably it is too large",
+    "Cannot convert existing library %s to thin format",
+    "Internal error: no symbol alphabet for current style",
+    "restart link with --incremental-full",
+    "%s: gmon.out file is missing histogram",
+    "Using the --size-sort and --undefined-only options together",
+    "alloc, load, noload, readonly, debug, code, data, rom, share, contents, merge, strings",
+    "can't set BFD default target to `%s': %s"
+   ],
+   "version_patterns": [
+    "GNU Binutils[a-zA-Z ]*\\) ([0-9]+\\.[0-9]+\\.?[0-9]*)",
+    "BFD header file version %s\\r?\\nversion ([0-9]+\\.[0-9]+\\.?[0-9]*)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "bird",
+   "vendor_product": [
+    [
+     "bird_project",
+     "bird"
+    ],
+    [
+     "nic",
+     "bird"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "BIRD ([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "bison",
+   "vendor_product": [
+    [
+     "gnu",
+     "bison"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "GNU Bison ([0-9]+\\.[0-9]+\\.[0-9]+)\\r?\\n"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "bluez",
+   "vendor_product": [
+    [
+     "bluez",
+     "bluez"
+    ],
+    [
+     "bluez_project",
+     "bluez"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "bluez-([0-9]+\\.[0-9]+)",
+    "([0-9]+\\.[0-9]+)\\r?\\n[a-zA-Z :]*(?:BlueZ|hcidump|hcitool|OBEX daemon)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "boa",
+   "vendor_product": [
+    [
+     "boa",
+     "boa"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "Boa/([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "boinc",
+   "vendor_product": [
+    [
+     "berkeley",
+     "boinc_client"
+    ],
+    [
+     "universityofcalifornia",
+     "boinc_client"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "boinc.so.([0-9]+\\.[0-9]+\\.[0-9]+)",
+    "([0-9]+\\.[0-9]+\\.[0-9]+)\\r?\\nboinc"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "botan",
+   "vendor_product": [
+    [
+     "botan_project",
+     "botan"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "Botan ([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "bro",
+   "vendor_product": [
+    [
+     "bro",
+     "bro"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "bro-([0-9]+\\.[0-9]+\\.?[0-9]*)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "bubblewrap",
+   "vendor_product": [
+    [
+     "bubblewrap_project",
+     "bubblewrap"
+    ],
+    [
+     "projectatomic",
+     "bubblewrap"
+    ]
+   ],
+   "filename_patterns": [
+    "bwrap"
+   ],
+   "contains_patterns": [],
+   "version_patterns": [
+    "bubblewrap ([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "busybox",
+   "vendor_product": [
+    [
+     "busybox",
+     "busybox"
+    ]
+   ],
+   "filename_patterns": [
+    "busybox"
+   ],
+   "contains_patterns": [
+    "BusyBox is a multi-call binary that combines many common Unix",
+    "link to busybox for each function they wish to use and BusyBox"
+   ],
+   "version_patterns": [
+    "BusyBox v([0-9]+\\.[0-9]+(\\.[0-9]+)?)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "bwm_ng",
+   "vendor_product": [
+    [
+     "bwm-ng_project",
+     "bwm-ng"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "bwm-ng v([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "bzip2",
+   "vendor_product": [
+    [
+     "bzip",
+     "bzip2"
+    ]
+   ],
+   "filename_patterns": [
+    "bzip2"
+   ],
+   "contains_patterns": [
+    "bzip2recover ([0-9]+\\.[0-9]+\\.[0-9]+): extracts blocks from damaged .bz2 files.",
+    "%s: BZ_MAX_HANDLED_BLOCKS in bzip2recover.c, and recompile."
+   ],
+   "version_patterns": [
+    "bzip2recover ([0-9]+\\.[0-9]+\\.[0-9]+)",
+    "([0-9]+\\.[0-9]+\\.[0-9]+), [a-zA-Z0-9-]*\\r?\\nbzip2"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "c_ares",
+   "vendor_product": [
+    [
+     "c-ares",
+     "c-ares"
+    ],
+    [
+     "c-ares_project",
+     "c-ares"
+    ],
+    [
+     "daniel_stenberg",
+     "c-ares"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "c-ares-([0-9]+\\.[0-9]+\\.[0-9]+)",
+    "c-ares library initialization[A-Za-z0-9:/%_{} \\\\\\-\\.\\r\\n]+\\r?\\n([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "cairo",
+   "vendor_product": [
+    [
+     "cairographics",
+     "cairo"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "/cairo-([0-9]+\\.[0-9]+\\.[0-9]+)/",
+    "([0-9]+\\.[0-9]+\\.[0-9]+)\\r?\\n[a-z\\./]*(?:cairo\\.c|CAIRO_R)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "capnproto",
+   "vendor_product": [
+    [
+     "capnproto",
+     "capnproto"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "Cap'n Proto version ([0-9]+\\.[0-9]+\\.[0-9]+)",
+    "libcapnp-([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "captive_portal",
+   "vendor_product": [
+    [
+     "opennds",
+     "captive_portal"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "openNDS version ([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "catdoc",
+   "vendor_product": [
+    [
+     "catdoc_project",
+     "catdoc"
+    ],
+    [
+     "fossies",
+     "catdoc"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "([0-9]+\\.[0-9]+)\\r?\\nCatdoc Version"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "ceph",
+   "vendor_product": [
+    [
+     "redhat",
+     "ceph"
+    ],
+    [
+     "ceph_project",
+     "ceph"
+    ],
+    [
+     "ceph",
+     "ceph"
+    ],
+    [
+     "linuxfoundation",
+     "ceph"
+    ]
+   ],
+   "filename_patterns": [
+    "ceph"
+   ],
+   "contains_patterns": [],
+   "version_patterns": [
+    "ceph-([0-9]+.[0-9]+.[0-9]+)",
+    "\"name\":\"ceph\",\"version\":\"([0-9]+.[0-9]+(.[0-9]+)?)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "cflow",
+   "vendor_product": [
+    [
+     "gnu",
+     "cflow"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "GNU cflow ([0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "chess",
+   "vendor_product": [
+    [
+     "gnu",
+     "chess"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "Chess ([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "chrony",
+   "vendor_product": [
+    [
+     "chrony_project",
+     "chrony"
+    ],
+    [
+     "tuxfamily",
+     "chrony"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "([0-9]+\\.[0-9]+)\\r?\\nchrony",
+    "chrony\\r?\\n([0-9]+\\.[0-9]+)",
+    "\\(chrony\\) version %s\\r?\\n([0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "cifs_utils",
+   "vendor_product": [
+    [
+     "samba",
+     "cifs-utils"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "mount\\.cifs[A-Za-z0-9%: \\\"\\-\\.\\r\\n]*([0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "civetweb",
+   "vendor_product": [
+    [
+     "civetweb_project",
+     "civetweb"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "civetweb[A-Za-z /_,%:\\(\\)\\-\\r\\n]*([0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "clamav",
+   "vendor_product": [
+    [
+     "clam_anti-virus",
+     "clamav"
+    ],
+    [
+     "clamav",
+     "clamav"
+    ],
+    [
+     "clamavs",
+     "clamav"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "clamav-([0-9]+\\.[0-9]+\\.[0-9]+)",
+    "([0-9]+\\.[0-9]+\\.[0-9]+)\\r?\\nUnable to allocate memory for db directory...\\r?\\n%s/daily.cvd\\r?\\n%s/daily.cld\\r?\\nClamAV %s"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "clang",
+   "vendor_product": [
+    [
+     "llvm",
+     "clang"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "Clang ([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "cockpit",
+   "vendor_product": [
+    [
+     "cockpit-project",
+     "cockpit"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "\\r?\\n([0-9]+)\\r?\\n[a-zA-Z0-9/:%_ \\.\\-\\r\\n]*cockpit"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "collectd",
+   "vendor_product": [
+    [
+     "collectd",
+     "collectd"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "collectd ([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "commons_compress",
+   "vendor_product": [
+    [
+     "apache",
+     "commons_compress"
+    ]
+   ],
+   "filename_patterns": [
+    "commons-compress(-[0-9]+\\.[0-9]+(\\.[0-9]+)?)?.jar"
+   ],
+   "contains_patterns": [
+    "Apache Commons Compress software defines an API for working with",
+    "<url>http://commons.apache.org/proper/commons-compress/</url>"
+   ],
+   "version_patterns": [
+    "<artifactId>commons-compress</artifactId>\\r?\\n  <version>([0-9]+\\.[0-9]+(\\.[0-9]+)?)</version>"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "connman",
+   "vendor_product": [
+    [
+     "connman",
+     "connman"
+    ],
+    [
+     "intel",
+     "connman"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "([0-9]+\\.[0-9]+)\\r?\\nGWeb/%s"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "coreutils",
+   "vendor_product": [
+    [
+     "gnu",
+     "coreutils"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "coreutils-([0-9]+\\.[0-9]+)",
+    "coreutils[a-zA-Z0-9:%'<>_/=!, \\.\\-\\(\\)\\r\\n]*\\r?\\n([0-9]+\\.[0-9]+)\\r?\\n"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "corosync",
+   "vendor_product": [
+    [
+     "corosync",
+     "corosync"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "([0-9]+\\.[0-9]+\\.[0-9]+)[a-zA-Z_/%: \\.\\r\\n]*corosync"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "cpio",
+   "vendor_product": [
+    [
+     "gnu",
+     "cpio"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "([0-9]+\\.[0-9]+)\\r?\\nGNU cpio"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "cpp_httplib",
+   "vendor_product": [
+    [
+     "cpp-httplib_project",
+     "cpp-httplib"
+    ],
+    [
+     "yhirose",
+     "cpp-httplib"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "cpp-httplib/\\r?\\n([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "cronie",
+   "vendor_product": [
+    [
+     "fedorahosted",
+     "cronie"
+    ]
+   ],
+   "filename_patterns": [
+    "cronnext",
+    "crontab",
+    "crond"
+   ],
+   "contains_patterns": [],
+   "version_patterns": [
+    "cronie ([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "cryptsetup",
+   "vendor_product": [
+    [
+     "cryptsetup_project",
+     "cryptsetup"
+    ]
+   ],
+   "filename_patterns": [
+    "cryptsetup"
+   ],
+   "contains_patterns": [
+    "Legacy offline reencryption already in-progress. Use cryptsetup-reencrypt utility.",
+    "Only LUKS2 format is currently supported. Please use cryptsetup-reencrypt tool for LUKS1."
+   ],
+   "version_patterns": [
+    "cryptsetup ([0-9]+\\.[0-9]+\\.[0-9]+)",
+    "cryptsetup library version %s.\\r?\\n([0-9]+\\.[0-9]+\\.[0-9]+)",
+    "([0-9]+\\.[0-9]+\\.[0-9]+)\\r?\\nCrypto backend \\(%s\\) initialized in cryptsetup"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "cups",
+   "vendor_product": [
+    [
+     "apple",
+     "cups"
+    ],
+    [
+     "cups",
+     "cups"
+    ],
+    [
+     "easy_software_products",
+     "cups"
+    ],
+    [
+     "openprinting",
+     "cups"
+    ]
+   ],
+   "filename_patterns": [
+    "cups"
+   ],
+   "contains_patterns": [
+    "No limit for CUPS-Get-Document defined in policy %s and no suitable template found.",
+    "\\*%%%%%%%% Created by the CUPS PPD Compiler CUPS v([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "version_patterns": [
+    "CUPS(?: v|/)([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "cups_filters",
+   "vendor_product": [
+    [
+     "linuxfoundation",
+     "cups-filters"
+    ],
+    [
+     "openprinting",
+     "cups-filters"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "cups-filters version ([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "curl",
+   "vendor_product": [
+    [
+     "haxx",
+     "curl"
+    ]
+   ],
+   "filename_patterns": [
+    "curl"
+   ],
+   "contains_patterns": [
+    "Dump libcurl equivalent code of this command line",
+    "a specified protocol is unsupported by libcurl"
+   ],
+   "version_patterns": [
+    "\\r?\\ncurl[ -]([678]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "cvs",
+   "vendor_product": [
+    [
+     "cvs",
+     "cvs"
+    ],
+    [
+     "gnu",
+     "cvs"
+    ],
+    [
+     "nongnu",
+     "cvs"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "CVS\\) ([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "darkhttpd",
+   "vendor_product": [
+    [
+     "darkhttpd_project",
+     "darkhttpd"
+    ],
+    [
+     "unix4lyfe",
+     "darkhttpd"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "darkhttpd/([0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "dav1d",
+   "vendor_product": [
+    [
+     "videolan",
+     "dav1d"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "([0-9]+\\.[0-9]+\\.[0-9]+)[A-Za-z0-9 '.()%,:\\r\\n\\/\\-]*dav1d"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "davfs2",
+   "vendor_product": [
+    [
+     "davfs2",
+     "davfs2"
+    ],
+    [
+     "werner_baumann",
+     "davfs2"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "davfs2 ([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "dbus",
+   "vendor_product": [
+    [
+     "d-bus",
+     "d-bus"
+    ],
+    [
+     "d-bus_project",
+     "d-bus"
+    ],
+    [
+     "freedesktop",
+     "dbus"
+    ],
+    [
+     "freedesktop",
+     "libdbus"
+    ]
+   ],
+   "filename_patterns": [
+    "dbus"
+   ],
+   "contains_patterns": [],
+   "version_patterns": [
+    "LIBDBUS_PRIVATE_([0-9]+\\.[0-9]+(\\.[0-9]+)?)",
+    "libdbus ([0-9]+\\.[0-9]+(\\.[0-9]+)?)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "dcmtk",
+   "vendor_product": [
+    [
+     "offis",
+     "dcmtk"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "dcmtk-([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "debianutils",
+   "vendor_product": [
+    [
+     "debian",
+     "debianutils"
+    ]
+   ],
+   "filename_patterns": [
+    "run-parts",
+    "tempfile",
+    "ischroot",
+    "installkernel",
+    "savelog",
+    "which.debianutils",
+    "add-shell",
+    "remove-shell",
+    "update-shells"
+   ],
+   "contains_patterns": [],
+   "version_patterns": [
+    "\\r?\\nDebian run-parts program, version\\s([0-9]+\\.[0-9]+)",
+    "\\r?\\ntempfile\\s([0-9]+\\.[0-9]+)",
+    "\\r?\\nDebian ischroot, version\\s([0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "dhclient",
+   "vendor_product": [
+    [
+     "isc",
+     "dhcp"
+    ],
+    [
+     "isc",
+     "dhcp_client"
+    ]
+   ],
+   "filename_patterns": [
+    "dhclient"
+   ],
+   "contains_patterns": [],
+   "version_patterns": [
+    "dhclient\\.c[a-zA-Z0-9 \\'%-\\[\\]{}<>#%|\\.:\\r\\n]*([0-9]+\\.[0-9]+\\.[0-9]+)",
+    "([0-9]+\\.[0-9]+\\.[0-9]+)[a-zA-Z0-9 \\'%-\\[\\]{}<>#%|\\.:\\r\\n]*dhclient\\.c"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "dhcpcd",
+   "vendor_product": [
+    [
+     "phystech",
+     "dhcpcd"
+    ],
+    [
+     "roy_marples",
+     "dhcpcd"
+    ],
+    [
+     "dhcpcd_project",
+     "dhcpcd"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "dhcpcd ([0-9]+\\.[0-9]+(\\.[0-9]+)?)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "dhcpd",
+   "vendor_product": [
+    [
+     "isc",
+     "dhcp"
+    ],
+    [
+     "isc",
+     "dhcpd"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "\\r?\\ndhcpd\\.c[a-zA-Z0-9 \\'%-\\[\\]{}<>#%|\\.:\\r\\n]*([0-9]+\\.[0-9]+\\.[0-9]+)",
+    "([0-9]+\\.[0-9]+\\.[0-9]+)[a-zA-Z0-9 \\'%-\\[\\]{}<>#%|\\.:\\r\\n]*dhcpd\\.c\\r?\\n"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "djvulibre",
+   "vendor_product": [
+    [
+     "djvulibre_project",
+     "djvulibre"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "DjVuLibre-([0-9]+\\.[0-9]+\\.[0-9]+[a-z]*)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "dlt_daemon",
+   "vendor_product": [
+    [
+     "covesa",
+     "dlt-daemon"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "\\r?\\n([0-9]+\\.[0-9]+\\.[0-9]+)\\r?\\n[A-Za-z0-9+_:%(), \\[\\]\\.\\-\\r\\n]*DLT(?:_| Package Version)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "dmidecode",
+   "vendor_product": [
+    [
+     "nongnu",
+     "dmidecode"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "([0-9]+\\.[0-9]+)\\r?\\n(?:# |)dmidecode"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "dnsmasq",
+   "vendor_product": [
+    [
+     "dnsmasq",
+     "dnsmasq"
+    ],
+    [
+     "thekelleys",
+     "dnsmasq"
+    ],
+    [
+     "the_kelleys",
+     "dnsmasq"
+    ]
+   ],
+   "filename_patterns": [
+    "dnsmasq"
+   ],
+   "contains_patterns": [
+    "Dnsmasq is free software, and you are welcome to redistribute it"
+   ],
+   "version_patterns": [
+    "dnsmasq-[a-z_]*([0-9]+\\.[0-9]+)",
+    "([0-9]+\\.[0-9]+)\\r?\\nDnsmasq version %s",
+    "Dnsmasq version (?:|%s  %s\\r?\\n)([0-9]+\\.[0-9]+)",
+    "([0-9]+\\.[0-9]+)\\r?\\nstarted, version %s DNS disabled"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "docker",
+   "vendor_product": [
+    [
+     "docker",
+     "docker"
+    ]
+   ],
+   "filename_patterns": [
+    "docker"
+   ],
+   "contains_patterns": [],
+   "version_patterns": [
+    "docker-ce-([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "domoticz",
+   "vendor_product": [
+    [
+     "domoticz",
+     "domoticz"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "domoticz-([0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "dosfstools",
+   "vendor_product": [
+    [
+     "dosfstools_project",
+     "dosfstools"
+    ]
+   ],
+   "filename_patterns": [
+    "dosfsck",
+    "dosfslabel",
+    "fatlabel",
+    "fsck.fat",
+    "fsck.msdos",
+    "fsck.vfat",
+    "mkdosfs",
+    "mkfs.fat",
+    "mkfs.msdos",
+    "mkfs.vfat"
+   ],
+   "contains_patterns": [],
+   "version_patterns": [
+    "fsck.fat (\\d+\\.\\d+)",
+    "mkfs.fat (\\d+\\.\\d+)",
+    "/dosfstools-(\\d+\\.\\d+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "dotnet",
+   "vendor_product": [
+    [
+     "microsoft",
+     ".net"
+    ],
+    [
+     "microsoft",
+     "system.net.http"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "dotnet-v([0-9]+\\.[0-9]+\\.[0-9]{1,2})",
+    "/([0-9]+\\.[0-9]+\\.[0-9]{1,2})\\+[0-9a-f]{40}\\r?\\nMicrosoft\\r?\\n .NET\\r?\\n"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "dovecot",
+   "vendor_product": [
+    [
+     "dovecot",
+     "dovecot"
+    ]
+   ],
+   "filename_patterns": [
+    "dovecot"
+   ],
+   "contains_patterns": [
+    "BUG: Authentication client %u requested invalid authentication mechanism %s \\(DOVECOT-TOKEN required\\)",
+    "DOVECOT_SRAND is not available in non-debug builds"
+   ],
+   "version_patterns": [
+    "Dovecot v([0-9]+\\.[0-9]+\\.[0-9]+(\\.[0-9]+)?)",
+    "DOVECOT_VERSION=([0-9]+\\.[0-9]+\\.[0-9]+(\\.[0-9]+)?)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "doxygen",
+   "vendor_product": [
+    [
+     "doxygen",
+     "doxygen"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "doxygen-([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "dpkg",
+   "vendor_product": [
+    [
+     "debian",
+     "dpkg"
+    ]
+   ],
+   "filename_patterns": [
+    "dpkg"
+   ],
+   "contains_patterns": [
+    "unable to access dpkg status area",
+    "multiple non-coinstallable package instances present; most probably due to an upgrade from an unofficial dpkg"
+   ],
+   "version_patterns": [
+    "dpkg-([0-9]+\\.[0-9]+\\.[0-9]+)",
+    "dpkg-deb-([0-9]+\\.[0-9]+\\.[0-9]+)",
+    "dpkg-query-([0-9]+\\.[0-9]+\\.[0-9]+)",
+    "dpkg-divert-([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "dropbear",
+   "vendor_product": [
+    [
+     "dropbear_ssh_project",
+     "dropbear_ssh"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "SSH-2.0-dropbear_([0-9]+\\.[0-9]+)",
+    "([0-9]+\\.[0-9]+)\\r?\\nDropbear"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "e2fsprogs",
+   "vendor_product": [
+    [
+     "ext2_filesystems_utilities",
+     "e2fsprogs"
+    ],
+    [
+     "e2fsprogs_project",
+     "e2fsprogs"
+    ]
+   ],
+   "filename_patterns": [
+    "libe2p\\.so",
+    "libe2p\\.so",
+    "libext2fs\\.so",
+    "libext2fs\\.so",
+    "libcom_err\\.so",
+    "badblocks$",
+    "debugfs$",
+    "dumpe2fs$",
+    "e2fsck$",
+    "e2image$",
+    "e2label$",
+    "e2mmpstatus$",
+    "e2undo$",
+    "fsck\\.ext2$",
+    "fsck\\.ext3$",
+    "fsck\\.ext4$",
+    "logsave$",
+    "mke2fs$",
+    "mkfs\\.ext2$",
+    "mkfs\\.ext3$",
+    "mkfs\\.ext4$",
+    "resize2fs$",
+    "tune2fs$",
+    "hattr",
+    "sattr",
+    "e2freefrag",
+    "e4crypt",
+    "e4defrag",
+    "filefrag",
+    "mklost\\+found"
+   ],
+   "contains_patterns": [],
+   "version_patterns": [
+    "e2fsprogs\\r?\\n([0-9]+\\.[0-9]+\\.[0-9]+)",
+    "e2fsprogs-([0-9]+\\.[0-9]+\\.[0-9]+)",
+    "([0-9]+\\.[0-9]+\\.[0-9]+)\\r?\\nError: ext2fs",
+    "EXT2FS Library version v?([0-9]+\\.[0-9]+\\.[0-9]+)",
+    "EXT2FS Library version \\w+-(?:[a-zA-Z]+-[a-zA-Z0-9\\-]+|[0-9]+(?:\\.[0-9]+)+)[\\t-\\r -~]+\\b([0-9]+\\.[0-9]+\\.[0-9]+)\\b",
+    "\\b([0-9]+\\.[0-9]+\\.[0-9]+)\\b[\\t-\\r -~]+EXT2FS Library version "
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "ed",
+   "vendor_product": [
+    [
+     "gnu",
+     "ed"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "([0-9]+\\.[0-9]+)[A-Za-z0-9 '%\\.\\-\\r\\n]*GNU ed",
+    "ed\\.html[A-Za-z /:\\.\\r\\n]*([0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "elfutils",
+   "vendor_product": [
+    [
+     "elfutils_project",
+     "elfutils"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "([0-9]+\\.[0-9]+)\\r?\\nelfutils",
+    "elfutils\\r?\\n([0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "emacs",
+   "vendor_product": [
+    [
+     "gnu",
+     "emacs"
+    ]
+   ],
+   "filename_patterns": [
+    "emacs"
+   ],
+   "contains_patterns": [
+    "Bare Emacs (standard Lisp code not loaded)",
+    "Run M-x info RET m emacs RET m emacs invocation RET inside Emacs to"
+   ],
+   "version_patterns": [
+    "Id: GNU Emacs ([0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "enscript",
+   "vendor_product": [
+    [
+     "gnu",
+     "enscript"
+    ]
+   ],
+   "filename_patterns": [
+    "enscript"
+   ],
+   "contains_patterns": [
+    "set the PostScript language level that enscript",
+    "or set the environment variable `ENSCRIPT_LIBRARY' to point to your library directory."
+   ],
+   "version_patterns": [
+    "GNU Enscript ([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "erlang_otp",
+   "vendor_product": [
+    [
+     "erlang",
+     "erlang\\/otp"
+    ],
+    [
+     "erlang",
+     "otp"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "([0-9]+\\.[0-9]+(\\.[0-9]+)?(\\.[0-9]+)?)\\r?\\nErlang/OTP",
+    "Erlang/OTP[a-z0-9%: \\.\\-\\[\\]]*\\r?\\n([0-9]+\\.[0-9]+(\\.[0-9]+)?(\\.[0-9]+)?)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "exfatprogs",
+   "vendor_product": [
+    [
+     "namjaejeon",
+     "exfatprogs"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "([0-9]+\\.[0-9]+\\.[0-9]+)\\r?\\nexfatprogs version : %s"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "exiftags",
+   "vendor_product": [
+    [
+     "aertherwide",
+     "exiftags"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "Exif[a-z \\.]*\\r?\\n([0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "exim",
+   "vendor_product": [
+    [
+     "exim",
+     "exim"
+    ],
+    [
+     "university_of_cambridge",
+     "exim"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "exim/([0-9]+\\.[0-9]+(\\.[0-9]+)?)",
+    "([0-9]+\\.[0-9]+(\\.[0-9]+)?)\\r?\\n<<eximversion>>"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "exiv2",
+   "vendor_product": [
+    [
+     "andreas_huggel",
+     "exiv2"
+    ],
+    [
+     "exiv2",
+     "exiv2"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "exiv2 ([0-9]+\\.[0-9]+\\.?[0-9]*)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "f2fs_tools",
+   "vendor_product": [
+    [
+     "f2fs-tools_project",
+     "f2fs-tools"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "F2FS-tools: mkfs\\.f2fs Ver: %s[A-Za-z0-9%=\\-\\[\\]:_ \\(\\)\\r\\n\\t]*([0-9]+\\.[0-9]+\\.[0-9]+)",
+    "([0-9]+\\.[0-9]+\\.[0-9]+)[A-Za-z0-9%/>=\\-\\[\\]\\.:~, \\(\\)\\r\\n\\t]*Usage: fsck.f2fs"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "faad2",
+   "vendor_product": [
+    [
+     "audiocoding",
+     "faad2"
+    ],
+    [
+     "audiocoding",
+     "freeware_advanced_audio_decoder_2"
+    ],
+    [
+     "faad2_project",
+     "faad2"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "faad-([0-9]+\\.[0-9]+\\.[0-9]+)",
+    "TAG\\r?\\n([0-9]+\\.[0-9]+\\.[0-9]+)[A-Za-z \\r?\\n]+Copyright 2002-2004: Ahead Software AG"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "fastd",
+   "vendor_product": [
+    [
+     "fastd_project",
+     "fastd"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "fastd v([0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "fastnetmon",
+   "vendor_product": [
+    [
+     "pavel-odintsov",
+     "fastnetmon"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "fastnetmon-([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "fetchmail",
+   "vendor_product": [
+    [
+     "fetchmail",
+     "fetchmail"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "([0-9]+\\.[0-9]+\\.[0-9]+)[A-Za-z0-9/%():@=>' \\\"\\.\\-\\t\\r\\n]*fetchmail"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "ffmpeg",
+   "vendor_product": [
+    [
+     "ffmpeg",
+     "ffmpeg"
+    ]
+   ],
+   "filename_patterns": [
+    "libffmpeg\\.so(\\.\\d+)?",
+    "ffmpeg"
+   ],
+   "contains_patterns": [
+    "Codec '%s' is not recognized by FFmpeg.",
+    "Codec '%s' is known to FFmpeg, but no %s for it are available."
+   ],
+   "version_patterns": [
+    "%s version ([0-9]+\\.[0-9]+(\\.[0-9]+)?)[a-zA-Z0-9 \\(\\)%~\\-\\r\\n]*(?:avutil|FFmpeg)",
+    "FFmpeg version n?([0-9]+\\.[0-9]+(\\.[0-9]+)?)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "file",
+   "vendor_product": [
+    [
+     "christos_zoulas",
+     "file"
+    ],
+    [
+     "file",
+     "file"
+    ],
+    [
+     "file_project",
+     "file"
+    ],
+    [
+     "gentoo",
+     "file"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "([0-9]+\\.[0-9]+)\\r?\\n%s-%s\\r?\\nmagic file",
+    "([0-9]+\\.[0-9]+)\\r?\\nmagic file"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "firefox",
+   "vendor_product": [
+    [
+     "mozilla",
+     "firefox"
+    ]
+   ],
+   "filename_patterns": [
+    "firefox"
+   ],
+   "contains_patterns": [],
+   "version_patterns": [
+    "/firefox-([0-9]+.[0-9]+(.[0-9]+)?)",
+    "\"name\":\"firefox\",\"version\":\"([0-9]+.[0-9]+(.[0-9]+)?)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "firejail",
+   "vendor_product": [
+    [
+     "firejail_project",
+     "firejail"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "([0-9]+\\.[0-9]+\\.[0-9]+(\\.[0-9]+)?)\\r?\\nfirejail version"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "fish",
+   "vendor_product": [
+    [
+     "fishshell",
+     "fish"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "fish-([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "flac",
+   "vendor_product": [
+    [
+     "flac",
+     "libflac"
+    ],
+    [
+     "flac_project",
+     "flac"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "flac-([0-9]+\\.[0-9]+\\.[0-9]+)",
+    "reference libFLAC ([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "fluidsynth",
+   "vendor_product": [
+    [
+     "fluidsynth",
+     "fluidsynth"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "FluidSynth executable version ([0-9]+\\.[0-9]+\\.[0-9]+)",
+    "([0-9]+\\.[0-9]+\\.[0-9]+)[a-zA-Z0-9=:% \\(\\)\\-\\.\\r\\n]*FluidSynth",
+    "fluidsynth-([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "freeradius",
+   "vendor_product": [
+    [
+     "freeradius",
+     "freeradius"
+    ]
+   ],
+   "filename_patterns": [
+    "radiusd"
+   ],
+   "contains_patterns": [
+    "Application and libfreeradius-server magic number (commit) mismatch.  application: %lx library: %lx",
+    "Application and libfreeradius-server magic number (prefix) mismatch.  application: %x library: %x"
+   ],
+   "version_patterns": [
+    "FreeRADIUS Version ([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "freerdp",
+   "vendor_product": [
+    [
+     "freerdp",
+     "freerdp"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "freerdp2-([0-9]+\\.[0-9]+\\.[0-9]+)",
+    "FreeRDP-([0-9]+\\.[0-9]+\\.[0-9]+)",
+    "FreeRDP/([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "fribidi",
+   "vendor_product": [
+    [
+     "gnu",
+     "fribidi"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "fribidi ([0-9]+\\.[0-9]+\\.[0-9]+)",
+    "\\(GNU FriBidi\\) ([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "frr",
+   "vendor_product": [
+    [
+     "frrouting",
+     "frrouting"
+    ],
+    [
+     "linuxfoundation",
+     "free_range_routing"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "([0-9]+\\.[0-9]+(\\.[0-9]+)?)\\r?\\n(?:babeld|bfdd|eigrpd|fabricd|isisd|ldpd|nhrpd|ospfd|ospf6d|pathd|pbrd|pimd|ripd|ripngd|staticd|vrrpd|watchfrr|zebra) daemon",
+    "FRR \\(version ([0-9]+\\.[0-9]+(\\.[0-9]+)?)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "fuse",
+   "vendor_product": [
+    [
+     "fuse_project",
+     "fuse"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "(?:FUSE library|fusermount)3? version: %s\\r?\\n([0-9]+\\.[0-9]+\\.[0-9]+)",
+    "([0-9]+\\.[0-9]+\\.[0-9]+)\\r?\\n(?:FUSE library|fusermount)3? version"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "gawk",
+   "vendor_product": [
+    [
+     "gnu",
+     "gawk"
+    ]
+   ],
+   "filename_patterns": [
+    "gawk"
+   ],
+   "contains_patterns": [],
+   "version_patterns": [
+    "GNU Awk (\\d+\\.\\d+\\.\\d+)\\r?\\n"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "gcc",
+   "vendor_product": [
+    [
+     "gnu",
+     "gcc"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [
+    "Do not predefine system-specific and GCC-specific macros\\.",
+    "Dump detailed information on GCC's internal representation of source code locations\\."
+   ],
+   "version_patterns": [
+    "GCC: \\([a-zA-Z ,0-9_+\\-\\.]+\\) ([0-9]+\\.[0-9]+(\\.[0-9]+)?)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "gdal",
+   "vendor_product": [
+    [
+     "gdal",
+     "gdal"
+    ],
+    [
+     "osgeo",
+     "gdal"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "gdal-([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "gdb",
+   "vendor_product": [
+    [
+     "gnu",
+     "gdb"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "gdb-([0-9]+\\.[0-9]+\\.?[0-9]*)",
+    "\\r?\\n([0-9]+\\.[0-9]+\\.?[0-9]*)\\r?\\n[A-Za-z0-9<>()!,_=|'`+*&^{} \\\\\\.\\-\\\"\\r\\n\\t]*GDB ",
+    "gdb_[A-Za-z0-9_*\\-\\r\\n]*\\r?\\n([0-9]+\\.[0-9]+\\.?[0-9]*)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "gdk_pixbuf",
+   "vendor_product": [
+    [
+     "gnome",
+     "gdk-pixbuf"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "dest_pixbuf\\)\\r?\\n([0-9]+\\.[0-9]+\\.[0-9]+)",
+    "([0-9]+\\.[0-9]+\\.[0-9]+)[a-zA-Z0-9/!=&_>' \\(\\)\\-\\.\\t\\r\\n]*GDK_PIXBUF_MAGIC_NUMBER"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "gettext",
+   "vendor_product": [
+    [
+     "gnu",
+     "gettext"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "gettext[A-Za-z:\\-\\r\\n]*([0-9]+\\.[0-9]+\\.[0-9]+(\\.[0-9]+)?)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "ghostscript",
+   "vendor_product": [
+    [
+     "artifex",
+     "ghostscript"
+    ],
+    [
+     "ghostscript",
+     "ghostscript"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "ghostscript/([0-9]+\\.[0-9]+)",
+    "([0-9]+\\.[0-9]+\\.[0-9]+)\\r?\\n[a-z:/]*ghostscript"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "gimp",
+   "vendor_product": [
+    [
+     "gimp",
+     "gimp"
+    ]
+   ],
+   "filename_patterns": [
+    "gimp"
+   ],
+   "contains_patterns": [],
+   "version_patterns": [
+    "image-uri\\r?\\nGIMP ([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "git",
+   "vendor_product": [
+    [
+     "git",
+     "git"
+    ],
+    [
+     "git_project",
+     "git"
+    ],
+    [
+     "git-scm",
+     "git"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "git/([0-9]+\\.[0-9]+\\.[0-9]+(\\.[0-9]+)?)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "glib",
+   "vendor_product": [
+    [
+     "gnome",
+     "glib"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "GDBus ([0-9]+\\.[0-9]+\\.[0-9]+)",
+    "glib-([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "glibc",
+   "vendor_product": [
+    [
+     "gnu",
+     "glibc"
+    ]
+   ],
+   "filename_patterns": [
+    "ldd",
+    "libc6",
+    "glibc-source",
+    "glibc",
+    "nscd",
+    "libc\\.so",
+    "libc-([012](\\.[0-9]+){1,2})\\.so",
+    "ld-([012](\\.[0-9]+){1,2})\\.so"
+   ],
+   "contains_patterns": [
+    "The following command substitution is needed to make ldd work in SELinux",
+    "environments where the RTLD might not have permission to write to the",
+    "Valid options for the LD_DEBUG environment variable are:",
+    "To direct the debugging output into a file instead of standard output",
+    "Mandatory or optional arguments to long options are also mandatory or optional for any corresponding short options."
+   ],
+   "version_patterns": [
+    "GNU C Library \\([a-zA-Z0-9 \\+\\-\\.]*\\) (?:release|stable) release version ([012](\\.[0-9]+){1,2})",
+    "GLIBC ([012](\\.[0-9]+){1,2})[a-z0-9+\\-]*\\) \\r?\\n"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "gmp",
+   "vendor_product": [
+    [
+     "gmplib",
+     "gmp"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "gmp[a-z0-9\\.]*-([0-9]+\\.[0-9]+\\.[0-9]+)",
+    "([0-9]+\\.[0-9]+\\.[0-9]+)\\r?\\n0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz",
+    "([0-9]+\\.[0-9]+\\.[0-9]+)\\r?\\n0123456789abcdefghijklmnopqrstuvwxyz"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "gnomeshell",
+   "vendor_product": [
+    [
+     "gnome",
+     "gnome-shell"
+    ]
+   ],
+   "filename_patterns": [
+    "gnome-shell"
+   ],
+   "contains_patterns": [
+    "\\* Creates a window using gnome-shell-perf-helper for testing purposes."
+   ],
+   "version_patterns": [
+    "var PACKAGE_NAME = 'gnome\\-shell';\\r?\\n/\\* The version of this package \\*/\\r?\\nvar PACKAGE_VERSION = '([0-9]+\\.[0-9]+(\\.[0-9]+)?)';"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "gnupg",
+   "vendor_product": [
+    [
+     "gnupg",
+     "gnupg"
+    ]
+   ],
+   "filename_patterns": [
+    "gpg"
+   ],
+   "contains_patterns": [
+    "# \\(Use \\\"gpg --import-ownertrust\\\" to restore them\\)",
+    "Comment: Use \\\"gpg --dearmor\\\" for unpacking"
+   ],
+   "version_patterns": [
+    "gpg\\.conf\\-([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "gnutls",
+   "vendor_product": [
+    [
+     "gnu",
+     "gnutls"
+    ]
+   ],
+   "filename_patterns": [
+    "gnutls-cli",
+    "libgnutls.so",
+    "libgnutls-dane.so",
+    "gnutls-serv"
+   ],
+   "contains_patterns": [],
+   "version_patterns": [
+    "gnutls-cli ([0-9]+\\.[0-9]+\\.[0-9]+)",
+    "gnutls-serv ([0-9]+\\.[0-9]+\\.[0-9]+)",
+    "Enabled GnuTLS ([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "go",
+   "vendor_product": [
+    [
+     "golang",
+     "go"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "go([1-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "gpgme",
+   "vendor_product": [
+    [
+     "gnu",
+     "gpgme"
+    ]
+   ],
+   "filename_patterns": [
+    "gpgme"
+   ],
+   "contains_patterns": [],
+   "version_patterns": [
+    "This is GPGME ([0-9]+\\.[0-9]+\\.[0-9]+) \\- The GnuPG Made Easy library",
+    "GPGME-Tool ([0-9]+\\.[0-9]+\\.[0-9]+) ready"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "gpsd",
+   "vendor_product": [
+    [
+     "gpsd_project",
+     "gpsd"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "gpsd\\-([0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "graphicsmagick",
+   "vendor_product": [
+    [
+     "graphicsmagick",
+     "graphicsmagick"
+    ],
+    [
+     "imagemagick",
+     "graphicsmagick"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "GraphicsMagick ([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "grep",
+   "vendor_product": [
+    [
+     "gnu",
+     "grep"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "([0-9]+\\.[0-9]+)\\r?\\nGNU grep",
+    "\\r?\\ngrep-([0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "grub2",
+   "vendor_product": [
+    [
+     "gnu",
+     "grub"
+    ],
+    [
+     "gnu",
+     "grub2"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "GRUB2 ([0-9]+\\.[0-9]+)",
+    "GRUB\\r?\\n([0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "gsasl",
+   "vendor_product": [
+    [
+     "gnu",
+     "gnu_sasl"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "([0-9]+\\.[0-9]+\\.[0-9]+)[A-Za-z0-9 \\r\\n]*SASLprep"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "gsl",
+   "vendor_product": [
+    [
+     "gnu",
+     "gnu_scientific_library"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "\\r?\\n([0-9]+\\.[0-9]+)\\r?\\n[a-zA-Z0-9_%<>+()@!?,= \\[\\]\\-\\.\\t\\r\\n]*gsl_",
+    "gsl_[a-zA-Z0-9_%<>+()@!?,= \\[\\]\\-\\.\\t\\r\\n]*\\r?\\n([0-9]+\\.[0-9]+)\\r?\\n"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "gstreamer",
+   "vendor_product": [
+    [
+     "gstreamer",
+     "gstreamer"
+    ],
+    [
+     "gstreamer_project",
+     "gstreamer"
+    ]
+   ],
+   "filename_patterns": [
+    "libgstreamer\\.so(\\.\\d+)?",
+    "gstreamer"
+   ],
+   "contains_patterns": [
+    "http://bugzilla.gnome.org/enter_bug.cgi?product=GStreamer"
+   ],
+   "version_patterns": [
+    "((\\d+\\.)+\\d+)[a-zA-Z \\r\\n]*GStreamer ",
+    "gstreamer[a-zA-Z \\r\\n]+((\\d+\\.)+\\d+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "guile",
+   "vendor_product": [
+    [
+     "gnu",
+     "guile"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "guileversion\\r?\\n([0-9]+\\.[0-9]+\\.[0-9]+)\\r?\\n"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "gupnp",
+   "vendor_product": [
+    [
+     "gupnp",
+     "gupnp"
+    ],
+    [
+     "gnome",
+     "gupnp"
+    ]
+   ],
+   "filename_patterns": [
+    "libgupnp"
+   ],
+   "contains_patterns": [
+    "GUPnPContext: Unable to listen on "
+   ],
+   "version_patterns": [
+    "%s GUPnP/([0-9]+\\.[0-9]+\\.[0-9]+) DLNADOC/"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "gvfs",
+   "vendor_product": [
+    [
+     "gnome",
+     "gvfs"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "gvfs ([0-9]+\\.[0-9]+\\.[0-9]+)",
+    "gvfs/([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "gzip",
+   "vendor_product": [
+    [
+     "gnu",
+     "gzip"
+    ],
+    [
+     "gzip",
+     "gzip"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "file size changed while zipping\\r?\\n([0-9]+\\.[0-9]+)",
+    "Written by Jean-loup Gailly.[a-zA-Z0-9:%,' \\-\\.\\r\\n]*\\r?\\n([0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "haproxy",
+   "vendor_product": [
+    [
+     "haproxy",
+     "haproxy"
+    ]
+   ],
+   "filename_patterns": [
+    "haproxy"
+   ],
+   "contains_patterns": [],
+   "version_patterns": [
+    "HA-Proxy version ([0-9]+\\.[0-9]+\\.[0-9]+)",
+    "([0-9]+\\.[0-9]+\\.[0-9]+)-?[0-9]*\\r?\\nHAProxy version follows"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "harfbuzz",
+   "vendor_product": [
+    [
+     "harfbuzz_project",
+     "harfbuzz"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "HB_OPTIONS\\r?\\nuniscribe-bug-compatible\\r?\\ninvalid\\r?\\n([0-9]+\\.[0-9]+\\.[0-9]+)",
+    "([0-9]+\\.[0-9]+\\.[0-9]+)\\r?\\nHarfBuzz"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "haserl",
+   "vendor_product": [
+    [
+     "haserl_project",
+     "haserl"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "haserl version ([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "hdf5",
+   "vendor_product": [
+    [
+     "hdfgroup",
+     "hdf5"
+    ]
+   ],
+   "filename_patterns": [
+    "libhdf5.so."
+   ],
+   "contains_patterns": [
+    "### HDF5 metadata cache trace file version 1 ###",
+    "%s'HDF5_DISABLE_VERSION_CHECK' environment variable is set to %d, application will"
+   ],
+   "version_patterns": [
+    "HDF5 library version: ([0-9]+\\.[0-9]+(\\.[0-9]+))",
+    "HDF5 Version: ([0-9]+\\.[0-9]+(\\.[0-9]+))"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "heimdal",
+   "vendor_product": [
+    [
+     "heimdal_project",
+     "heimdal"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "Heimdal ([0-9]+\\.[0-9]+\\.[0-9]+)",
+    "Heimdal crypto ltm engine version ([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "hostapd",
+   "vendor_product": [
+    [
+     "w1.fi",
+     "hostapd"
+    ]
+   ],
+   "filename_patterns": [
+    "hostapd"
+   ],
+   "contains_patterns": [],
+   "version_patterns": [
+    "\\nhostapd[_a-z]* v([0-9]+\\.[0-9]+(\\.[0-9]+)?)",
+    "([0-9]+\\.[0-9]+(\\.[0-9]+)?)[a-z-]*\\r?\\nhostapd[_a-z]* v"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "hplip",
+   "vendor_product": [
+    [
+     "hp",
+     "hplip"
+    ],
+    [
+     "hp",
+     "linux_imaging_and_printing"
+    ],
+    [
+     "hp",
+     "linux_imaging_and_printing_project"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "([0-9]+\\.[0-9]+\\.[0-9]+)[A-Za-z0-9%_/:+()!=; \\.\\-\\r\\n]*HP Linux Imaging and Printing System"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "hunspell",
+   "vendor_product": [
+    [
+     "hunspell_project",
+     "hunspell"
+    ]
+   ],
+   "filename_patterns": [
+    "hunspell"
+   ],
+   "contains_patterns": [
+    "Example: hunspell -d en_US file.txt    # interactive spelling"
+   ],
+   "version_patterns": [
+    "@\\(#\\) International Ispell Version .+ \\(but really Hunspell ([0-9]+\\.[0-9]+\\.[0-9]+)\\)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "hwloc",
+   "vendor_product": [
+    [
+     "open-mpi",
+     "hwloc"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "hwloc[a-zA-Z/%#() \\-\\.\\r\\n]*([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "i2pd",
+   "vendor_product": [
+    [
+     "i2pd",
+     "i2pd"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "i2pd v\\r?\\n([0-9]+\\.[0-9]+\\.[0-9]+)",
+    "i2pd\\r?\\n([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "icecast",
+   "vendor_product": [
+    [
+     "icecast",
+     "icecast"
+    ],
+    [
+     "xiph",
+     "icecast"
+    ]
+   ],
+   "filename_patterns": [
+    "icecast"
+   ],
+   "contains_patterns": [],
+   "version_patterns": [
+    "Icecast ([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "icu",
+   "vendor_product": [
+    [
+     "icu-project",
+     "international_components_for_unicode"
+    ],
+    [
+     "unicode",
+     "international_components_for_unicode"
+    ]
+   ],
+   "filename_patterns": [
+    "international_components_for_unicode.o",
+    "genrb",
+    "uconv"
+   ],
+   "contains_patterns": [
+    "-i or --icudatadir       directory for locating any needed intermediate data files,",
+    "-j or --write-java       write a Java ListResourceBundle for ICU4J, followed by optional encoding",
+    "failed to load root collator \\(ucadata.icu\\) - %s",
+    "is about 300kB larger than the ucadata-implicithan\\.icu version\\.",
+    "the ucadata-unihan\\.icu version of the collation root data"
+   ],
+   "version_patterns": [
+    "icu(?:-|/)([0-9]+\\.[0-9]+(\\.[0-9]+)?)",
+    "ICU(?: |_DATA[a-z\\r\\n]*)([0-9]+\\.[0-9]+(\\.[0-9]+)?)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "igmpproxy",
+   "vendor_product": [
+    [
+     "pali",
+     "igmpproxy"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "igmpproxy ([0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "imagemagick",
+   "vendor_product": [
+    [
+     "imagemagick",
+     "imagemagick"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "ImageMagick ([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "indent",
+   "vendor_product": [
+    [
+     "gnu",
+     "indent"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "GNU indent[a-zA-Z0-9_%/+:`' \\\"\\(\\)\\-\\.\\r\\n]*([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "inetutils",
+   "vendor_product": [
+    [
+     "gnu",
+     "inetutils"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "([0-9]+\\.[0-9]+(\\.[0-9]+)?)\\r?\\nGNU inetutils"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "iperf3",
+   "vendor_product": [
+    [
+     "es",
+     "iperf3"
+    ],
+    [
+     "iperf3_project",
+     "iperf3"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "iperf ([0-9]+\\.[0-9]+\\.?[0-9]*)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "ipmitool",
+   "vendor_product": [
+    [
+     "ipmitool_project",
+     "ipmitool"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "([0-9]+\\.[0-9]+\\.[0-9]+)[a-zA-Z0-9 !:,\\.<>\\[\\]\\(\\)=/%\\-\\r\\n]*IPMI[_v]"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "ipsec_tools",
+   "vendor_product": [
+    [
+     "ipsec-tools",
+     "ipsec-tools"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "ipsec-tools ([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "iptables",
+   "vendor_product": [
+    [
+     "netfilter",
+     "iptables"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "\\r?\\n([1-9]{1,2}\\.[0-9]+\\.[0-9]+\\.?[0-9]*)\\r?\\niptables",
+    "iptables-([0-9]+\\.[0-9]+\\.[0-9]+\\.?[0-9]*)",
+    "iptables-rules>[a-zA-Z %:\\r\\n]*([0-9]+\\.[0-9]+\\.[0-9]+\\.?[0-9]*)",
+    "iptables-save v%s on %s\\r?\\n([0-9]+\\.[0-9]+\\.[0-9]+\\.?[0-9]*)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "iputils",
+   "vendor_product": [
+    [
+     "iputils",
+     "iputils"
+    ],
+    [
+     "iputils_project",
+     "iputils"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "([0-9]{8})\\r?\\n[a-z, ]*iputils",
+    "iputils[A-Za-z0-9 \\-\\r\\n]*\\r?\\n([0-9]{8})\\r?\\n"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "irssi",
+   "vendor_product": [
+    [
+     "irssi",
+     "irssi"
+    ]
+   ],
+   "filename_patterns": [
+    "irssi"
+   ],
+   "contains_patterns": [
+    "Configuration file was modified since irssi was last started - do you want to overwrite the possible changes\\?",
+    "# The real text formats that irssi uses are the ones you can find with"
+   ],
+   "version_patterns": [
+    "irssi ([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "iucode_tool",
+   "vendor_product": [
+    [
+     "iucode-tool_project",
+     "iucode-tool"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "iucode\\_tool ([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "iwd",
+   "vendor_product": [
+    [
+     "intel",
+     "inet_wireless_daemon"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "([0-9]+\\.[0-9]+)\\r?\\nIWD version %s",
+    "iwctl version ([0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "jack2",
+   "vendor_product": [
+    [
+     "jackaudio",
+     "jack2"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "jackdmp ([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "jacksondatabind",
+   "vendor_product": [
+    [
+     "fasterxml",
+     "jackson-databind"
+    ]
+   ],
+   "filename_patterns": [
+    "jackson-databind(-[0-9]+\\.[0-9]+\\.[0-9]+(.[0-9]+)?)?.jar"
+   ],
+   "contains_patterns": [
+    "<description>General data-binding functionality for Jackson: works on core streaming API</description>",
+    "<url>http://github.com/FasterXML/jackson-databind</url>"
+   ],
+   "version_patterns": [
+    "<tag>jackson-databind-([0-9]+\\.[0-9]+\\.[0-9]+(.[0-9]+)?)</tag>"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "jansson",
+   "vendor_product": [
+    [
+     "jansson_project",
+     "jansson"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "jsonp_strtod\\r?\\n([0-9]+\\.[0-9]+(\\.[0-9]+)?)",
+    "([0-9]+\\.[0-9]+(\\.[0-9]+)?)[a-zA-Z`_{#' \\[\\r\\n]*jsonp_strtod"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "janus",
+   "vendor_product": [
+    [
+     "meetecho",
+     "janus"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "not-a-git-repo\\r?\\n([0-9]+\\.[0-9]+\\.[0-9]+)\\r?\\njanus",
+    "janus[a-z_]*\\r?\\n([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "jasper",
+   "vendor_product": [
+    [
+     "jasper_project",
+     "jasper"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "([0-9]+\\.[0-9]+\\.[0-9]+)[a-z%: \\[\\]\\-\\r\\n]*libjasper",
+    "([0-9]+\\.[0-9]+\\.[0-9]+)\\r?\\nJasPer",
+    "/jasper-(?:version-)?([0-9]+\\.[0-9]+\\.[0-9]+)/"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "jbig",
+   "vendor_product": [
+    [
+     "cambridge_enterprise",
+     "jbig-kit"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "JBIG-KIT ([0-9]+\\.[0-9]) --"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "jhead",
+   "vendor_product": [
+    [
+     "jhead_project",
+     "jhead"
+    ],
+    [
+     "sentex",
+     "jhead"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "Jhead version: ([0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "jq",
+   "vendor_product": [
+    [
+     "jq_project",
+     "jq"
+    ],
+    [
+     "jqlang",
+     "jq"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "jq-([0-9]+\\.[0-9]+\\.[0-9]+)",
+    "([0-9]+\\.[0-9]+)[a-zA-Z0-9:\\-\\r\\n]*jq[ :]"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "json_c",
+   "vendor_product": [
+    [
+     "json-c",
+     "json-c"
+    ],
+    [
+     "json-c_project",
+     "json-c"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "json-c-([0-9]+\\.[0-9]+\\.?[0-9]*)",
+    "([0-9]+\\.[0-9]+\\.?[0-9]*)\\r?\\njson-c",
+    "([0-9]+\\.[0-9]+\\.?[0-9]*)[a-zA-Z0-9,% *!_()='+:;/<>\\[\\\"\\.\\-\\\\\\r\\n]* json_tokener_error"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "kbd",
+   "vendor_product": [
+    [
+     "kbd-project",
+     "kbd"
+    ]
+   ],
+   "filename_patterns": [
+    "kbd"
+   ],
+   "contains_patterns": [
+    "KDGKBDIACR\\(UC\\): %s: Unable to get accent table"
+   ],
+   "version_patterns": [
+    "kbd ([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "keepalived",
+   "vendor_product": [
+    [
+     "keepalived",
+     "keepalived"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "Keepalived v([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "kerberos",
+   "vendor_product": [
+    [
+     "mit",
+     "kerberos_5"
+    ]
+   ],
+   "filename_patterns": [
+    "kerberos"
+   ],
+   "contains_patterns": [
+    "KRB5_BRAND: "
+   ],
+   "version_patterns": [
+    "KRB5_BRAND: krb5-(\\d+\\.\\d+\\.?\\d?)-final",
+    "kerberos 5[_-][apl-]*(1+\\.[0-9]+(\\.[0-9]+)*)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "kexectools",
+   "vendor_product": [
+    [
+     "kexec-tools_project",
+     "kexec-tools"
+    ],
+    [
+     "redhat",
+     "kexec-tools"
+    ]
+   ],
+   "filename_patterns": [
+    "kexec"
+   ],
+   "contains_patterns": [],
+   "version_patterns": [
+    "kexec-tools ([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "kodi",
+   "vendor_product": [
+    [
+     "kodi",
+     "kodi"
+    ],
+    [
+     "xbmc",
+     "xbmc"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "(?:kodi|xbmc)-([0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "kubernetes",
+   "vendor_product": [
+    [
+     "kubernetes",
+     "kubernetes"
+    ]
+   ],
+   "filename_patterns": [
+    "kubectl"
+   ],
+   "contains_patterns": [],
+   "version_patterns": [
+    "kubernetes-([0-9]+.[0-9]+(.[0-9]+)?)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "ldns",
+   "vendor_product": [
+    [
+     "nlnetlabs",
+     "ldns"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "(?:\\n|\\()ldns[a-zA-Z0-9_*\\)\\r\\n]*([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "lftp",
+   "vendor_product": [
+    [
+     "alexander_v._lukyanov",
+     "lftp"
+    ],
+    [
+     "lftp_project",
+     "lftp"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "lftp\\/([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "libarchive",
+   "vendor_product": [
+    [
+     "freebsd",
+     "libarchive"
+    ],
+    [
+     "libarchive",
+     "libarchive"
+    ]
+   ],
+   "filename_patterns": [
+    "libarchive.so"
+   ],
+   "contains_patterns": [],
+   "version_patterns": [
+    "libarchive ([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "libass",
+   "vendor_product": [
+    [
+     "libass_project",
+     "libass"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "([0-9]+\\.[0-9]+\\.[0-9]+)\\r?\\nlibass"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "libbpg",
+   "vendor_product": [
+    [
+     "libbpg_project",
+     "libbpg"
+    ]
+   ],
+   "filename_patterns": [
+    "bpgenc"
+   ],
+   "contains_patterns": [],
+   "version_patterns": [
+    "libbpg-([0-9]+\\.[0-9]+(\\.[0-9]+))"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "libbson",
+   "vendor_product": [
+    [
+     "mongodb",
+     "libbson"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "([0-9]+\\.[0-9]+\\.[0-9]+)(?:\\r?\\n|/)src/(?:lib|)bson"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "libcap",
+   "vendor_product": [
+    [
+     "libcap",
+     "libcap"
+    ],
+    [
+     "libcap_project",
+     "libcap"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "libcap-([0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "libcoap",
+   "vendor_product": [
+    [
+     "libcoap",
+     "libcoap"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "libcoap ([0-9]+\\.[0-9]+\\.[0-9a-z]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "libconfuse",
+   "vendor_product": [
+    [
+     "libconfuse_project",
+     "libconfuse"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "libConfuse ([0-9]+\\.[0-9]+\\.?[0-9]*)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "libcurl",
+   "vendor_product": [
+    [
+     "haxx",
+     "libcurl"
+    ]
+   ],
+   "filename_patterns": [
+    "libcurl\\.so(\\.\\d+)?"
+   ],
+   "contains_patterns": [],
+   "version_patterns": [
+    "libcurl[ -/]([678]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "libdb",
+   "vendor_product": [
+    [
+     "oracle",
+     "berkeley_db"
+    ]
+   ],
+   "filename_patterns": [
+    "libdb-"
+   ],
+   "contains_patterns": [
+    "BDB1568 Berkeley DB library does not support DB_REGISTER on this system",
+    "BDB1507 Thread died in Berkeley DB library",
+    "Berkeley DB "
+   ],
+   "version_patterns": [
+    "Berkeley DB .+, library version ([0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+):",
+    "Berkeley DB ([0-9]+\\.[0-9]+\\.[0-9]+):"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "libde265",
+   "vendor_product": [
+    [
+     "struktur",
+     "libde265"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "([0-9]+\\.[0-9]+\\.[0-9]+)[a-zA-Z0-9/!=_,:<>. \\[\\]\\(\\)\\-\\r\\n]*de265"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "libebml",
+   "vendor_product": [
+    [
+     "matroska",
+     "libebml"
+    ]
+   ],
+   "filename_patterns": [
+    "libebml.so"
+   ],
+   "contains_patterns": [],
+   "version_patterns": [
+    "libebml-([0-9]+\\.[0-9]+\\.[0-9]+)",
+    "([0-9]+\\.[0-9]+\\.[0-9]+)\\nUnknown\\nEBMLVoid"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "libevent",
+   "vendor_product": [
+    [
+     "libevent_project",
+     "libevent"
+    ],
+    [
+     "niels_provos",
+     "libevent"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "libevent using: %s[a-zA-Z%:. \\r\\n]*([0-9]+\\.[0-9]+\\.[0-9]+)-stable",
+    "([0-9]+\\.[0-9]+\\.[0-9]+)-stable[0-9a-zA-Z|~,;!&+=*%_<>():'. \\[\\]\\-\\r\\n]*libevent using:"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "libexpat",
+   "vendor_product": [
+    [
+     "libexpat_project",
+     "libexpat"
+    ]
+   ],
+   "filename_patterns": [
+    "libexpat.so"
+   ],
+   "contains_patterns": [
+    "reserved prefix (xml) must not be undeclared or bound to another namespace name",
+    "cannot change setting once parsing has begun",
+    "requested feature requires XML_DTD support in Expat"
+   ],
+   "version_patterns": [
+    "expat_([012]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "libgcrypt",
+   "vendor_product": [
+    [
+     "gnupg",
+     "libgcrypt"
+    ]
+   ],
+   "filename_patterns": [
+    "libgcrypt.so."
+   ],
+   "contains_patterns": [
+    "fork detection failed",
+    "too many random bits requested",
+    "severe error getting random"
+   ],
+   "version_patterns": [
+    "Libgcrypt ([01]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "libgd",
+   "vendor_product": [
+    [
+     "libgd",
+     "libgd"
+    ],
+    [
+     "libgd",
+     "gd_graphics_library"
+    ],
+    [
+     "gd_graphics_library_project",
+     "gd_graphics_library"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "gd-tga:[a-zA-Z,'%!. \\-\\r\\n]*([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "libgit2",
+   "vendor_product": [
+    [
+     "libgit2",
+     "libgit2"
+    ],
+    [
+     "libgit2_project",
+     "libgit2"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "libgit2 ([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "libheif",
+   "vendor_product": [
+    [
+     "struktur",
+     "libheif"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "([0-9]+\\.[0-9]+\\.[0-9]+)[a-zA-Z0-9/_ \\r\\n]*[h|H]eif"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "libhtp",
+   "vendor_product": [
+    [
+     "oisf",
+     "libhtp"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "LibHTP v([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "libical",
+   "vendor_product": [
+    [
+     "libical_project",
+     "libical"
+    ]
+   ],
+   "filename_patterns": [
+    "libical"
+   ],
+   "contains_patterns": [],
+   "version_patterns": [
+    "libical-([0-9]+\\.[0-9]+(\\.[0-9]+)?)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "libidn",
+   "vendor_product": [
+    [
+     "gnu",
+     "libidn"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "UTF-8\\r?\\n([0-9]+\\.[0-9]+)\\r?\\nNameprep"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "libidn2",
+   "vendor_product": [
+    [
+     "gnu",
+     "libidn2"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "libidn2[a-z0-9\\.]*-([0-9]+\\.[0-9]+\\.[0-9]+)",
+    "Simon Josefsson[a-zA-Z ,]*\\r?\\n([0-9]+\\.[0-9]+\\.[0-9]+)",
+    "([0-9]+\\.[0-9]+\\.[0-9]+)\\r?\\nCopyright \\(C\\) [0-9-]*  Simon Josefsson",
+    "\\r?\\n([0-9]+\\.[0-9]+\\.[0-9]+)[a-zA-Z0-9()/ \\-\\r\\n]*IDN2_"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "libiec61850",
+   "vendor_product": [
+    [
+     "mz-automation",
+     "libiec61850"
+    ]
+   ],
+   "filename_patterns": [
+    "libiec61850\\.so",
+    "iec61850\\.so"
+   ],
+   "contains_patterns": [
+    "LibIEC61850_getVersionString"
+   ],
+   "version_patterns": [
+    "LIBIEC61850[\\r\\n]+([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "libinput",
+   "vendor_product": [
+    [
+     "freedesktop",
+     "libinput"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "libinput/doc/([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "libjpeg",
+   "vendor_product": [
+    [
+     "ijg",
+     "libjpeg"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "\\n([0-9][a-z])  [0-9]+-[a-zA-Z]+-[0-9]+"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "libjpeg_turbo",
+   "vendor_product": [
+    [
+     "d.r.commander",
+     "libjpeg-turbo"
+    ],
+    [
+     "libjpeg-turbo",
+     "libjpeg-turbo"
+    ]
+   ],
+   "filename_patterns": [
+    "libjpg.so."
+   ],
+   "contains_patterns": [
+    "LIBJPEG",
+    "Caution: quantization tables are too coarse for baseline JPEG",
+    "Invalid JPEG file structure: two SOF markers"
+   ],
+   "version_patterns": [
+    "libjpeg-turbo version ([0-9]+\\.[0-9]+\\.[0-9]+(\\.[0-9]+)?)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "libksba",
+   "vendor_product": [
+    [
+     "gnupg",
+     "libksba"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "Libksba ([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "liblas",
+   "vendor_product": [
+    [
+     "liblas",
+     "liblas"
+    ]
+   ],
+   "filename_patterns": [
+    "liblas"
+   ],
+   "contains_patterns": [
+    "N5boost6detail17sp_counted_impl_pIN6liblas5PointEEE",
+    "detail::liblas::read_n<T> input stream is not readable"
+   ],
+   "version_patterns": [
+    "libLAS ([01]+\\.[0-9]+(\\.[0-9]+)?)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "liblouis",
+   "vendor_product": [
+    [
+     "liblouis",
+     "liblouis"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "liblouis[a-zA-Z0-9:%/'_=,@ \\-\\\"\\\\\\(\\)\\.\\r\\n]*\\r?\\n([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "libmatroska",
+   "vendor_product": [
+    [
+     "matroska",
+     "libmatroska"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "libmatroska-([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "libmaxminddb",
+   "vendor_product": [
+    [
+     "maxmind",
+     "libmaxminddb"
+    ]
+   ],
+   "filename_patterns": [
+    "libmaxminddb\\.so"
+   ],
+   "contains_patterns": [
+    "MaxMind.com"
+   ],
+   "version_patterns": [
+    "MaxMind\\.com[a-z_\\r?\\n]*\\r?\\n(\\d+\\.\\d+\\.\\d+)\\r?\\n"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "libmemcached",
+   "vendor_product": [
+    [
+     "awesome",
+     "libmemcached"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "([0-9]+\\.[0-9]+\\.[0-9]+)\\r?\\nversion\\r?\\n(?:./src/|)libmemcached",
+    "mem(?:aslap|capable|cat|cp|dump|error|exist|flush|parse|ping|rm|slap|stat|touch)-([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "libmicrohttpd",
+   "vendor_product": [
+    [
+     "gnu",
+     "libmicrohttpd"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "MHD-worker[a-zA-Z0-9:%@+ \\(\\\"\\-\\.\\r\\n]*([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "libmodbus",
+   "vendor_product": [
+    [
+     "libmodbus",
+     "libmodbus"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "LMB([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "libnss",
+   "vendor_product": [
+    [
+     "mozilla",
+     "nss"
+    ],
+    [
+     "mozilla",
+     "network_security_services"
+    ]
+   ],
+   "filename_patterns": [
+    "libnss.so.",
+    "libssl3.so"
+   ],
+   "contains_patterns": [
+    "Client authentication failed: private key in key database does not match public key in certificate database.",
+    "The next protocol negotiation extension was enabled, but the callback was cleared prior to being needed.",
+    "# SSL/TLS secrets log file, generated by NSS",
+    "Header: NSS ",
+    "Version: NSS "
+   ],
+   "version_patterns": [
+    "\\$Header: NSS ([01234]+\\.[0-9]+) ",
+    "\\$Header: NSS ([01234]+\\.[0-9]+\\.[0-9]+) ",
+    "\\$Header: NSS ([01234]+\\.[0-9]+\\.[0-9]+)\\.[0-9]+ ",
+    "Version: NSS ([01234]+\\.[0-9]+) Basic",
+    "Version: NSS ([01234]+\\.[0-9]+\\.[0-9]+) Basic",
+    "Version: NSS ([01234]+\\.[0-9]+\\.[0-9]+)\\.[0-9]+ Basic",
+    "Version: NSS (\\d+(?:\\.\\d+)+)",
+    "\\@\\(#\\)NSS ([01234]+\\.[0-9]+) Basic",
+    "\\@\\(#\\)NSS ([01234]+\\.[0-9]+\\.[0-9]+) Basic",
+    "\\@\\(#\\)NSS ([01234]+\\.[0-9]+\\.[0-9]+)\\.[0-9]+ Basic"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "libopenmpt",
+   "vendor_product": [
+    [
+     "openmpt",
+     "libopenmpt"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "libopenmpt-([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "libpcap",
+   "vendor_product": [
+    [
+     "tcpdump",
+     "libpcap"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "libpcap version ([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "libraw",
+   "vendor_product": [
+    [
+     "libraw",
+     "libraw"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "([0-9]+\\.[0-9]+\\.[0-9]+)-Release[a-zA-z \\r\\n]*Reading RAW",
+    "[lL]ibraw[a-zA-z ,/\\r\\n]*([0-9]+\\.[0-9]+\\.[0-9]+)-Release"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "libreoffice",
+   "vendor_product": [
+    [
+     "libreoffice",
+     "libreoffice"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "libreoffice-([0-9]+\\.[0-9]+\\.[0-9]+(\\.[0-9]+)?)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "libreswan",
+   "vendor_product": [
+    [
+     "libreswan",
+     "libreswan"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "libreswan-([0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "librsvg",
+   "vendor_product": [
+    [
+     "gnome",
+     "librsvg"
+    ]
+   ],
+   "filename_patterns": [
+    "librsvg"
+   ],
+   "contains_patterns": [],
+   "version_patterns": [
+    "librsvg[0-9]?-([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "librsync",
+   "vendor_product": [
+    [
+     "librsync_project",
+     "librsync"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "librsync ([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "libsamplerate",
+   "vendor_product": [
+    [
+     "libsamplerate_project",
+     "libsamplerate"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "libsamplerate\\-([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "libseccomp",
+   "vendor_product": [
+    [
+     "libseccomp_project",
+     "libseccomp"
+    ]
+   ],
+   "filename_patterns": [
+    "libseccomp"
+   ],
+   "contains_patterns": [],
+   "version_patterns": [
+    "libseccomp.so.([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "libsixel",
+   "vendor_product": [
+    [
+     "libsixel_project",
+     "libsixel"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "sixel[a-z0-9 ]*([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "libsndfile",
+   "vendor_product": [
+    [
+     "libsndfile_project",
+     "libsndfile"
+    ],
+    [
+     "mega-nerd",
+     "libsndfile"
+    ]
+   ],
+   "filename_patterns": [
+    "libsndfile.so"
+   ],
+   "contains_patterns": [
+    "No error defined for this error number. This is a bug in libsndfile.",
+    "NULL SF_INFO pointer passed to libsndfile."
+   ],
+   "version_patterns": [
+    "libsndfile-(\\d+\\.\\d+\\.\\d+[a-z0-9]*)\\r?\\n"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "libsolv",
+   "vendor_product": [
+    [
+     "opensuse",
+     "libsolv"
+    ]
+   ],
+   "filename_patterns": [
+    "libsolv.so",
+    "libsolvext.so"
+   ],
+   "contains_patterns": [],
+   "version_patterns": [
+    "libsolv(?:\\.so\\.1)?-([0-9]+\\.[0-9]+\\.[0-9]+)",
+    "libsolv/([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "libsoup",
+   "vendor_product": [
+    [
+     "gnome",
+     "libsoup"
+    ],
+    [
+     "joe_shaw",
+     "libsoup"
+    ],
+    [
+     "libsoup",
+     "libsoup"
+    ]
+   ],
+   "filename_patterns": [
+    "libsoup"
+   ],
+   "contains_patterns": [],
+   "version_patterns": [
+    "libsoup/([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "libsrtp",
+   "vendor_product": [
+    [
+     "cisco",
+     "libsrtp"
+    ]
+   ],
+   "filename_patterns": [
+    "libsrtp"
+   ],
+   "contains_patterns": [
+    "An implementation of the Secure Real-time Transport Protocol \\(SRTP\\)",
+    "This package provides an implementation of the Secure Real-time",
+    "Transport Protocol \\(SRTP\\), the Universal Security Transform \\(UST\\), and",
+    "a supporting cryptographic kernel\\."
+   ],
+   "version_patterns": [
+    "libsrtp[0-9]? ([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "libssh",
+   "vendor_product": [
+    [
+     "libssh",
+     "libssh"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "SSH-2.0-libssh_([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "libssh2",
+   "vendor_product": [
+    [
+     "libssh2",
+     "libssh2"
+    ]
+   ],
+   "filename_patterns": [
+    "libssh2"
+   ],
+   "contains_patterns": [
+    "Invalid descriptor passed to libssh2_poll()",
+    "libssh2_channel_wait_closed() invoked when channel is not in EOF state"
+   ],
+   "version_patterns": [
+    "SSH-2.0-libssh2_([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "libtasn1",
+   "vendor_product": [
+    [
+     "free_software_foundation_inc.",
+     "libtasn1"
+    ],
+    [
+     "gnu",
+     "libtasn1"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "ASSIGNMENT,[a-zA-Z:\\r\\n]*\\r?\\n([0-9]+\\.[0-9]+(\\.[0-9]+)?)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "libtiff",
+   "vendor_product": [
+    [
+     "libtiff",
+     "libtiff"
+    ]
+   ],
+   "filename_patterns": [
+    "libtiff.so."
+   ],
+   "contains_patterns": [
+    "LIBTIFF, Version ",
+    "Unknown TIFF resolution unit %d ignored",
+    "TIFF directory is missing required \"StripByteCounts\" field, calculating from imagelength"
+   ],
+   "version_patterns": [
+    "LIBTIFF, Version ([0-9]+\\.[0-9]+\\.[0-9]+)\\r?\\nCopyright"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "libtomcrypt",
+   "vendor_product": [
+    [
+     "libtom",
+     "libtomcrypt"
+    ],
+    [
+     "libtomcrypt",
+     "libtomcrypt"
+    ]
+   ],
+   "filename_patterns": [
+    "libtomcrypt.so"
+   ],
+   "contains_patterns": [],
+   "version_patterns": [
+    "LibTomCrypt ([0-9]+\\.[0-9]+(\\.[0-9]+)*)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "libupnp",
+   "vendor_product": [
+    [
+     "libupnp_project",
+     "libupnp"
+    ],
+    [
+     "pupnp_project",
+     "pupnp"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "Portable SDK for UPnP devices/([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "libuv",
+   "vendor_product": [
+    [
+     "libuv_project",
+     "libuv"
+    ],
+    [
+     "libuv",
+     "libuv"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "(?:\\n|lib|/)uv[0-9a-z_= \\-\\.\\r\\n]*\\r?\\n([0-9]+\\.[0-9]+\\.[0-9]+)\\r?\\n",
+    "\\r?\\n([0-9]+\\.[0-9]+\\.[0-9]+)\\r?\\n[0-9a-zA-Z/_%:* \\.\\-\\t\\r\\n]*(?:\\nUV|libuv)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "libvips",
+   "vendor_product": [
+    [
+     "libvips",
+     "libvips"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "([0-9]+\\.[0-9]+\\.[0-9]+)[A-Za-z0-9./%: \\-\\(\\)\\r\\n]*\\r?\\nlibvips"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "libvirt",
+   "vendor_product": [
+    [
+     "libvirt",
+     "libvirt"
+    ],
+    [
+     "redhat",
+     "libvirt"
+    ]
+   ],
+   "filename_patterns": [
+    "libvirtd",
+    "libvirt.so"
+   ],
+   "contains_patterns": [],
+   "version_patterns": [
+    "LIBVIRT_PRIVATE_([0-9]+\\.[0-9]+\\.[0-9]+)",
+    "libvirt version: ([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "libvncserver",
+   "vendor_product": [
+    [
+     "libvncserver",
+     "libvncserver"
+    ],
+    [
+     "libvncserver_project",
+     "libvncserver"
+    ],
+    [
+     "libvnc_project",
+     "libvncserver"
+    ]
+   ],
+   "filename_patterns": [
+    "libvncserver"
+   ],
+   "contains_patterns": [
+    "-desktop name          VNC desktop name \\(default \\\"LibVNCServer\\\"\\)"
+   ],
+   "version_patterns": [
+    "LibVNCServer ([0-9]+\\.[0-9]+(\\.[0-9]+))"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "libvorbis",
+   "vendor_product": [
+    [
+     "xiph.org",
+     "libvorbis"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "libVorbis ([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "libvpx",
+   "vendor_product": [
+    [
+     "webmproject",
+     "libvpx"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "WebM Project VP[8|9] Encoder v([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "libxslt",
+   "vendor_product": [
+    [
+     "xmlsoft",
+     "libxslt"
+    ]
+   ],
+   "filename_patterns": [
+    "xsltproc"
+   ],
+   "contains_patterns": [
+    "libxslt.so.1",
+    "xsltLibxsltVersion",
+    "Using libxml %s, libxslt %s and libexslt %s",
+    "xsltproc was compiled against libxml %d, libxslt %d and libexslt %d",
+    "libxslt %d was compiled against libxml %d"
+   ],
+   "version_patterns": [
+    "libxslt\\.so\\.([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "libyaml",
+   "vendor_product": [
+    [
+     "pyyaml",
+     "libyaml"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "([0-9]+\\.[0-9]+\\.[0-9]+)[a-z_=&!>|()/ \\.\\-\\r\\n]*tag:yaml"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "libyang",
+   "vendor_product": [
+    [
+     "cesnet",
+     "libyang"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "libyang-([0-9]+\\.[0-9]+(\\.[0-9]+)?)",
+    "([0-9]+\\.[0-9]+\\.[0-9]+)[a-zA-Z0_%'= \\-\\(\\)\\[\\]\\.\\r\\n]*YANG"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "lighttpd",
+   "vendor_product": [
+    [
+     "lighttpd",
+     "lighttpd"
+    ]
+   ],
+   "filename_patterns": [
+    "lighttpd"
+   ],
+   "contains_patterns": [
+    "Invalid fds at startup with lighttpd",
+    "lighttpd will fail to start up"
+   ],
+   "version_patterns": [
+    "lighttpd/([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "linux_kernel",
+   "vendor_product": [
+    [
+     "linux",
+     "linux_kernel"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "vermagic=([0-9]+\\.[0-9]+\\.[0-9]+(\\.[0-9]+)?)",
+    "\\r?\\n(?:Linux version |)([0-9]+\\.[0-9]+\\.[0-9]+(\\.[0-9]+)?)[a-zA-Z0-9 ~/,+@\\-\\.\\(\\)]* #[0-9] [a-zA-Z]"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "linuxptp",
+   "vendor_product": [
+    [
+     "linuxptp_project",
+     "linuxptp"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "[ \\n]+(?:ptp|PTP)_[A-Za-z0-9_:% \\[\\]\\-\\.\\r\\n]*\\r?\\n([0-9]+\\.[0-9]+(\\.[0-9]+)?)\\r?\\n"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "lldpd",
+   "vendor_product": [
+    [
+     "lldpd_project",
+     "lldpd"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "lldpd ([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "llvm",
+   "vendor_product": [
+    [
+     "llvm",
+     "llvm"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "LLVM version ([0-9]+\\.[0-9]+\\.[0-9]+)",
+    "/llvm-[a-z]+/([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "logrotate",
+   "vendor_product": [
+    [
+     "gentoo",
+     "logrotate"
+    ],
+    [
+     "logrotate_project",
+     "logrotate"
+    ]
+   ],
+   "filename_patterns": [
+    "logrotate"
+   ],
+   "contains_patterns": [
+    "Set \\\"su\\\" directive in config file to tell logrotate which user/group should be used for rotation",
+    "WARNING: logrotate in debug mode does nothing except printing debug messages!  Consider using verbose mode \\(-v\\) instead if this is not what you want."
+   ],
+   "version_patterns": [
+    "logrotate ([0-9]+\\.[0-9]+\\.[0-9]+) - Copyright \\(C\\) 1995-2001 Red Hat, Inc."
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "lrzip",
+   "vendor_product": [
+    [
+     "long_range_zip_project",
+     "long_range_zip"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "lrz%s version %s\\r?\\n([0-9]+\\.[0-9]+)",
+    "([0-9]+\\.[0-9]+)\\r?\\nlrz%s version %s"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "lua",
+   "vendor_product": [
+    [
+     "lua",
+     "lua"
+    ]
+   ],
+   "filename_patterns": [
+    "lua"
+   ],
+   "contains_patterns": [
+    "PANIC: unprotected error in call to Lua API \\(%s\\)",
+    "-o name  output to file `name' \\(default is \\\"luac.out\\\"\\)"
+   ],
+   "version_patterns": [
+    "Lua ([0-9]+\\.[0-9]+\\.[0-9]+) "
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "luajit",
+   "vendor_product": [
+    [
+     "luajit",
+     "luajit"
+    ]
+   ],
+   "filename_patterns": [
+    "lua",
+    "luajit"
+   ],
+   "contains_patterns": [],
+   "version_patterns": [
+    "LuaJIT ([0-9]+\\.[0-9]+\\.[0-9]+)[a-z0-9\\-]*(?: |\\r?\\njit)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "lxc",
+   "vendor_product": [
+    [
+     "linuxcontainers",
+     "lxc"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "([0-9]+\\.[0-9]+\\.[0-9]+)[a-zA-Z:./ %\\r\\n]*lxc(?:\\.|\\-[a-z]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "lynx",
+   "vendor_product": [
+    [
+     "lynx",
+     "lynx"
+    ],
+    [
+     "lynx_project",
+     "lynx"
+    ],
+    [
+     "university_of_kansas",
+     "lynx"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "([0-9]+\\.[0-9]+\\.[0-9a-z]+\\.?[0-9]*)\\r?\\nLynx",
+    "https://lynx.invisible-island.net/\\r?\\n([0-9]+\\.[0-9]+\\.[0-9a-z]+\\.?[0-9]*)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "lz4",
+   "vendor_product": [
+    [
+     "lz4_project",
+     "lz4"
+    ],
+    [
+     "yann_collet",
+     "lz4"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "lz4-([0-9]+\\.[0-9]+\\.[0-9]+)",
+    "([0-9]+\\.[0-9]+\\.[0-9]+)\\r?\\nUnspecified error code\\r?\\nOK_NoError"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "lzo2",
+   "vendor_product": [
+    [
+     "oberhumer",
+     "lzo2"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "-[A-Za-z]{3} [0-9]{2} [0-9]{4}\\r?\\n([0-9]+\\.[0-9]+)\\r?\\n"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "mailx",
+   "vendor_product": [
+    [
+     "heirloom",
+     "mailx"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "mailx ([0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "mariadb",
+   "vendor_product": [
+    [
+     "mariadb",
+     "mariadb"
+    ]
+   ],
+   "filename_patterns": [
+    "mariadb",
+    "mariadb-client",
+    "mariadb_config",
+    "mariadb-client-core",
+    "mariadb-test",
+    "mariadb-test-data",
+    "odbc-mariadb",
+    "libmariadb-dev",
+    "libmariadb-dev-compat",
+    "libmariadb-java",
+    "libmariadbclient-dev",
+    "mariadb-backup",
+    "mariadb-plugin"
+   ],
+   "contains_patterns": [
+    "Oracle, MariaDB Corporation Ab and others.",
+    "General information about MariaDB can be found at\\nhttp://mariadb.org",
+    "Welcome to the MariaDB monitor.",
+    "MariaDB virtual IO plugin for socket communication"
+   ],
+   "version_patterns": [
+    "gnu\\r?\\n([0-9]+\\.[0-9]+\\.[0-9]+)-MariaDB",
+    "([0-9]+\\.[0-9]+\\.[0-9]+)\\r?\\nMariaDB"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "mbedtls",
+   "vendor_product": [
+    [
+     "arm",
+     "mbed_tls"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "[m|M]bed TLS[A-Z \\r\\n]+([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "mdadm",
+   "vendor_product": [
+    [
+     "mdadm_project",
+     "mdadm"
+    ]
+   ],
+   "filename_patterns": [
+    "mdadm",
+    "mdmon"
+   ],
+   "contains_patterns": [
+    "# do not edit this file, it is automatically generated by mdadm",
+    "--version     -V   : Print version information for mdadm",
+    "After these arrays are assembled, mdadm will look for other devices",
+    "For each array, mdadm needs to know the md device, the identity of",
+    "When fail mode is invoked, mdadm will see if the device belongs to an array",
+    "mdadm is used for building, managing, and monitoring"
+   ],
+   "version_patterns": [
+    "mdadm - v([0-9]+\\.[0-9]+(\\.[0-9]+)?)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "memcached",
+   "vendor_product": [
+    [
+     "memcached",
+     "memcached"
+    ]
+   ],
+   "filename_patterns": [
+    "memcached"
+   ],
+   "contains_patterns": [],
+   "version_patterns": [
+    "memcached ([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "micropython",
+   "vendor_product": [
+    [
+     "micropython",
+     "micropython"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "MicroPython v([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "minetest",
+   "vendor_product": [
+    [
+     "minetest",
+     "minetest"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "minetest-([0-9]+\\.[0-9]+\\.[0-9]+(\\.[0-9]+)?)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "mini_httpd",
+   "vendor_product": [
+    [
+     "acme",
+     "mini_httpd"
+    ],
+    [
+     "acme",
+     "mini-httpd"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "mini_httpd/([0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "minicom",
+   "vendor_product": [
+    [
+     "minicom",
+     "minicom"
+    ],
+    [
+     "minicom_project",
+     "minicom"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "Minicom([0-9]+\\.[0-9]+(\\.[0-9]+)*)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "minidlna",
+   "vendor_product": [
+    [
+     "minidlna_project",
+     "minidlna"
+    ],
+    [
+     "readymedia_project",
+     "readymedia"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "MiniDLNA ([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "miniupnpc",
+   "vendor_product": [
+    [
+     "miniupnp_project",
+     "miniupnpc"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "MiniUPnPc/([0-9]+\\.[0-9]+(\\.[0-9]+)?)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "miniupnpd",
+   "vendor_product": [
+    [
+     "miniupnp_project",
+     "miniupnpd"
+    ],
+    [
+     "miniupnp.free",
+     "miniupnpd"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "MiniUPnPd/([0-9]+\\.[0-9]+(\\.[0-9]+)?)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "moby",
+   "vendor_product": [
+    [
+     "mobyproject",
+     "moby"
+    ]
+   ],
+   "filename_patterns": [
+    "docker",
+    "dockerd",
+    "docker-init",
+    "docker-proxy"
+   ],
+   "contains_patterns": [],
+   "version_patterns": [
+    "moby-([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "modsecurity",
+   "vendor_product": [
+    [
+     "owasp",
+     "modsecurity"
+    ],
+    [
+     "trustwave",
+     "modsecurity"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "ModSecurity v([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "monit",
+   "vendor_product": [
+    [
+     "mmonit",
+     "monit"
+    ],
+    [
+     "tildeslash",
+     "monit"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "monit ([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "mosquitto",
+   "vendor_product": [
+    [
+     "eclipse",
+     "mosquitto"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "\\r?\\n([0-9]+\\.[0-9]+\\.[0-9]+)\\r?\\nmosquitto"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "motion",
+   "vendor_product": [
+    [
+     "motion_project",
+     "motion"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "motion ([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "mp4v2",
+   "vendor_product": [
+    [
+     "mp4v2",
+     "mp4v2"
+    ],
+    [
+     "mp4v2_project",
+     "mp4v2"
+    ],
+    [
+     "techsmith",
+     "mp4v2"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "MP4v2\\r?\\nversion:\\r?\\n([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "mpd",
+   "vendor_product": [
+    [
+     "musicpd",
+     "music_player_daemon"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "Music Player Daemon ([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "mpg123",
+   "vendor_product": [
+    [
+     "mpg123",
+     "mpg123"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "mpg123\\r?\\n([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "mpv",
+   "vendor_product": [
+    [
+     "mpv",
+     "mpv"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "mpv ([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "msmtp",
+   "vendor_product": [
+    [
+     "marlam",
+     "msmtp"
+    ],
+    [
+     "martin_lambers",
+     "msmtp"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "msmtp\\r?\\n([0-9]+\\.[0-9]+\\.[0-9]+)",
+    "msmtp\\r?\\n%s version %s\\r?\\n([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "mtr",
+   "vendor_product": [
+    [
+     "matt_kimball_and_roger_wolff",
+     "mtr"
+    ],
+    [
+     "mtr",
+     "mtr"
+    ]
+   ],
+   "filename_patterns": [
+    "mtr"
+   ],
+   "contains_patterns": [
+    "Mtr_Version,Start_Time,Status,Host,Hop,Ip,",
+    "protocol unsupported by mtr-packet interface"
+   ],
+   "version_patterns": [
+    "mtr ([0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "mupdf",
+   "vendor_product": [
+    [
+     "artifex",
+     "mupdf"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "mupdf[A-Za-z '/:%\\-\\r\\n]*([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "musl",
+   "vendor_product": [
+    [
+     "musl-libc",
+     "musl"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "\\r?\\n([0-9]+\\.[0-9]+\\.[0-9]+)\\r?\\n[ -~\\t\\r\\n]*MUSL_LOCPATH",
+    "musl libc[ -~\\t\\r\\n]*\\r?\\n([0-9]+\\.[0-9]+\\.[0-9]+)\\r?\\n"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "mutt",
+   "vendor_product": [
+    [
+     "mutt",
+     "mutt"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "muttrc-([0-9]+\\.[0-9]+\\.[0-9]+)",
+    "([0-9]+\\.[0-9]+\\.[0-9]+)\\r?\\nMutt",
+    "Mutt %s \\(%s\\)\\r?\\n([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "mysql",
+   "vendor_product": [
+    [
+     "oracle",
+     "mysql"
+    ],
+    [
+     "mysql",
+     "mysql"
+    ]
+   ],
+   "filename_patterns": [
+    "mysql",
+    "mysqladmin",
+    "mysql-community",
+    "mysql-client",
+    "mysql-client-core",
+    "mysql-server",
+    "mysql-server-core",
+    "mysql-community-client",
+    "mysql-bench",
+    "dovecot-mysql"
+   ],
+   "contains_patterns": [
+    "To buy MySQL Enterprise support, training, or other products, visit:"
+   ],
+   "version_patterns": [
+    "mysql\\-[0-9]+\\.[0-9]+\\-([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "nano",
+   "vendor_product": [
+    [
+     "gnu",
+     "nano"
+    ]
+   ],
+   "filename_patterns": [
+    "nano"
+   ],
+   "contains_patterns": [
+    "Usage: nano \\[OPTIONS\\] \\[\\[\\+LINE\\[,COLUMN\\]\\] FILE\\]...",
+    "Welcome to nano.  For basic help, type Ctrl+G.",
+    "When a filename is '-', nano reads data from standard input.",
+    "If needed, use nano with the -I option to adjust your nanorc settings.",
+    "Nano will be unable to load or save search history or cursor positions."
+   ],
+   "version_patterns": [
+    "GNU nano ([0-9]+\\.[0-9]+(\\.[0-9]+)?)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "nasm",
+   "vendor_product": [
+    [
+     "nasm",
+     "netwide_assembler"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "NASM ([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "nbd",
+   "vendor_product": [
+    [
+     "network_block_device_project",
+     "network_block_device"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "nbd-server version ([0-9]+\\.[0-9]+(\\.[0-9]+)*)",
+    "\\r?\\nnbd ([0-9]+\\.[0-9]+(\\.[0-9]+)*)",
+    "\\r?\\n([0-9]+\\.[0-9]+(\\.[0-9]+)*)\\r?\\nnbd"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "ncurses",
+   "vendor_product": [
+    [
+     "gnu",
+     "ncurses"
+    ]
+   ],
+   "filename_patterns": [
+    "libcurses",
+    "libform",
+    "libmenu",
+    "libncurses",
+    "libncurses\\+{2}",
+    "libpanel",
+    "libcursesw",
+    "libformw",
+    "libmenuw",
+    "libncursesw",
+    "libncurses\\+{2}w",
+    "libpanelw"
+   ],
+   "contains_patterns": [
+    "_nc_first_name",
+    "_nc_infotocap",
+    "if NCURSES_XNAMES"
+   ],
+   "version_patterns": [
+    "ncurses ([0-9]+\\.[0-9]+)",
+    "infocmp-([0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "neon",
+   "vendor_product": [
+    [
+     "neon",
+     "neon"
+    ],
+    [
+     "webdav",
+     "neon"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "neon ([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "nessus",
+   "vendor_product": [
+    [
+     "tenable",
+     "nessus"
+    ]
+   ],
+   "filename_patterns": [
+    "libnessus"
+   ],
+   "contains_patterns": [
+    "you have deleted older versions nessus libraries from your system",
+    "server_info_nessusd_version",
+    "nessuslib_version",
+    "nessus_lib_version"
+   ],
+   "version_patterns": [
+    "Nessus ([0-9]+\\.[0-9]+\\.[0-9]+)",
+    "libnessus.so.([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "net_snmp",
+   "vendor_product": [
+    [
+     "net-snmp",
+     "net-snmp"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "\\r?\\n([0-9]{1,2}\\.[0-9]+(\\.[0-9]+)?(\\.[0-9]+)?)\\r?\\n[a-zA-Z0-9*&%:_()'?!= \\-\\.\\r\\n]*netsnmp"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "netatalk",
+   "vendor_product": [
+    [
+     "netatalk",
+     "netatalk"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "netatalk/afppasswd\\r?\\n([0-9]+\\.[0-9]+\\.[0-9]+)",
+    "([0-9]+\\.[0-9]+\\.[0-9]+)\\r?\\nad \\(Netatalk",
+    "([0-9]+\\.[0-9]+\\.[0-9]+)\\r?\\nafpd \\%s \\- Apple Filing Protocol \\(AFP\\) daemon of Netatalk",
+    "([0-9]+\\.[0-9]+\\.[0-9]+)\\r?\\ncnid\\_dbd \\(Netatalk",
+    "([0-9]+\\.[0-9]+\\.[0-9]+)\\r?\\ncnid\\_metad \\(Netatalk",
+    "([0-9]+\\.[0-9]+\\.[0-9]+)\\r?\\nnetatalk"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "netdata",
+   "vendor_product": [
+    [
+     "netdata",
+     "netdata"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "NETDATA[A-Za-z_=%\\-\\r\\n]*v([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "netkit_ftp",
+   "vendor_product": [
+    [
+     "netkit-ftp",
+     "netkit_ftp"
+    ]
+   ],
+   "filename_patterns": [
+    "ftp"
+   ],
+   "contains_patterns": [
+    "-p: enable passive mode \\(default for ftp and pftp\\)",
+    "ftp: no answer from ftp-server \\(more than 5 sec\\)."
+   ],
+   "version_patterns": [
+    "\\$NetKit: netkit-ftp-([0-9]+\\.[0-9]+) \\$"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "netpbm",
+   "vendor_product": [
+    [
+     "netpbm",
+     "netpbm"
+    ],
+    [
+     "netpbm_project",
+     "netpbm"
+    ]
+   ],
+   "filename_patterns": [
+    "libnetpbm.so"
+   ],
+   "contains_patterns": [],
+   "version_patterns": [
+    "(?:netpbm-free-|Netpbm )([0-9]+\\.[0-9]+(\\.[0-9]+)?)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "nettle",
+   "vendor_product": [
+    [
+     "nettle_project",
+     "nettle"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "nettle[ -]([0-9]+\\.[0-9]+\\.?[0-9]*)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "nghttp2",
+   "vendor_product": [
+    [
+     "nghttp2",
+     "nghttp2"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "nghttp2/([0-9]+\\.[0-9]+\\.[0-9]+)",
+    "([0-9]+\\.[0-9]+\\.[0-9]+)\\r?\\nnghttp2[-_]",
+    "nghttp2_[a-z_]+\\r?\\n([0-9]+\\.[0-9]+\\.[0-9]+)\\r?\\n",
+    "([0-9]+\\.[0-9]+\\.[0-9]+)\\r?\\n:authority",
+    "([0-9]+\\.[0-9]+\\.[0-9]+)\\r?\\n:metho"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "nginx",
+   "vendor_product": [
+    [
+     "f5",
+     "nginx"
+    ],
+    [
+     "nginx",
+     "nginx"
+    ]
+   ],
+   "filename_patterns": [
+    "nginx"
+   ],
+   "contains_patterns": [
+    "NGINX environment variable",
+    "nginx was built with Session Tickets support"
+   ],
+   "version_patterns": [
+    "nginx/([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "ngircd",
+   "vendor_product": [
+    [
+     "barton",
+     "ngircd"
+    ],
+    [
+     "ngircd",
+     "ngircd"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "([0-9]+\\.[0-9]+)\\r?\\n(?:ngIRCd|/ngircd)",
+    "ngIRCd\\r?\\n%s %s-%s\\r?\\n([0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "nmap",
+   "vendor_product": [
+    [
+     "nmap",
+     "nmap"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "([0-9]+\\.[0-9]+)\\r?\\nNmap"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "node",
+   "vendor_product": [
+    [
+     "nodejs",
+     "node.js"
+    ]
+   ],
+   "filename_patterns": [
+    "bin/node"
+   ],
+   "contains_patterns": [
+    "https://nodejs.org/download/release/v",
+    "(0) == (uv_async_init(uv_default_loop(), &dispatch_debug_messages_async, DispatchDebugMessagesAsyncCallback))",
+    "Documentation can be found at http://nodejs.org/"
+   ],
+   "version_patterns": [
+    "https\\:\\/\\/nodejs.org\\/download\\/release\\/v([0-9]+\\.[0-9]+\\.[0-9]+)\\/",
+    "(?:\\r?\\n|\\/)node v([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "ntfs_3g",
+   "vendor_product": [
+    [
+     "tuxera",
+     "ntfs-3g"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "ntfs-3g[0-9a-zA-Z/%. \\r\\n]*\\r?\\n([0-9]+\\.[0-9]+\\.[0-9]+)",
+    "([0-9]+\\.[0-9]+\\.[0-9]+)\\r?\\nntfs-3g"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "ntp",
+   "vendor_product": [
+    [
+     "ntp",
+     "ntp"
+    ]
+   ],
+   "filename_patterns": [
+    "ntp"
+   ],
+   "contains_patterns": [
+    "With high-traffic NTP servers, this can occur if the"
+   ],
+   "version_patterns": [
+    "ntp(?:d|date|dx|q) ([0-9]+\\.[0-9]+\\.[0-9]+p[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "ntpsec",
+   "vendor_product": [
+    [
+     "ntpsec",
+     "ntpsec"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "([0-9]+\\.[0-9]+\\.[0-9]+)[0-9A-Z-: ]*\\r?\\n[a-z]* ntpsec"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "oath_toolkit",
+   "vendor_product": [
+    [
+     "nongnu",
+     "oath_toolkit"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "([0-9]+\\.[0-9]+\\.[0-9]+)[0-9A-Za-z/%\\-\\*\\.\\:\\t\\r\\n]*Liboath"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "ofono",
+   "vendor_product": [
+    [
+     "ofono_project",
+     "ofono"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "OFONO_[0-9a-zA-Z:'%=+?,-_/!$*>^ \\.\\\"\\(\\)\\r\\n]*\\r?\\n([0-9]+\\.[0-9]+)\\r?\\n"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "open_babel",
+   "vendor_product": [
+    [
+     "openbabel",
+     "open_babel"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "Open Babel \\r?\\n([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "open_iscsi",
+   "vendor_product": [
+    [
+     "open-iscsi_project",
+     "open-iscsi"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "# BEGIN RECORD ([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "open_vm_tools",
+   "vendor_product": [
+    [
+     "vmware",
+     "open-vm-tools"
+    ]
+   ],
+   "filename_patterns": [
+    "libvmtools.so"
+   ],
+   "contains_patterns": [],
+   "version_patterns": [
+    "open-vm-tools-([0-9]+\\.[0-9]+\\.[0-9]+)",
+    "open-vm-tools-stable-([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "openafs",
+   "vendor_product": [
+    [
+     "openafs",
+     "openafs"
+    ]
+   ],
+   "filename_patterns": [
+    "afsd"
+   ],
+   "contains_patterns": [],
+   "version_patterns": [
+    "OpenAFS ([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "openblas",
+   "vendor_product": [
+    [
+     "openblas_project",
+     "openblas"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "OpenBLAS ([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "opencv",
+   "vendor_product": [
+    [
+     "opencv",
+     "opencv"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "opencv-([0-9]+\\.[0-9]+\\.[0-9]+(\\.[0-9]+)*)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "opendkim",
+   "vendor_product": [
+    [
+     "opendkim",
+     "opendkim"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "libopendkim ([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "openfortivpn",
+   "vendor_product": [
+    [
+     "openfortivpn_project",
+     "openfortivpn"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "openfortivpn ([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "openimageio",
+   "vendor_product": [
+    [
+     "openimageio",
+     "openimageio"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "OpenImageIO ([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "openjpeg",
+   "vendor_product": [
+    [
+     "uclouvain",
+     "openjpeg"
+    ]
+   ],
+   "filename_patterns": [
+    "extract_j2k_from_mj2",
+    "frames_to_mj2",
+    "image_to_j2k",
+    "j2k_dump",
+    "j2k_to_image",
+    "mj2_to_frames",
+    "wrap_j2k_in_mj2"
+   ],
+   "contains_patterns": [
+    "OpenJPEG cannot encode raw components with bit depth higher than 16 bits."
+   ],
+   "version_patterns": [
+    "openjpeg-([0-9]+\\.[0-9]+\\.[0-9]+)",
+    "([0-9]+\\.[0-9]+\\.[0-9]+)[A-Za-z/ \\.\\r\\n]*(?:opj_setup_decoder|openjp2)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "openldap",
+   "vendor_product": [
+    [
+     "openldap",
+     "openldap"
+    ]
+   ],
+   "filename_patterns": [
+    "ldapsearch"
+   ],
+   "contains_patterns": [],
+   "version_patterns": [
+    "ldapsearch ([0-9]+\\.[0-9]+\\.[0-9]+)",
+    "OpenLDAP: slapd ([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "openocd",
+   "vendor_product": [
+    [
+     "openocd",
+     "open_on-chip_debugger"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "Open On-Chip Debugger ([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "openpmix",
+   "vendor_product": [
+    [
+     "openpmix",
+     "openpmix"
+    ]
+   ],
+   "filename_patterns": [
+    "libpmix\\.so"
+   ],
+   "contains_patterns": [],
+   "version_patterns": [
+    "OpenPMIx ([0-9]+\\.[0-9]+\\.[0-9]+)",
+    "PMIX.*version ([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "opensc",
+   "vendor_product": [
+    [
+     "opensc-project",
+     "opensc"
+    ],
+    [
+     "opensc_project",
+     "opensc"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "([0-9]+\\.[0-9]+\\.[0-9]+)\\r?\\nOpenSC",
+    "\\r?\\n([0-9]+\\.[0-9]+\\.[0-9]+)\\r?\\n[a-zA-Z0-9 _'\\./:%\\?\\-\\(\\)\\r\\n]*opensc"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "openssh",
+   "vendor_product": [
+    [
+     "openbsd",
+     "openssh"
+    ],
+    [
+     "openssh",
+     "openssh"
+    ]
+   ],
+   "filename_patterns": [
+    "scp",
+    "sftp",
+    "ssh-add",
+    "ssh-agent",
+    "ssh-argv0",
+    "ssh-copy-id",
+    "ssh-keygen",
+    "ssh-keyscan",
+    "ssh",
+    "slogin",
+    "sshd"
+   ],
+   "contains_patterns": [],
+   "version_patterns": [
+    "\\r?\\nOpenSSH_([0-9]+\\.[0-9]+(\\.[0-9]+)?p[0-9]+)(?:\\r?\\n| )"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "openssl",
+   "vendor_product": [
+    [
+     "openssl",
+     "openssl"
+    ]
+   ],
+   "filename_patterns": [
+    "libssl.so.",
+    "libcrypto.so"
+   ],
+   "contains_patterns": [
+    "part of OpenSSL",
+    "openssl.cnf",
+    "-DOPENSSL_"
+   ],
+   "version_patterns": [
+    "OpenSSL ([0-9]+\\.[0-9]+\\.[0-9]+[a-z]*) [a-zA-Z0-9 ]+\\r?\\n(?:%s \\(Library: %s\\)|[a-zA-Z0-9:,_ \\.\\-\\r\\n]*OPENSSLDIR|ssl|[a-zA-Z0-9/ \\.\\r\\n]*/openssl)",
+    "(?:%s \\(Library: %s\\)\\r?\\n|OPENSSLDIR[a-zA-Z0-9:/ \\\"\\-\\r\\n]*)OpenSSL ([0-9]+\\.[0-9]+\\.[0-9]+[a-z]*) [a-zA-Z0-9 ]+",
+    "openssl\\\\([0-9]+\\.[0-9]+\\.[0-9]+[a-z]*)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "openswan",
+   "vendor_product": [
+    [
+     "xelerance",
+     "openswan"
+    ]
+   ],
+   "filename_patterns": [
+    "klipsdebug",
+    "showhostkey",
+    "ranbits",
+    "eroute",
+    "showpolicy",
+    "spigrp",
+    "pluto",
+    "ikeping",
+    "rsasigkey"
+   ],
+   "contains_patterns": [],
+   "version_patterns": [
+    "openswan-([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "openvpn",
+   "vendor_product": [
+    [
+     "openvpn",
+     "openvpn"
+    ]
+   ],
+   "filename_patterns": [
+    "openvpn"
+   ],
+   "contains_patterns": [],
+   "version_patterns": [
+    "OpenVPN ([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "openvswitch",
+   "vendor_product": [
+    [
+     "openvswitch",
+     "openvswitch"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "openvswitch ([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "orc",
+   "vendor_product": [
+    [
+     "gstreamer",
+     "orc"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "Orc Compiler ([0-9]+\\.[0-9]+\\.[0-9]+)",
+    "orc-([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "p7zip",
+   "vendor_product": [
+    [
+     "7-zip",
+     "p7zip"
+    ]
+   ],
+   "filename_patterns": [
+    "7za",
+    "7z"
+   ],
+   "contains_patterns": [
+    "Copyright (c) 1999-2020 Igor Pavlov"
+   ],
+   "version_patterns": [
+    "7-Zip.*? ([0-9]{2}\\.[0-9]{2}) : Copyright"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "pango",
+   "vendor_product": [
+    [
+     "gnome",
+     "pango"
+    ],
+    [
+     "pango",
+     "pango"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "([0-9]+\\.[0-9]+\\.[0-9]+)\\r?\\n/etc/pango",
+    "([0-9]+\\.[0-9]+\\.[0-9]+)\\r?\\nPango version"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "patch",
+   "vendor_product": [
+    [
+     "gnu",
+     "patch"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "([0-9]+\\.[0-9]+\\.[0-9]+)\\r?\\nGNU patch",
+    "GNU patch\\r?\\n([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "pcre",
+   "vendor_product": [
+    [
+     "pcre",
+     "pcre"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "argument is not a compiled regular expression[a-z0-9 :\\(\\)\\r\\n]*([0-9]+\\.[0-9]+) [0-9]+\\-[0-9]+\\-[0-9]+\\r?\\n",
+    "([0-9]+\\.[0-9]+) [0-9]+\\-[0-9]+\\-[0-9]+\\r?\\nargument is not a compiled regular expression",
+    "([0-9]+\\.[0-9]+) [0-9]+\\-[0-9]+\\-[0-9]+\\r?\\n !\\\"#\\$%&'\\(\\)\\*\\+,-\\./0123456789:;<=>\\?@abcdefghijklmnopqrstuvwxyz\\[\\\\\\]\\^_`abcdefghijklmnopqrstuvwxyz\\{\\|\\}~"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "pcre2",
+   "vendor_product": [
+    [
+     "pcre",
+     "pcre2"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "BSR_UNICODE\\)\\r?\\n([0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "pcsc_lite",
+   "vendor_product": [
+    [
+     "muscle",
+     "pcsc-lite"
+    ]
+   ],
+   "filename_patterns": [
+    "pcscd"
+   ],
+   "contains_patterns": [],
+   "version_patterns": [
+    "pcsc-lite ([0-9]+\\.[0-9]+\\.[0-9]+) daemon ready."
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "perl",
+   "vendor_product": [
+    [
+     "larry_wall",
+     "perl"
+    ],
+    [
+     "perl",
+     "perl"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "perl/([0-9]+\\.[0-9]+\\.[0-9]+)\\r?\\n",
+    "PERL[A-Z_]*\\r?\\nv([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "php",
+   "vendor_product": [
+    [
+     "php",
+     "php"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "PHP/([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "picocom",
+   "vendor_product": [
+    [
+     "picocom_project",
+     "picocom"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "picocom v%s\\r?\\n([0-9]+\\.[0-9]+)",
+    "([0-9]+\\.[0-9]+)\\r?\\npicocom v%s"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "pigz",
+   "vendor_product": [
+    [
+     "zlib",
+     "pigz"
+    ]
+   ],
+   "filename_patterns": [
+    "pigz"
+   ],
+   "contains_patterns": [
+    "-L, --license        Display the pigz license and quit",
+    "-V  --version        Show the version of pigz",
+    "cannot provide files in PIGZ environment variable",
+    "specified, stdin will be compressed to stdout. pigz does what gzip does,"
+   ],
+   "version_patterns": [
+    "pigz ([0-9]+\\.[0-9]+(\\.[0-9]+)?)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "pixman",
+   "vendor_product": [
+    [
+     "pixman",
+     "pixman"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "([0-9]+\\.[0-9]+\\.[0-9]+)\\r?\\n[\\./]*pixman",
+    "pixman[a-zA-Z=> \\-\\.\\r\\n]*([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "pjsip",
+   "vendor_product": [
+    [
+     "pjsip",
+     "pjsip"
+    ],
+    [
+     "teluu",
+     "pjsip"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "PJ_[A-Z0-9_:% ]*[d)]\\r?\\n([0-9]+\\.[0-9]+(\\.[0-9]+)?)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "png",
+   "vendor_product": [
+    [
+     "greg_roelofs",
+     "libpng"
+    ],
+    [
+     "libpng",
+     "libpng"
+    ],
+    [
+     "redhat",
+     "libpng"
+    ]
+   ],
+   "filename_patterns": [
+    "libpng.so.",
+    "libpng16.so."
+   ],
+   "contains_patterns": [
+    "libpng error: %s, offset=%d",
+    "Application uses deprecated png_write_init\\(\\) and should be recompiled",
+    "libpng version "
+   ],
+   "version_patterns": [
+    "libpng version ([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "poco",
+   "vendor_product": [
+    [
+     "pocoproject",
+     "poco"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "poco-([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "podman",
+   "vendor_product": [
+    [
+     "podman_project",
+     "podman"
+    ]
+   ],
+   "filename_patterns": [
+    "podman"
+   ],
+   "contains_patterns": [],
+   "version_patterns": [
+    "podman-([0-9]+\\.[0-9]+\\.[0-9]+)",
+    "podman version ([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "polarssl",
+   "vendor_product": [
+    [
+     "polarssl",
+     "polarssl"
+    ]
+   ],
+   "filename_patterns": [
+    "libpolarssl.so."
+   ],
+   "contains_patterns": [
+    "Bad usage of mbedtls_ssl_set_bio() or mbedtls_ssl_set_bio()",
+    "You must use mbedtls_ssl_set_timer_cb() for DTLS",
+    "configured max major version is invalid, consider using mbedtls_ssl_config_defaults()"
+   ],
+   "version_patterns": [
+    "([0-9]+\\.[0-9]+\\.[0-9]+)\\r?\\nPOLARSSL"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "poppler",
+   "vendor_product": [
+    [
+     "poppler",
+     "poppler"
+    ],
+    [
+     "freedesktop",
+     "poppler"
+    ]
+   ],
+   "filename_patterns": [
+    "libpoppler.so"
+   ],
+   "contains_patterns": [
+    "Unknown CID font collection, please report to poppler bugzilla."
+   ],
+   "version_patterns": [
+    "poppler-([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "postgresql",
+   "vendor_product": [
+    [
+     "postgresql",
+     "postgresql"
+    ]
+   ],
+   "filename_patterns": [
+    "psql"
+   ],
+   "contains_patterns": [],
+   "version_patterns": [
+    "PostgreSQL ([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "ppp",
+   "vendor_product": [
+    [
+     "point-to-point_protocol_project",
+     "point-to-point_protocol"
+    ],
+    [
+     "samba",
+     "ppp"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "pppd/([0-9]+\\.[0-9]+\\.[0-9]+)",
+    "pppd[a-z, :%\\)]*\\r?\\n([0-9]+\\.[0-9]+\\.[0-9]+)",
+    "([0-9]+\\.[0-9]+\\.[0-9]+)\\r?\\npppd",
+    "pppd_version[a-zA-Z0-9!#$%&'()*+,/:;<=>?@^_`{|}~ \\-\\\\\\\"\\[\\]\\.\\r\\n]+\\r?\\n([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "privoxy",
+   "vendor_product": [
+    [
+     "privoxy",
+     "privoxy"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "Privoxy version ([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "procps_ng",
+   "vendor_product": [
+    [
+     "procps_project",
+     "procps"
+    ],
+    [
+     "procps-ng_project",
+     "procps-ng"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "procps(?:-ng| version) ([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "proftpd",
+   "vendor_product": [
+    [
+     "proftpd_project",
+     "proftpd"
+    ],
+    [
+     "proftpd",
+     "proftpd"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "ProFTPD ([0-9]+\\.[0-9]+\\.[0-9a-z]+) "
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "protobuf_c",
+   "vendor_product": [
+    [
+     "protobuf-c_project",
+     "protobuf-c"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "protobuf-c[a-zA-Z0-9@`&_:.()<>= \\-\\t\\r\\n]*\\r?\\n([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "pspp",
+   "vendor_product": [
+    [
+     "gnu",
+     "pspp"
+    ]
+   ],
+   "filename_patterns": [
+    "libpspp"
+   ],
+   "contains_patterns": [
+    "The PSPP language identifier for the data associated with this window \\(e\\.g\\. dataset name\\)",
+    "bug-gnu-pspp@gnu\\.org"
+   ],
+   "version_patterns": [
+    "libpspp-([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "pure_ftpd",
+   "vendor_product": [
+    [
+     "pureftpd",
+     "pure-ftpd"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "Pure-FTPd ([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "putty",
+   "vendor_product": [
+    [
+     "putty",
+     "putty"
+    ],
+    [
+     "simon_tatham",
+     "putty"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "putty-([0-9]+\\.[0-9]+)",
+    "PuTTY-Release-([0-9]+\\.[0-9]+)\\r?\\n"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "python",
+   "vendor_product": [
+    [
+     "python_software_foundation",
+     "python"
+    ],
+    [
+     "python",
+     "python"
+    ]
+   ],
+   "filename_patterns": [
+    "python"
+   ],
+   "contains_patterns": [
+    "Fatal Python error: unable to decode the command line argument",
+    "Internal error in the Python interpreter",
+    "CPython"
+   ],
+   "version_patterns": [
+    "src\\\\python[23]\\\\Python-([23]+\\.[0-9]+\\.[0-9]+)",
+    "python(?:[23]+\\.[0-9]+)-([23]+\\.[0-9]+\\.[0-9]+)",
+    "pymalloc_debug\\r?\\n([23]+\\.[0-9]+\\.[0-9]+)",
+    "([23]+\\.[0-9]+\\.[0-9]+)\\r?\\nPython %s",
+    "([23]+\\.[0-9]+\\.[0-9]+)\\r?\\n%\\.80s \\(%\\.80s\\) %\\.80s",
+    "tags/v([23]+\\.[0-9]+\\.[0-9]+)\\r?\\n"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "qemu",
+   "vendor_product": [
+    [
+     "xen",
+     "qemu"
+    ],
+    [
+     "qemu",
+     "qemu"
+    ]
+   ],
+   "filename_patterns": [
+    "qemu"
+   ],
+   "contains_patterns": [],
+   "version_patterns": [
+    "QEMU ([0-9]+.[0-9]+(.[0-9]+)?)",
+    "QEMU v([0-9]+.[0-9]+(.[0-9]+)?)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "qpdf",
+   "vendor_product": [
+    [
+     "qpdf_project",
+     "qpdf"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "QPDF decoding error warning\\r?\\n([0-9]+\\.[0-9]+\\.[0-9]+)",
+    "qpdf-([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "qt",
+   "vendor_product": [
+    [
+     "qt",
+     "qt"
+    ],
+    [
+     "digia",
+     "qt"
+    ]
+   ],
+   "filename_patterns": [
+    "libqt-mt.so",
+    "libQtTest.so"
+   ],
+   "contains_patterns": [],
+   "version_patterns": [
+    "Qt ([0-9]+\\.[0-9]+\\.[0-9]+)",
+    "QTest library ([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "quagga",
+   "vendor_product": [
+    [
+     "quagga",
+     "quagga"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "Quagga \\(version ([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "radare2",
+   "vendor_product": [
+    [
+     "radare",
+     "radare2"
+    ]
+   ],
+   "filename_patterns": [
+    "rafind2"
+   ],
+   "contains_patterns": [
+    "--           run radare2 without opening any file",
+    "-v, -V       show radare2 version (-V show lib versions)",
+    "list all links in radare2 command format.",
+    "radare2 does not support projects on debugged bins."
+   ],
+   "version_patterns": [
+    "rafind2 v([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "radvd",
+   "vendor_product": [
+    [
+     "litech",
+     "router_advertisement_daemon"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "([0-9]+\\.[0-9]+(\\.[0-9]+)?)\\r?\\nVersion: %s\\r?\\nCompiled in settings:\\r?\\n",
+    "Version: %s\\r?\\n([0-9]+\\.[0-9]+(\\.[0-9]+)?)\\r?\\nCompiled in settings:\\r?\\n"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "raptor",
+   "vendor_product": [
+    [
+     "librdf",
+     "raptor_rdf_syntax_library"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "\\r?\\nrapper-([0-9]+\\.[0-9]+\\.[0-9]+)",
+    "([0-9]+\\.[0-9]+\\.[0-9]+)\\r?\\nhttp://librdf.org/raptor"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "rauc",
+   "vendor_product": [
+    [
+     "pengutronix",
+     "rauc"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "rauc ([0-9]+\\.[0-9]+(\\.[0-9]+)?)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "rdesktop",
+   "vendor_product": [
+    [
+     "rdesktop",
+     "rdesktop"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "rdesktop: A Remote Desktop Protocol client.\\r?\\nVersion ([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "readline",
+   "vendor_product": [
+    [
+     "gnu",
+     "readline"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "([0-9]+\\.[0-9]+)\\r?\\n_\\*\\\\AaIiCcDdPpYyRrSsXx~",
+    "libreadline.so.([0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "redis",
+   "vendor_product": [
+    [
+     "redis",
+     "redis"
+    ],
+    [
+     "redislabs",
+     "redis"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "([0-9]+\\.[0-9]+\\.[0-9]+)[A-Za-z0-9%#:_/ \\.\\-\\r\\n]*redis(?:_version|\\.pid)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "rpm",
+   "vendor_product": [
+    [
+     "rpm",
+     "rpm"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "rpm[a-z]*\\-([0-9]+\\.[0-9]+\\.[0-9]+(\\.[0-9]+)?)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "rsync",
+   "vendor_product": [
+    [
+     "andrew_tridgell",
+     "rsync"
+    ],
+    [
+     "redhat",
+     "rsync"
+    ],
+    [
+     "rsync",
+     "rsync"
+    ],
+    [
+     "samba",
+     "rsync"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "([0-9]+\\.[0-9]+\\.[0-9]+)\\r?\\nrsync"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "rsyslog",
+   "vendor_product": [
+    [
+     "rsyslog",
+     "rsyslog"
+    ]
+   ],
+   "filename_patterns": [
+    "rsyslogd"
+   ],
+   "contains_patterns": [],
+   "version_patterns": [
+    "rsyslogd? ([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "rtl_433",
+   "vendor_product": [
+    [
+     "rtl_433_project",
+     "rtl_433"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "rtl[-_]433-([0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "rtmpdump",
+   "vendor_product": [
+    [
+     "rtmpdump_project",
+     "rtmpdump"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "v([0-9]+\\.[0-9]+)\\r?\\nRTMP"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "ruby",
+   "vendor_product": [
+    [
+     "ruby-lang",
+     "ruby"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "ruby ([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "runc",
+   "vendor_product": [
+    [
+     "linuxfoundation",
+     "runc"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "runc-([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "rust",
+   "vendor_product": [
+    [
+     "rust-lang",
+     "rust"
+    ]
+   ],
+   "filename_patterns": [
+    "rust"
+   ],
+   "contains_patterns": [
+    "Default passes for rustdoc:",
+    "src/librustdoc/json/mod.rs"
+   ],
+   "version_patterns": [
+    "rustc-([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "samba",
+   "vendor_product": [
+    [
+     "samba",
+     "samba"
+    ]
+   ],
+   "filename_patterns": [
+    "smbd",
+    "smbtree",
+    "smbget",
+    "smbstatus",
+    "smbspool",
+    "smbpasswd",
+    "smbcquotas",
+    "smbcontrol",
+    "smbclient",
+    "smbcacls",
+    "sharesec"
+   ],
+   "contains_patterns": [],
+   "version_patterns": [
+    "SAMBA_([0-9]+\\.[0-9]+\\.[0-9]+)",
+    "samba[/-]([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "sane_backends",
+   "vendor_product": [
+    [
+     "sane-backends_project",
+     "sane-backends"
+    ]
+   ],
+   "filename_patterns": [
+    "sane-find-scanner"
+   ],
+   "contains_patterns": [],
+   "version_patterns": [
+    "sane-backends ([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "sasl",
+   "vendor_product": [
+    [
+     "cyrus",
+     "sasl"
+    ],
+    [
+     "cyrusimap",
+     "cyrus-sasl"
+    ],
+    [
+     "cyrusimap",
+     "cyrus_sasl"
+    ],
+    [
+     "carnegie_mellon_university",
+     "cyrus-sasl"
+    ],
+    [
+     "cmu",
+     "cyrus-sasl"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "Cyrus SASL\\r?\\n([0-9]+\\.[0-9]+\\.[0-9]+)\\r?\\n"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "sdl",
+   "vendor_product": [
+    [
+     "libsdl",
+     "simple_directmedia_layer"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "(?:sdl2|SDL2|SDL-release)-([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "seahorse",
+   "vendor_product": [
+    [
+     "gnome",
+     "seahorse"
+    ]
+   ],
+   "filename_patterns": [
+    "seahorse"
+   ],
+   "contains_patterns": [
+    "cannot display progress because seahorse window has no progress widget"
+   ],
+   "version_patterns": [
+    "seahorse ([0-9]+\\.[0-9]+(\\.[0-9]+)?)\\r?\\n"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "shadowsocks_libev",
+   "vendor_product": [
+    [
+     "shadowsocks",
+     "shadowsocks-libev"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "([0-9]+\\.[0-9]+\\.[0-9]+)\\r?\\nshadowsocks-libev",
+    "([0-9]+\\.[0-9]+\\.[0-9]+)\\r?\\n  usage\\:\\r?\\n    ss-"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "snapcast",
+   "vendor_product": [
+    [
+     "badaix",
+     "snapcast"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "([0-9]+\\.[0-9]+\\.[0-9]+)\\r?\\nSnap",
+    "snapserver v\\r?\\n([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "snapd",
+   "vendor_product": [
+    [
+     "canonical",
+     "snapd"
+    ],
+    [
+     "snapcraft",
+     "snapd"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [
+    "# Allow use of snapd's internal 'xdg-open'",
+    "# Allow use of snapd's internal 'xdg-settings'",
+    "# Description: Can manage snaps via snapd."
+   ],
+   "version_patterns": [
+    "snapd-([0-9]+\\.[0-9]+(\\.[0-9]+)?)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "sngrep",
+   "vendor_product": [
+    [
+     "irontec",
+     "sngrep"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "sngrep[A-Za-z:<>,%_'() \\-\\[\\]\\.\\t\\r\\n]*([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "snort",
+   "vendor_product": [
+    [
+     "martin_roesch",
+     "snort"
+    ],
+    [
+     "snort",
+     "snort"
+    ],
+    [
+     "sourcefire",
+     "snort"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "snort-([0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+)",
+    "Snort Version ([0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "socat",
+   "vendor_product": [
+    [
+     "dest-unreach",
+     "socat"
+    ],
+    [
+     "socat",
+     "socat"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "socat[a-zA-Z0-9:. \\-\\r\\n]*\\r?\\n([0-9]+\\.[0-9]+\\.[0-9]+(\\.[0-9]+)?)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "sofia_sip",
+   "vendor_product": [
+    [
+     "signalwire",
+     "sofia-sip"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "sofia-sip-([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "speex",
+   "vendor_product": [
+    [
+     "xiph",
+     "speex"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "speex(?:dec|enc)-([0-9]+\\.[0-9]+(\\.[0-9]+)?)",
+    "Unknown wb_mode_query request: \\r?\\nwarning: %s %d\\r?\\n([0-9]+\\.[0-9]+(\\.[0-9]+)?)",
+    "([0-9]+\\.[0-9]+(\\.[0-9]+)?)\\r?\\nUnknown wb_mode_query request:"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "spice",
+   "vendor_product": [
+    [
+     "spice_project",
+     "spice"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "SPICE_SERVER_([0-9]+\\.[0-9]+\\.[0-9]+)\\r?\\nGLIBC"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "sqlite",
+   "vendor_product": [
+    [
+     "sqlite",
+     "sqlite"
+    ]
+   ],
+   "filename_patterns": [
+    "sqlite",
+    "sqlite3"
+   ],
+   "contains_patterns": [
+    "unable to open a temporary database file for storing temporary tables",
+    "json_object() requires an even number of arguments",
+    "ESCAPE expression must be a single character",
+    "SQLite version %s"
+   ],
+   "version_patterns": [
+    "Id: SQLite version (\\d+\\.\\d+\\.\\d+)",
+    "(\\d{4}-\\d{2}-\\d{2} \\d+:\\d+:\\d+ [\\w]+)[a-z\\r\\n]*(?:SQLite|SQLITE|DESC)",
+    "SQLite format[a-zA-Z0-9_`=:;<>?^@'()&%{|}*$!_#;~, \\-\\\\\\\"\\[\\]\\t\\.\\r\\n]*(\\d+\\.\\d+\\.\\d+)",
+    "\\n(\\d+\\.\\d+\\.\\d+)[a-zA-Z0-9!#$%&'()*+,/:;<=>?@^_`{|}~ \\-\\\\\\\"\\[\\]\\.\\r\\n]*SQLite format 3\\r?\\n[?:BINARY|REINDEX]+"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "squashfs",
+   "vendor_product": [
+    [
+     "squashfs_project",
+     "squashfs"
+    ],
+    [
+     "squashfs-tools_project",
+     "squashfs-tools"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "squashfs version ([0-9]+\\.[0-9]+\\.?[0-9]*)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "squid",
+   "vendor_product": [
+    [
+     "squid",
+     "squid"
+    ],
+    [
+     "squid-cache",
+     "squid"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "squid/([0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "sslh",
+   "vendor_product": [
+    [
+     "sslh_project",
+     "sslh"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "sslh ([0-9]+\\.[0-9a-z]+)",
+    "sslh v([0-9]+\\.[0-9a-z]+)",
+    "sslh-([0-9]+\\.[0-9a-z]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "sssd",
+   "vendor_product": [
+    [
+     "fedoraproject",
+     "sssd"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "([0-9]+\\.[0-9]+\\.[0-9]+)[a-zA-Z|/ \\-\\r\\n]*sssd"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "stellarium",
+   "vendor_product": [
+    [
+     "stellarium",
+     "stellarium"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "stellarium-([0-9]+\\.[0-9]+(\\.[0-9]+)?)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "strongswan",
+   "vendor_product": [
+    [
+     "strongswan",
+     "strongswan"
+    ]
+   ],
+   "filename_patterns": [
+    "libcharon.so"
+   ],
+   "contains_patterns": [],
+   "version_patterns": [
+    "\\(strongSwan ([0-9]+\\.[0-9]+\\.[0-9]+)[,)]"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "stunnel",
+   "vendor_product": [
+    [
+     "stunnel",
+     "stunnel"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "stunnel ([0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "subversion",
+   "vendor_product": [
+    [
+     "subversion",
+     "subversion"
+    ],
+    [
+     "apache",
+     "subversion"
+    ]
+   ],
+   "filename_patterns": [
+    "subversion",
+    "svn",
+    "libapache2-svn",
+    "libsvn-dev",
+    "svnadmin",
+    "svnauthz",
+    "svnauthz-validate",
+    "svnbench",
+    "svndumpfilter",
+    "svnfsfs",
+    "svnlook",
+    "svnmucc",
+    "svnrdump",
+    "svnserve",
+    "svnsync",
+    "svnversion"
+   ],
+   "contains_patterns": [
+    "Working copy locked; if no other Subversion client is currently using the working copy, try running 'svn cleanup' without the --remove",
+    "Working copy locked; try running 'svn cleanup' on the root of the working copy ('%s') instead."
+   ],
+   "version_patterns": [
+    "subversion-([0-9]+\\.[0-9]+\\.[0-9]+)",
+    "([0-9]+\\.[0-9]+\\.[0-9]+) [A-Za-z0-9_>/'%;! \\-\\.\\(\\)\\r\\n]*subversion",
+    "@\\(#\\)([0-9]+\\.[0-9]+\\.[0-9]+) \\(r[0-9]+\\)\\r?\\n"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "sudo",
+   "vendor_product": [
+    [
+     "sudo",
+     "sudo"
+    ],
+    [
+     "sudo_project",
+     "sudo"
+    ],
+    [
+     "todd_miller",
+     "sudo"
+    ]
+   ],
+   "filename_patterns": [
+    "sudo_logsrvd",
+    "sudo_sendlog",
+    "sudoers.so"
+   ],
+   "contains_patterns": [
+    "sudo_debug_exit_str_masked_v1",
+    "sudo_debug_set_active_instance_v1",
+    "sudo_fatal_callback_register_v1"
+   ],
+   "version_patterns": [
+    "Sudo Audit Server ([0-9]+\\.[0-9]+\\.[0-9]+(p[0-9]+)?)",
+    "Sudo Sendlog ([0-9]+\\.[0-9]+\\.[0-9]+(p[0-9]+)?)",
+    "sudoers ([0-9]+\\.[0-9]+\\.[0-9]+(p[0-9]+)?)",
+    "([0-9]+\\.[0-9]+\\.[0-9]+(p[0-9]+)?)\\r?\\nSudo version %s",
+    "Sudo version %s\\r?\\n([0-9]+\\.[0-9]+\\.[0-9]+(p[0-9]+)?)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "suricata",
+   "vendor_product": [
+    [
+     "openinfosecfoundation",
+     "suricata"
+    ],
+    [
+     "oisf",
+     "suricata"
+    ],
+    [
+     "suricata-ids",
+     "suricata"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "suricata\\-([0-9]+\\.[0-9]+\\.[0-9]+)",
+    "([0-9]+\\.[0-9]+\\.[0-9]+) RELEASE\\r?\\nClosing Suricata"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "sylpheed",
+   "vendor_product": [
+    [
+     "sylpheed",
+     "sylpheed"
+    ],
+    [
+     "sylpheed_project",
+     "sylpheed"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "Sylpheed ([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "syslogng",
+   "vendor_product": [
+    [
+     "balabit",
+     "syslog-ng"
+    ],
+    [
+     "oneidentity",
+     "syslog-ng"
+    ]
+   ],
+   "filename_patterns": [
+    "syslog-ng"
+   ],
+   "contains_patterns": [
+    "Set syslog-ng control socket",
+    "Stop syslog-ng process"
+   ],
+   "version_patterns": [
+    "syslog-ng-([0-9]+\\.[0-9]+\\.[0-9]+)",
+    "syslog-ng ([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "sysstat",
+   "vendor_product": [
+    [
+     "redhat",
+     "sysstat"
+    ],
+    [
+     "sysstat",
+     "sysstat"
+    ],
+    [
+     "sysstat_project",
+     "sysstat"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "sysstat version %s\\r?\\n([0-9]+\\.[0-9]+\\.[0-9]+)",
+    "([0-9]+\\.[0-9]+\\.[0-9]+)\\r?\\nsysstat version %s"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "systemd",
+   "vendor_product": [
+    [
+     "systemd_project",
+     "systemd"
+    ]
+   ],
+   "filename_patterns": [
+    "libsystemd.so."
+   ],
+   "contains_patterns": [
+    "sd_bus_error_copy",
+    "sd_bus_error_is_set",
+    "sd_bus_error_add_map"
+   ],
+   "version_patterns": [
+    "(?:\\n|: )systemd (\\d{2,4}(\\.[0-9]+)?)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "tar",
+   "vendor_product": [
+    [
+     "gnu",
+     "tar"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "GNU tar[A-Za-z%:() \\r\\n]*([0-9]+\\.[0-9]+)\\r?\\n",
+    "([0-9]+\\.[0-9]+)\\r?\\nTAR_VERSION"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "tbb",
+   "vendor_product": [
+    [
+     "intel",
+     "threading_building_blocks"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "TBB: VERSION\\s+([0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "tcpdump",
+   "vendor_product": [
+    [
+     "tcpdump",
+     "tcpdump"
+    ]
+   ],
+   "filename_patterns": [
+    "tcpdump"
+   ],
+   "contains_patterns": [],
+   "version_patterns": [
+    "tcpdump-([0-9]+\\.[0-9]+\\.[0-9]+)",
+    "([0-9]+\\.[0-9]+\\.[0-9]+)[0-9a-zA-Z ,%:\\r\\n]*lookup_(?:emem|protoid)",
+    "Running\\r?\\n([0-9]+\\.[0-9]+\\.[0-9]+)\\r?\\n0123456789",
+    "tcpdump[0-9a-zA-Z ,!'%:_=\\(\\)\\\\\\.\\-\\r\\n]*\\r?\\n([0-9]+\\.[0-9]+\\.[0-9]+)",
+    "([0-9]+\\.[0-9]+\\.[0-9]+)[0-9a-zA-Z ,%:\\r\\n]*lookup_(?:emem|protoid)",
+    "version ([0-9]+\\.[0-9]+\\.[0-9]+)\\r?\\nSMI-library"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "tcpreplay",
+   "vendor_product": [
+    [
+     "broadcom",
+     "tcpreplay"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "([0-9]+\\.[0-9]+\\.[0-9]+)[a-zA-Z %$/\\.\\:\\(\\)\\r?\\n]*tcp(?:prep|replay|rewrite) version"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "terminology",
+   "vendor_product": [
+    [
+     "enlightenment",
+     "terminology"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "([0-9]+\\.[0-9]+\\.[0-9]+)\\r?\\nterminology",
+    "terminology ([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "tesseract",
+   "vendor_product": [
+    [
+     "tesseract_project",
+     "tesseract"
+    ],
+    [
+     "tesseract_ocr_project",
+     "tesseract_ocr"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "tesseract ([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "thrift",
+   "vendor_product": [
+    [
+     "apache",
+     "thrift"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "Thrift Compiler \\(\\r?\\n([0-9]+\\.[0-9]+\\.[0-9]+)",
+    "thrift-([0-9]+\\.[0-9]+\\.[0-9]+)",
+    "thriftqt5-([0-9]+\\.[0-9]+\\.[0-9]+)",
+    "thriftnb-([0-9]+\\.[0-9]+\\.[0-9]+)",
+    "thriftz-([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "thttpd",
+   "vendor_product": [
+    [
+     "acme_labs",
+     "thttpd"
+    ],
+    [
+     "acme",
+     "thttpd"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "thttpd/([0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "thunderbird",
+   "vendor_product": [
+    [
+     "mozilla",
+     "thunderbird"
+    ]
+   ],
+   "filename_patterns": [
+    "thunderbird"
+   ],
+   "contains_patterns": [],
+   "version_patterns": [
+    "thunderbird-([0-9]+.[0-9]+(.[0-9]+)?)",
+    "\"name\":\"thunderbird\",\"version\":\"([0-9]+.[0-9]+(.[0-9]+)?)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "timescaledb",
+   "vendor_product": [
+    [
+     "timescale",
+     "timescaledb"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "timescaledb-([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "tinyproxy",
+   "vendor_product": [
+    [
+     "banu",
+     "tinyproxy"
+    ],
+    [
+     "tinyproxy",
+     "tinyproxy"
+    ],
+    [
+     "tinyproxy_project",
+     "tinyproxy"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "tinyproxy\\/([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "tor",
+   "vendor_product": [
+    [
+     "debian",
+     "tor"
+    ],
+    [
+     "tor",
+     "tor"
+    ],
+    [
+     "torproject",
+     "tor"
+    ],
+    [
+     "tor_project",
+     "tor"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "on Tor ([0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "toybox",
+   "vendor_product": [
+    [
+     "toybox_project",
+     "toybox"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "toybox[A-Za-z0-9_%>/ \\-\\.\\r\\n]*([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "tpm2_tss",
+   "vendor_product": [
+    [
+     "tpm2_software_stack_project",
+     "tpm2_software_stack"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "tpm2-tss ([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "traceroute",
+   "vendor_product": [
+    [
+     "buc",
+     "traceroute"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "Modern traceroute for Linux, version ([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "traffic_server",
+   "vendor_product": [
+    [
+     "apache",
+     "traffic_server"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "Traffic Server ([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "transmission",
+   "vendor_product": [
+    [
+     "transmissionbt",
+     "transmission"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "Transmission ([0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "trousers",
+   "vendor_product": [
+    [
+     "trustedcomputinggroup",
+     "trousers"
+    ],
+    [
+     "suse",
+     "trousers"
+    ],
+    [
+     "trousers_project",
+     "trousers"
+    ]
+   ],
+   "filename_patterns": [
+    "tcsd"
+   ],
+   "contains_patterns": [
+    "TrouSerS Config file %s not found, using defaults.",
+    "TrouSerS Could not retrieve client address info",
+    "TrouSerS Could not set IPv6 socket option properly.",
+    "TrouSerS IPv4 support disabled by configuration option",
+    "TrouSerS IPv6 support disabled by configuration option"
+   ],
+   "version_patterns": [
+    "trousers ([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "ttyd",
+   "vendor_product": [
+    [
+     "ttyd_project",
+     "ttyd"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "([0-9]+\\.[0-9]+\\.[0-9]+)[a-z\\r\\n]*ttyd(?: |v)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "twonky_server",
+   "vendor_product": [
+    [
+     "lynxtechnology",
+     "twonky_server"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "Product Name:Twonky, Version:([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "u_boot",
+   "vendor_product": [
+    [
+     "denx",
+     "u-boot"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "U-Boot ([0-9]+\\.[0-9]+(\\.[0-9]+)?)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "udisks",
+   "vendor_product": [
+    [
+     "freedesktop",
+     "udisks"
+    ],
+    [
+     "udisks_project",
+     "udisks"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "udisks2-([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "unbound",
+   "vendor_product": [
+    [
+     "nlnetlabs",
+     "unbound"
+    ],
+    [
+     "unbound",
+     "unbound"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "unbound ([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "unixodbc",
+   "vendor_product": [
+    [
+     "unixodbc",
+     "unixodbc"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "unixODBC ([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "upx",
+   "vendor_product": [
+    [
+     "upx_project",
+     "upx"
+    ],
+    [
+     "upx",
+     "upx"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "UPX ([0-9]+\\.[0-9]+\\.?[0-9]*)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "util_linux",
+   "vendor_product": [
+    [
+     "andries_brouwer",
+     "util-linux"
+    ],
+    [
+     "kernel",
+     "util-linux"
+    ],
+    [
+     "linux",
+     "util-linux"
+    ],
+    [
+     "util-linux_project",
+     "util-linux"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "util-linux[ -]([0-9]+\\.[0-9]+(\\.[0-9]+)?)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "uwsgi",
+   "vendor_product": [
+    [
+     "unbit",
+     "uwsgi"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "([0-9]+\\.[0-9]+\\.[0-9]+)[a-z_ \\r\\n]*uwsgi",
+    "uwsgi_[a-z/% \\(\\)\\r\\n]*([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "varnish",
+   "vendor_product": [
+    [
+     "varnish_cache_project",
+     "varnish_cache"
+    ],
+    [
+     "varnish-software",
+     "varnish_cache"
+    ]
+   ],
+   "filename_patterns": [
+    "varnish"
+   ],
+   "contains_patterns": [
+    "\\(pthread_create\\(&v->tp, \\(\\(void \\*\\)0\\), varnish_thread, v\\)\\) == 0",
+    "\\(pthread_create\\(&v->tp_vsl, \\(\\(void \\*\\)0\\), varnishlog_thread, v\\)\\) == 0"
+   ],
+   "version_patterns": [
+    "varnish-([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "vim",
+   "vendor_product": [
+    [
+     "vim",
+     "vim"
+    ]
+   ],
+   "filename_patterns": [
+    "vim"
+   ],
+   "contains_patterns": [
+    "# This viminfo file was generated by Vim %s.",
+    "-u <vimrc>            Use <vimrc> instead of any .vimrc",
+    "- append vim.VIM_SPECIAL_PATH to sys.path"
+   ],
+   "version_patterns": [
+    "vim-([0-9]+\\.[0-9]+\\.[0-9]{4})"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "vlc",
+   "vendor_product": [
+    [
+     "videolan",
+     "vlc"
+    ],
+    [
+     "videolan",
+     "vlc_media_player"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "VLC/([0-9]+\\.[0-9]+\\.[0-9]+(\\.[0-9]+)?)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "vorbis_tools",
+   "vendor_product": [
+    [
+     "xiph",
+     "vorbis-tools"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "([0-9]+\\.[0-9]+\\.[0-9]+)\\r?\\nvorbis-tools"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "vsftpd",
+   "vendor_product": [
+    [
+     "beasts",
+     "vsftpd"
+    ],
+    [
+     "vsftpd_project",
+     "vsftpd"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "vsFTPd ([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "wabt",
+   "vendor_product": [
+    [
+     "webassembly",
+     "wabt"
+    ],
+    [
+     "webassembly",
+     "webassembly_binary_toolkit"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "wabt-([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "wavpack",
+   "vendor_product": [
+    [
+     "wavpack",
+     "wavpack"
+    ],
+    [
+     "wavpack_project",
+     "wavpack"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "\\r?\\n([0-9]+\\.[0-9]+\\.[0-9]+)\\r?\\n(?:libwavpack|[wW]av)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "webkitgtk",
+   "vendor_product": [
+    [
+     "webkitgtk",
+     "webkitgtk"
+    ]
+   ],
+   "filename_patterns": [
+    "libwebkitgtk",
+    "WebKitGTK-([0-9]+\\.[0-9]+).mo"
+   ],
+   "contains_patterns": [
+    "www.webkitgtk.org"
+   ],
+   "version_patterns": [
+    "webkitgtk-([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "wget",
+   "vendor_product": [
+    [
+     "gnu",
+     "wget"
+    ],
+    [
+     "wget",
+     "wget"
+    ]
+   ],
+   "filename_patterns": [
+    "wget"
+   ],
+   "contains_patterns": [
+    "GNU Wget is a file retrieval utility which can use either the HTTP or",
+    "FTP protocols. Wget features include the ability to work in the"
+   ],
+   "version_patterns": [
+    "wget-([0-9]+\\.[0-9]+(\\.[0-9]+)?)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "wireshark",
+   "vendor_product": [
+    [
+     "wireshark",
+     "wireshark"
+    ]
+   ],
+   "filename_patterns": [
+    "rawshark",
+    "wireshark"
+   ],
+   "contains_patterns": [
+    "'usermod -a -G wireshark _your_username_' as root.",
+    "Are you a member of the 'wireshark' group\\? Try running"
+   ],
+   "version_patterns": [
+    "Wireshark ([0-9]+\\.[0-9]+\\.[0-9]+)\\."
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "wolfssl",
+   "vendor_product": [
+    [
+     "wolfssl",
+     "wolfssl"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "wolfSSL ([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "wpa_supplicant",
+   "vendor_product": [
+    [
+     "w1.fi",
+     "wpa_supplicant"
+    ]
+   ],
+   "filename_patterns": [
+    "wpa_supplicant"
+   ],
+   "contains_patterns": [
+    "wpa_supplicant couldn't remove this interface",
+    "wpa_supplicant knows nothing about this interface"
+   ],
+   "version_patterns": [
+    "wpa_supplicant v([0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "xerces",
+   "vendor_product": [
+    [
+     "apache",
+     "xerces-c\\+\\+"
+    ]
+   ],
+   "filename_patterns": [
+    "libxerces-c.so",
+    "libxerces-c-3.1.so"
+   ],
+   "contains_patterns": [
+    "xerces-c-src_"
+   ],
+   "version_patterns": [
+    "\\/xerces-c-src_([0-9]+_[0-9]+_[0-9]+)\\/",
+    "xerces-c-([0-9]+.[0-9]+.[0-9]+)",
+    "xercesc_([0-9]+\\_[0-9]+):"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "xml2",
+   "vendor_product": [
+    [
+     "xmlsoft",
+     "libxml2"
+    ]
+   ],
+   "filename_patterns": [
+    "libxml2.so."
+   ],
+   "contains_patterns": [
+    "Internal error, xmlCopyCharMultiByte 0x%X out of bound",
+    "xmlNewElementContent : name != NULL !",
+    "xmlRelaxNG: include %s has a define %s but not the included grammar"
+   ],
+   "version_patterns": [
+    "libxml2(?:-|\\.so\\.)([0-9]+\\.[0-9]+\\.[0-9]+)",
+    "GITv([0-9]+\\.[0-9]+\\.[0-9]+)[a-zA-Z0-9:> \\-\\r\\n]*(?:xml|XML)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "xpdf",
+   "vendor_product": [
+    [
+     "glyphandcog",
+     "xpdf"
+    ],
+    [
+     "glyphandcog",
+     "xpdfreader"
+    ],
+    [
+     "xpdfreader",
+     "xpdf"
+    ],
+    [
+     "xpdf_project",
+     "xpdf"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "Xpdf[a-zA-Z0-9:* \\-\\r\\n]*([0-9]+\\.[0-9]+)\\r?\\n"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "xrdp",
+   "vendor_product": [
+    [
+     "neutrinolabs",
+     "xrdp"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "([0-9]+\\.[0-9]+\\.[0-9]+(\\.[0-9]+)?)\\r?\\nxrdp"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "xscreensaver",
+   "vendor_product": [
+    [
+     "xscreensaver",
+     "xscreensaver"
+    ],
+    [
+     "xscreensaver_project",
+     "xscreensaver"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "[xX][sS]creen[sS]aver ([0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "xwayland",
+   "vendor_product": [
+    [
+     "x.org",
+     "xwayland"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "([0-9]+\\.[0-9]+\\.[0-9]+)[a-zA-Z. \\r\\n]*%s Xwayland"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "xz",
+   "vendor_product": [
+    [
+     "tukaani",
+     "xz"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "xz \\(XZ Utils\\) ([0-9]+\\.[0-9]+\\.[0-9]+)",
+    "([0-9]+\\.[0-9]+\\.[0-9]+)[A-Za-z0-9,'_=:*&!? \\-\\.\\[\\]\\\"\\(\\)\\r\\n]*7zXZ[a-zA-z0-9\\r\\n]*   @@@"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "yasm",
+   "vendor_product": [
+    [
+     "tortall",
+     "yasm"
+    ],
+    [
+     "yasm_project",
+     "yasm"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "yasm ([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "zabbix",
+   "vendor_product": [
+    [
+     "zabbix",
+     "zabbix"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "Zabbix ([0-9]+\\.[0-9]+\\.[0-9]+)",
+    "([0-9]+\\.[0-9]+\\.[0-9]+)\\r?\\nZabbix"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "zbar",
+   "vendor_product": [
+    [
+     "zbar_project",
+     "zbar"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "zbar[a-z\\-\\r\\n]*([0-9]+\\.[0-9]+(\\.[0-9]+)?)",
+    "([0-9]+\\.[0-9]+(\\.[0-9]+)?)[A-Za-z=:<'/ \\(\\)\\-\\r\\n]*zbar"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "zchunk",
+   "vendor_product": [
+    [
+     "zchunk",
+     "zchunk"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "zchunk ([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "zeek",
+   "vendor_product": [
+    [
+     "zeek",
+     "zeek"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "zeek-([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "zlib",
+   "vendor_product": [
+    [
+     "gnu",
+     "zlib"
+    ],
+    [
+     "zlib",
+     "zlib"
+    ]
+   ],
+   "filename_patterns": [
+    "libz.so."
+   ],
+   "contains_patterns": [
+    "deflate[0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~ \t\n\r\u000b\f]*Copyright 1995-2005 Jean-loup Gailly",
+    "Copyright 1995-2005 Mark Adler[0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~ \t\n\r\u000b\f]*inflate",
+    "Copyright 1995-2017 Jean-loup Gailly and Mark Adler",
+    "Copyright 1995-2017 Mark Adler"
+   ],
+   "version_patterns": [
+    "(?:de|in)flate ([01]+(\\.[0-9]+){1,3}) Copyright 1995-",
+    "libz.so.([01]+(\\.[0-9]+){1,3})"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "znc",
+   "vendor_product": [
+    [
+     "znc",
+     "znc"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "znc-([0-9]+\\.[0-9]+\\.[0-9]+)",
+    "([0-9]+\\.[0-9]+\\.[0-9]+)\\r?\\n[a-zA-Z,: \\[]*\\r?\\n[\\./]*[zZ][nN][cC]"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "zsh",
+   "vendor_product": [
+    [
+     "zsh",
+     "zsh"
+    ],
+    [
+     "zsh_project",
+     "zsh"
+    ]
+   ],
+   "filename_patterns": [
+    "newuser.so",
+    "zsh"
+   ],
+   "contains_patterns": [
+    "zsh: sure you want to delete all %d files in",
+    "zsh: sure you want to delete all the files in"
+   ],
+   "version_patterns": [
+    "zsh/([0-9]+\\.[0-9]+(\\.[0-9]+)?)"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "zstandard",
+   "vendor_product": [
+    [
+     "facebook",
+     "zstandard"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "Frame requires too much memory for decoding[a-zA-Z :(#$'/,\\-\\r\\n]*([0-9]+\\.[0-9]+\\.[0-9]+)",
+    "\\r?\\n([0-9]+\\.[0-9]+\\.[0-9]+)[a-zA-Z0-9 -|<>/._=%:(#$'/\\[\\]\\r\\n]*Frame requires too much memory for decoding"
+   ],
+   "ignore_patterns": []
+  },
+  {
+   "name": "zziplib",
+   "vendor_product": [
+    [
+     "gdraheim",
+     "zziplib"
+    ],
+    [
+     "zziplib_project",
+     "zziplib"
+    ]
+   ],
+   "filename_patterns": [],
+   "contains_patterns": [],
+   "version_patterns": [
+    "zziplib ([0-9]+\\.[0-9]+\\.[0-9]+)"
+   ],
+   "ignore_patterns": []
+  }
+ ]
+}

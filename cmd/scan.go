@@ -4,7 +4,11 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"path/filepath"
+	"runtime"
+	"sync"
 
+	"github.com/chainguard-sandbox/darkfiles2/internal/fingerprint"
 	"github.com/chainguard-sandbox/darkfiles2/internal/image"
 	"github.com/chainguard-sandbox/darkfiles2/internal/pkgdb"
 	"github.com/chainguard-sandbox/darkfiles2/internal/report"
@@ -25,6 +29,10 @@ var scanFlags struct {
 	sbomFile string
 	sbomKey  string
 	insecure bool
+
+	fingerprint   bool
+	fpMinLength   int
+	fpUseFilename bool
 }
 
 func runScan(cmd *cobra.Command, args []string) error {
@@ -62,6 +70,12 @@ func runScan(cmd *cobra.Command, args []string) error {
 		default:
 			r.ApplySBOM(paths)
 		}
+	}
+
+	// Fingerprinting takes over the output: it scans the selected file set for
+	// statically-linked libraries rather than reporting dark-file statistics.
+	if scanFlags.fingerprint {
+		return runFingerprint(r, fs)
 	}
 
 	// JSON always emits the structured summary, regardless of view flags.
@@ -111,6 +125,98 @@ func runScan(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
+// runFingerprint scans the selected file set for statically-linked libraries.
+// It re-extracts the content of those files from the image (the initial scan
+// keeps only metadata) and matches each against the fingerprint signature DB.
+func runFingerprint(r *report.Result, fs *image.ImageFS) error {
+	files := selectFiles(r, fs, scanFlags.set, scanFlags.code)
+	if len(files) == 0 {
+		fmt.Fprintln(os.Stderr, "No files selected for fingerprinting.")
+		return nil
+	}
+
+	db, err := fingerprint.Load()
+	if err != nil {
+		return fmt.Errorf("loading fingerprint signatures: %w", err)
+	}
+	if db.Skipped > 0 {
+		fmt.Fprintf(os.Stderr, "note: %d fingerprint pattern(s) could not be compiled and were skipped\n", db.Skipped)
+	}
+
+	// Symlinks have no content of their own; skip them so we only fingerprint
+	// real files.
+	want := make(map[string]bool, len(files))
+	for _, f := range files {
+		if f.IsSymlink {
+			continue
+		}
+		want[f.Path] = true
+	}
+
+	var contents map[string][]byte
+	err = withSpinner(fmt.Sprintf("Extracting %d file(s)", len(want)), func() error {
+		var e error
+		contents, e = fs.ExtractContents(want)
+		return e
+	})
+	if err != nil {
+		return fmt.Errorf("extracting file contents: %w", err)
+	}
+
+	results := fingerprintFiles(db, contents)
+
+	if scanFlags.format == "json" {
+		return report.PrintFingerprintsJSON(os.Stdout, results)
+	}
+	report.PrintFingerprints(os.Stdout, results)
+	return nil
+}
+
+// fingerprintFiles runs the fingerprint scan over every extracted file
+// concurrently and returns one result per file.
+func fingerprintFiles(db *fingerprint.DB, contents map[string][]byte) []report.FileFingerprint {
+	type job struct {
+		path string
+		data []byte
+	}
+	jobs := make([]job, 0, len(contents))
+	for p, d := range contents {
+		jobs = append(jobs, job{path: p, data: d})
+	}
+
+	results := make([]report.FileFingerprint, len(jobs))
+	workers := runtime.NumCPU()
+	if workers > len(jobs) {
+		workers = len(jobs)
+	}
+	if workers < 1 {
+		workers = 1
+	}
+
+	var wg sync.WaitGroup
+	ch := make(chan int)
+	for w := 0; w < workers; w++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			for i := range ch {
+				base := filepath.Base(jobs[i].path)
+				dets := db.Fingerprint(jobs[i].data, base, scanFlags.fpMinLength, scanFlags.fpUseFilename)
+				results[i] = report.FileFingerprint{Path: jobs[i].path, Detections: dets}
+			}
+		}()
+	}
+	_ = withSpinner(fmt.Sprintf("Fingerprinting %d file(s)", len(jobs)), func() error {
+		for i := range jobs {
+			ch <- i
+		}
+		close(ch)
+		wg.Wait()
+		return nil
+	})
+	return results
+}
+
 func init() {
 	rootCmd.Flags().StringVar(&scanFlags.format, "format", "text", "Output format: text or json")
 	rootCmd.Flags().BoolVarP(&scanFlags.detailed, "detailed", "d", false,
@@ -132,6 +238,12 @@ func init() {
 		"PEM public key to verify the registry SBOM attestation signature (default: embedded Docker Hardened Images key)")
 	rootCmd.Flags().BoolVar(&scanFlags.insecure, "insecure-sbom", false,
 		"Skip signature verification of the registry SBOM attestation (trust it unverified)")
+	rootCmd.Flags().BoolVar(&scanFlags.fingerprint, "fingerprint", false,
+		"Fingerprint the selected files (see --set/--code) for statically-linked libraries and versions")
+	rootCmd.Flags().IntVar(&scanFlags.fpMinLength, "fingerprint-min-length", fingerprint.DefaultMinLength,
+		"Minimum printable-run length for string extraction during fingerprinting")
+	rootCmd.Flags().BoolVar(&scanFlags.fpUseFilename, "fingerprint-use-filename", false,
+		"Also treat a matching file name as fingerprint evidence (noisier)")
 }
 
 func validSet(s string) bool {

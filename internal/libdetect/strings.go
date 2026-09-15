@@ -1,4 +1,4 @@
-package fingerprint
+package libdetect
 
 import "strings"
 

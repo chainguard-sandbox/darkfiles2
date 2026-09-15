@@ -91,7 +91,7 @@ type ImageFS struct {
 	// img is the source image, retained so file content can be re-extracted on
 	// demand (see ExtractContents). The initial scan deliberately discards file
 	// bodies, so a second pass over the layers is needed for features like
-	// fingerprinting.
+	// library detection.
 	img v1.Image
 }
 

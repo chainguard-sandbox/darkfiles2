@@ -1,4 +1,4 @@
-package fingerprint
+package libdetect
 
 import (
 	"regexp"
@@ -27,10 +27,10 @@ type Evidence struct {
 	MatchedFilename bool `json:"matched_filename"`
 }
 
-// Fingerprint extracts printable strings from data and returns every library
+// Detect extracts printable strings from data and returns every library
 // detected in it. filename is used only when useFilename is true. minLen bounds
 // the printable-run length (use DefaultMinLength for the standard behaviour).
-func (db *DB) Fingerprint(data []byte, filename string, minLen int, useFilename bool) []Detection {
+func (db *DB) Detect(data []byte, filename string, minLen int, useFilename bool) []Detection {
 	blob := extractStrings(data, minLen)
 	return db.scan(blob, filename, useFilename)
 }

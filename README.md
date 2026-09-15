@@ -20,9 +20,9 @@ files, injected binaries).
 - **Cross-references an SBOM** (`--sbom`) — fetches the image's SPDX SBOM
   attestation and excludes the files it documents from the dark set, reporting
   them separately (primarily for DHI images)
-- **Fingerprints vendored libraries** (`--fingerprint`) — scans binaries for
+- **Detects vendored libraries** (`--detect-libs`) — scans binaries for
   statically-linked libraries and versions no package manager tracks, using
-  string-fingerprint heuristics ported from cve-bin-tool
+  string-signature heuristics ported from cve-bin-tool
 - **JSON output** for integration with pipelines and dashboards
 
 ## Installation
@@ -157,23 +157,23 @@ darkfiles --sbom-file ./vault.spdx.json --tar ./vault.tar
 The JSON output gains an `in_sbom` object (`{count, bytes}`) whenever an SBOM
 was applied, and `dark_files`/`dark_bytes` exclude the SBOM-accounted files.
 
-### Fingerprinting vendored libraries
+### Detecting vendored libraries
 
 A dark binary is often dark because it statically links libraries the package
-manager never recorded. `--fingerprint` extracts printable strings from each
+manager never recorded. `--detect-libs` extracts printable strings from each
 selected file and matches them against a database of ~450 per-library
 signatures (ported from [cve-bin-tool](https://github.com/intel/cve-bin-tool)
 via [darkrustmaster](https://github.com/chainguard-sandbox/darkrustmaster)) to
 recover which libraries — and, where possible, which versions — are baked in:
 
 ```
-darkfiles --fingerprint --code img          # fingerprint dark code files
-darkfiles --fingerprint --code --set all img # fingerprint every code file
-darkfiles --fingerprint --format json img   # machine-readable results
+darkfiles --detect-libs --code img            # scan dark code files
+darkfiles --detect-libs --code --set all img  # scan every code file
+darkfiles --detect-libs --format json img     # machine-readable results
 ```
 
 It operates on the same selection as the other views (`--set` and `--code`), so
-`--fingerprint --code` targets dark executables and libraries — usually what you
+`--detect-libs --code` targets dark executables and libraries — usually what you
 want. Example:
 
 ```
@@ -183,14 +183,14 @@ want. Example:
 /usr/lib/libcrypto.so.3
   openssl  3.6.4   openssl  contents
 
-Fingerprinted 29 file(s); 27 with detected libraries.
+Scanned 29 file(s); 27 with detected libraries.
 ```
 
-This is fingerprinting, not a bill of materials: false positives (e.g. a
-compiler build-id string reported as `gcc`) and false negatives are inherent to
-the heuristic. Presence with no parseable version is reported as `UNKNOWN`. Tune
-string extraction with `--fingerprint-min-length`, and add
-`--fingerprint-use-filename` to also treat a matching file name as evidence.
+This is signature-based detection, not a bill of materials: false positives
+(e.g. a compiler build-id string reported as `gcc`) and false negatives are
+inherent to the heuristic. Presence with no parseable version is reported as
+`UNKNOWN`. Tune string extraction with `--detect-libs-min-length`, and add
+`--detect-libs-use-filename` to also treat a matching file name as evidence.
 
 The feature is off by default and reads full file content (a second pass over
 the image layers), unlike the metadata-only default scan.
@@ -213,8 +213,8 @@ reported present with version `UNKNOWN`. To keep false positives low, the marker
 must be specific — a multi-word phrase or one containing punctuation/digits;
 bare dictionary words (`unbound`, `coreutils`) are rejected so ordinary help text
 does not trigger a match. This trades a small amount of precision for meaningful
-recall on vendored static libraries, which is the point of running fingerprinting
-on dark files.
+recall on vendored static libraries, which is the point of running library
+detection on dark files.
 
 ### Selecting which files to show
 

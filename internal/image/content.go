@@ -22,7 +22,7 @@ const maxContentSize = 512 << 20
 //
 // The initial image scan (see fromImage) discards file bodies to keep memory
 // bounded, so this performs a second pass over the layers. It is intended for
-// opt-in features such as fingerprinting, not the default analysis path.
+// opt-in features such as library detection, not the default analysis path.
 func (fs *ImageFS) ExtractContents(want map[string]bool) (map[string][]byte, error) {
 	out := make(map[string][]byte, len(want))
 	if len(want) == 0 {

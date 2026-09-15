@@ -1,4 +1,4 @@
-package fingerprint
+package libdetect
 
 import (
 	"reflect"
@@ -54,7 +54,7 @@ func TestScanDetectsVersion(t *testing.T) {
 
 	// The '\n' join is what lets the extracted "curl" and "8.21.0" runs be
 	// matched by "curl X.Y.Z" only if adjacent; here they are on one run.
-	dets := db.Fingerprint([]byte("... curl 8.21.0 ..."), "curl", DefaultMinLength, false)
+	dets := db.Detect([]byte("... curl 8.21.0 ..."), "curl", DefaultMinLength, false)
 	if len(dets) != 1 {
 		t.Fatalf("expected 1 detection, got %d: %+v", len(dets), dets)
 	}
@@ -83,7 +83,7 @@ func TestScanPresenceOnlyIsUnknown(t *testing.T) {
 	if err != nil {
 		t.Fatalf("loadFrom: %v", err)
 	}
-	dets := db.Fingerprint([]byte("has FOO_MARKER inside"), "bin", DefaultMinLength, false)
+	dets := db.Detect([]byte("has FOO_MARKER inside"), "bin", DefaultMinLength, false)
 	if len(dets) != 1 {
 		t.Fatalf("expected 1 detection, got %d", len(dets))
 	}
@@ -106,7 +106,7 @@ func TestScanIgnorePattern(t *testing.T) {
 	if err != nil {
 		t.Fatalf("loadFrom: %v", err)
 	}
-	dets := db.Fingerprint([]byte("libfoo 9.9.9"), "bin", DefaultMinLength, false)
+	dets := db.Detect([]byte("libfoo 9.9.9"), "bin", DefaultMinLength, false)
 	if len(dets) != 1 {
 		t.Fatalf("expected 1 detection, got %d", len(dets))
 	}
@@ -126,11 +126,11 @@ func TestScanUseFilename(t *testing.T) {
 		t.Fatalf("loadFrom: %v", err)
 	}
 	// Without use_filename, a filename-only match is not evidence.
-	if dets := db.Fingerprint([]byte("nothing here"), "foo", DefaultMinLength, false); len(dets) != 0 {
+	if dets := db.Detect([]byte("nothing here"), "foo", DefaultMinLength, false); len(dets) != 0 {
 		t.Errorf("expected no detection without use_filename, got %+v", dets)
 	}
 	// With use_filename, the filename match counts.
-	dets := db.Fingerprint([]byte("nothing here"), "foo", DefaultMinLength, true)
+	dets := db.Detect([]byte("nothing here"), "foo", DefaultMinLength, true)
 	if len(dets) != 1 {
 		t.Fatalf("expected 1 detection with use_filename, got %d", len(dets))
 	}
@@ -180,7 +180,7 @@ func TestPresenceMarkerFallback(t *testing.T) {
 	}
 
 	// Adjacent: the full pattern matches, real version reported.
-	dets := db.Fingerprint([]byte("libfoo using: epoll 1.2.3-stable"), "bin", DefaultMinLength, false)
+	dets := db.Detect([]byte("libfoo using: epoll 1.2.3-stable"), "bin", DefaultMinLength, false)
 	if len(dets) != 1 || !reflect.DeepEqual(dets[0].Versions, []string{"1.2.3"}) {
 		t.Fatalf("adjacent: got %+v, want libfoo 1.2.3", dets)
 	}
@@ -188,7 +188,7 @@ func TestPresenceMarkerFallback(t *testing.T) {
 	// Spaced apart: the anchored pattern fails (uppercase + '/' break the class),
 	// but the marker still fires -> presence with UNKNOWN version.
 	spaced := []byte("libfoo using: epoll\nSOME/Path/thing\n1.2.3-stable")
-	dets = db.Fingerprint(spaced, "bin", DefaultMinLength, false)
+	dets = db.Detect(spaced, "bin", DefaultMinLength, false)
 	if len(dets) != 1 || !reflect.DeepEqual(dets[0].Versions, []string{Unknown}) {
 		t.Fatalf("spaced: got %+v, want libfoo UNKNOWN", dets)
 	}
@@ -207,7 +207,7 @@ func TestPresenceMarkerNoBareWordFalsePositive(t *testing.T) {
 	if err != nil {
 		t.Fatalf("loadFrom: %v", err)
 	}
-	dets := db.Fingerprint([]byte("Sets hash slots as unbound for a node."), "bin", DefaultMinLength, false)
+	dets := db.Detect([]byte("Sets hash slots as unbound for a node."), "bin", DefaultMinLength, false)
 	if len(dets) != 0 {
 		t.Errorf("expected no detection from bare-word marker, got %+v", dets)
 	}
@@ -231,7 +231,7 @@ func TestPresenceMarkerOnlyForVersionOnlyCheckers(t *testing.T) {
 	}
 	// The marker string alone (no CONTAINS, no adjacent version) must not match.
 	spaced := []byte("libfoo using: epoll\nSOME/Path\n1.2.3-stable")
-	if dets := db.Fingerprint(spaced, "bin", DefaultMinLength, false); len(dets) != 0 {
+	if dets := db.Detect(spaced, "bin", DefaultMinLength, false); len(dets) != 0 {
 		t.Errorf("expected no detection (no marker fallback for CONTAINS checker), got %+v", dets)
 	}
 }
@@ -246,7 +246,7 @@ func TestVersionSeparatorRewrite(t *testing.T) {
 	if err != nil {
 		t.Fatalf("loadFrom: %v", err)
 	}
-	dets := db.Fingerprint([]byte("ver 1_2-3"), "bin", DefaultMinLength, false)
+	dets := db.Detect([]byte("ver 1_2-3"), "bin", DefaultMinLength, false)
 	if len(dets) != 1 {
 		t.Fatalf("expected 1 detection, got %d", len(dets))
 	}

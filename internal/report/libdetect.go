@@ -8,20 +8,20 @@ import (
 	"strings"
 	"text/tabwriter"
 
-	"github.com/chainguard-sandbox/darkfiles2/internal/fingerprint"
+	"github.com/chainguard-sandbox/darkfiles2/internal/libdetect"
 )
 
-// FileFingerprint pairs a scanned file with the libraries detected in it.
-type FileFingerprint struct {
+// FileDetections pairs a scanned file with the libraries detected in it.
+type FileDetections struct {
 	Path       string
-	Detections []fingerprint.Detection
+	Detections []libdetect.Detection
 }
 
-// PrintFingerprints writes a human-readable report of detected libraries,
+// PrintDetections writes a human-readable report of detected libraries,
 // grouped by file. Files with no detections are omitted from the per-file
 // listing but counted in the trailing summary. results is sorted by path.
-func PrintFingerprints(w io.Writer, results []FileFingerprint) {
-	sorted := make([]FileFingerprint, len(results))
+func PrintDetections(w io.Writer, results []FileDetections) {
+	sorted := make([]FileDetections, len(results))
 	copy(sorted, results)
 	sort.Slice(sorted, func(i, j int) bool { return sorted[i].Path < sorted[j].Path })
 
@@ -44,35 +44,35 @@ func PrintFingerprints(w io.Writer, results []FileFingerprint) {
 		tw.Flush()
 	}
 
-	fmt.Fprintf(w, "\nFingerprinted %d file(s); %d with detected libraries.\n", len(sorted), withHits)
+	fmt.Fprintf(w, "\nScanned %d file(s); %d with detected libraries.\n", len(sorted), withHits)
 }
 
-// PrintFingerprintsJSON writes the fingerprint results as JSON to w.
-func PrintFingerprintsJSON(w io.Writer, results []FileFingerprint) error {
-	sorted := make([]FileFingerprint, len(results))
+// PrintDetectionsJSON writes the library-detection results as JSON to w.
+func PrintDetectionsJSON(w io.Writer, results []FileDetections) error {
+	sorted := make([]FileDetections, len(results))
 	copy(sorted, results)
 	sort.Slice(sorted, func(i, j int) bool { return sorted[i].Path < sorted[j].Path })
 
 	type fileOut struct {
-		Path       string                  `json:"path"`
-		Detections []fingerprint.Detection `json:"detections"`
+		Path       string                `json:"path"`
+		Detections []libdetect.Detection `json:"detections"`
 	}
 	files := make([]fileOut, 0, len(sorted))
 	for _, r := range sorted {
 		dets := r.Detections
 		if dets == nil {
-			dets = []fingerprint.Detection{}
+			dets = []libdetect.Detection{}
 		}
 		files = append(files, fileOut{Path: r.Path, Detections: dets})
 	}
 
 	enc := json.NewEncoder(w)
 	enc.SetIndent("", "  ")
-	return enc.Encode(map[string]interface{}{"fingerprints": files})
+	return enc.Encode(map[string]interface{}{"files": files})
 }
 
 // vendors joins the distinct vendor names of a detection, preserving order.
-func vendors(vps []fingerprint.VendorProduct) string {
+func vendors(vps []libdetect.VendorProduct) string {
 	seen := map[string]bool{}
 	var out []string
 	for _, vp := range vps {
@@ -86,7 +86,7 @@ func vendors(vps []fingerprint.VendorProduct) string {
 }
 
 // evidence renders which signals matched (contents, filename, or both).
-func evidence(e fingerprint.Evidence) string {
+func evidence(e libdetect.Evidence) string {
 	var parts []string
 	if e.MatchedContents {
 		parts = append(parts, "contents")

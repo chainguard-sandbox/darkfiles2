@@ -33,11 +33,11 @@ on:
   all      every file in the image
   in-sbom  files accounted for by the SBOM (requires --sbom)
 
-Add --fingerprint to scan the selected files (the same --set/--code selection)
-for statically-linked libraries and their versions, using string-fingerprint
+Add --detect-libs to scan the selected files (the same --set/--code selection)
+for statically-linked libraries and their versions, using string-signature
 heuristics ported from cve-bin-tool. This is useful for spotting libraries
 vendored into dark binaries that no package manager tracks. It is off by
-default; combine with --code to restrict fingerprinting to executables and
+default; combine with --code to restrict detection to executables and
 libraries.`,
 	Args:         cobra.MaximumNArgs(1),
 	RunE:         runScan,

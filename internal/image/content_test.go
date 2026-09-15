@@ -86,7 +86,7 @@ func TestExtractLayerContentsOpaqueWhiteout(t *testing.T) {
 
 func TestExtractLayerContentsSymlinkReplacesContent(t *testing.T) {
 	// A wanted path re-appearing as a symlink in a later layer drops the earlier
-	// regular-file content, since symlinks have no body to fingerprint.
+	// regular-file content, since symlinks have no body to read.
 	want := map[string]bool{"/app/bin": true}
 	out := map[string][]byte{}
 	l0 := buildTar(t, []tarEntry{{name: "app/bin", body: "data"}})

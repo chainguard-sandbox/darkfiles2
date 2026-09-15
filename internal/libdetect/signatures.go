@@ -1,5 +1,5 @@
-// Package fingerprint detects statically-linked libraries and their versions
-// inside a binary using string-fingerprint heuristics. The signature database is
+// Package libdetect detects statically-linked libraries and their versions
+// inside a binary using string-signature heuristics. The signature database is
 // ported from cve-bin-tool's per-library checkers, but everything CVE-related
 // (vulnerability databases, NVD downloads, reporting) is dropped: it answers one
 // question — which libraries and versions are in this file?
@@ -8,7 +8,7 @@
 // file (see extractStrings), then each checker's regex patterns are matched
 // against the extracted blob. This is the Go port of the darkrustmaster (`drm`)
 // tool.
-package fingerprint
+package libdetect
 
 import (
 	_ "embed"

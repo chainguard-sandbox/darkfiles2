@@ -8,8 +8,8 @@ import (
 	"runtime"
 	"sync"
 
-	"github.com/chainguard-sandbox/darkfiles2/internal/fingerprint"
 	"github.com/chainguard-sandbox/darkfiles2/internal/image"
+	"github.com/chainguard-sandbox/darkfiles2/internal/libdetect"
 	"github.com/chainguard-sandbox/darkfiles2/internal/pkgdb"
 	"github.com/chainguard-sandbox/darkfiles2/internal/report"
 	"github.com/chainguard-sandbox/darkfiles2/internal/sbom"
@@ -30,9 +30,9 @@ var scanFlags struct {
 	sbomKey  string
 	insecure bool
 
-	fingerprint   bool
-	fpMinLength   int
-	fpUseFilename bool
+	detectLibs            bool
+	detectLibsMinLength   int
+	detectLibsUseFilename bool
 }
 
 func runScan(cmd *cobra.Command, args []string) error {
@@ -72,10 +72,10 @@ func runScan(cmd *cobra.Command, args []string) error {
 		}
 	}
 
-	// Fingerprinting takes over the output: it scans the selected file set for
+	// Library detection takes over the output: it scans the selected file set for
 	// statically-linked libraries rather than reporting dark-file statistics.
-	if scanFlags.fingerprint {
-		return runFingerprint(r, fs)
+	if scanFlags.detectLibs {
+		return runDetectLibs(r, fs)
 	}
 
 	// JSON always emits the structured summary, regardless of view flags.
@@ -125,26 +125,25 @@ func runScan(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-// runFingerprint scans the selected file set for statically-linked libraries.
+// runDetectLibs scans the selected file set for statically-linked libraries.
 // It re-extracts the content of those files from the image (the initial scan
-// keeps only metadata) and matches each against the fingerprint signature DB.
-func runFingerprint(r *report.Result, fs *image.ImageFS) error {
+// keeps only metadata) and matches each against the library signature DB.
+func runDetectLibs(r *report.Result, fs *image.ImageFS) error {
 	files := selectFiles(r, fs, scanFlags.set, scanFlags.code)
 	if len(files) == 0 {
-		fmt.Fprintln(os.Stderr, "No files selected for fingerprinting.")
+		fmt.Fprintln(os.Stderr, "No files selected for library detection.")
 		return nil
 	}
 
-	db, err := fingerprint.Load()
+	db, err := libdetect.Load()
 	if err != nil {
-		return fmt.Errorf("loading fingerprint signatures: %w", err)
+		return fmt.Errorf("loading library signatures: %w", err)
 	}
 	if db.Skipped > 0 {
-		fmt.Fprintf(os.Stderr, "note: %d fingerprint pattern(s) could not be compiled and were skipped\n", db.Skipped)
+		fmt.Fprintf(os.Stderr, "note: %d library signature pattern(s) could not be compiled and were skipped\n", db.Skipped)
 	}
 
-	// Symlinks have no content of their own; skip them so we only fingerprint
-	// real files.
+	// Symlinks have no content of their own; skip them so we only scan real files.
 	want := make(map[string]bool, len(files))
 	for _, f := range files {
 		if f.IsSymlink {
@@ -163,18 +162,18 @@ func runFingerprint(r *report.Result, fs *image.ImageFS) error {
 		return fmt.Errorf("extracting file contents: %w", err)
 	}
 
-	results := fingerprintFiles(db, contents)
+	results := detectLibsInFiles(db, contents)
 
 	if scanFlags.format == "json" {
-		return report.PrintFingerprintsJSON(os.Stdout, results)
+		return report.PrintDetectionsJSON(os.Stdout, results)
 	}
-	report.PrintFingerprints(os.Stdout, results)
+	report.PrintDetections(os.Stdout, results)
 	return nil
 }
 
-// fingerprintFiles runs the fingerprint scan over every extracted file
+// detectLibsInFiles runs the library-detection scan over every extracted file
 // concurrently and returns one result per file.
-func fingerprintFiles(db *fingerprint.DB, contents map[string][]byte) []report.FileFingerprint {
+func detectLibsInFiles(db *libdetect.DB, contents map[string][]byte) []report.FileDetections {
 	type job struct {
 		path string
 		data []byte
@@ -184,7 +183,7 @@ func fingerprintFiles(db *fingerprint.DB, contents map[string][]byte) []report.F
 		jobs = append(jobs, job{path: p, data: d})
 	}
 
-	results := make([]report.FileFingerprint, len(jobs))
+	results := make([]report.FileDetections, len(jobs))
 	workers := runtime.NumCPU()
 	if workers > len(jobs) {
 		workers = len(jobs)
@@ -201,12 +200,12 @@ func fingerprintFiles(db *fingerprint.DB, contents map[string][]byte) []report.F
 			defer wg.Done()
 			for i := range ch {
 				base := filepath.Base(jobs[i].path)
-				dets := db.Fingerprint(jobs[i].data, base, scanFlags.fpMinLength, scanFlags.fpUseFilename)
-				results[i] = report.FileFingerprint{Path: jobs[i].path, Detections: dets}
+				dets := db.Detect(jobs[i].data, base, scanFlags.detectLibsMinLength, scanFlags.detectLibsUseFilename)
+				results[i] = report.FileDetections{Path: jobs[i].path, Detections: dets}
 			}
 		}()
 	}
-	_ = withSpinner(fmt.Sprintf("Fingerprinting %d file(s)", len(jobs)), func() error {
+	_ = withSpinner(fmt.Sprintf("Scanning %d file(s) for libraries", len(jobs)), func() error {
 		for i := range jobs {
 			ch <- i
 		}
@@ -238,12 +237,12 @@ func init() {
 		"PEM public key to verify the registry SBOM attestation signature (default: embedded Docker Hardened Images key)")
 	rootCmd.Flags().BoolVar(&scanFlags.insecure, "insecure-sbom", false,
 		"Skip signature verification of the registry SBOM attestation (trust it unverified)")
-	rootCmd.Flags().BoolVar(&scanFlags.fingerprint, "fingerprint", false,
-		"Fingerprint the selected files (see --set/--code) for statically-linked libraries and versions")
-	rootCmd.Flags().IntVar(&scanFlags.fpMinLength, "fingerprint-min-length", fingerprint.DefaultMinLength,
-		"Minimum printable-run length for string extraction during fingerprinting")
-	rootCmd.Flags().BoolVar(&scanFlags.fpUseFilename, "fingerprint-use-filename", false,
-		"Also treat a matching file name as fingerprint evidence (noisier)")
+	rootCmd.Flags().BoolVar(&scanFlags.detectLibs, "detect-libs", false,
+		"Scan the selected files (see --set/--code) for statically-linked libraries and versions")
+	rootCmd.Flags().IntVar(&scanFlags.detectLibsMinLength, "detect-libs-min-length", libdetect.DefaultMinLength,
+		"Minimum printable-run length for string extraction during library detection")
+	rootCmd.Flags().BoolVar(&scanFlags.detectLibsUseFilename, "detect-libs-use-filename", false,
+		"Also treat a matching file name as library-detection evidence (noisier)")
 }
 
 func validSet(s string) bool {

@@ -6,7 +6,7 @@
 //
 // The pipeline mirrors cve-bin-tool: printable strings are extracted from the
 // file (see extractStrings), then each checker's regex patterns are matched
-// against the extracted blob. 
+// against the extracted blob.
 package libdetect
 
 import (

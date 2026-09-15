@@ -25,20 +25,21 @@ The attestation's cosign signature is verified against Docker's published
 DHI key (override with --sbom-key); if it cannot be verified the SBOM is
 not applied unless --insecure-sbom is given.
 
-The --set flag selects which files the --detailed and --paths views operate
-on:
+The --set flag selects which files the --detailed, --paths, and --detect-libs
+views operate on:
   unknown  unrecognised dark files (default)
   dark     all dark files, including expected ones (pkg state, /dev, etc.)
   tracked  files owned by a package
   all      every file in the image
   in-sbom  files accounted for by the SBOM (requires --sbom)
 
-Add --detect-libs to scan the selected files (the same --set/--code selection)
-for statically-linked libraries and their versions, using string-signature
-heuristics ported from cve-bin-tool. This is useful for spotting libraries
-vendored into dark binaries that no package manager tracks. It is off by
-default; combine with --code to restrict detection to executables and
-libraries.`,
+Add --detect-libs to scan the selected files for statically-linked libraries and
+their versions, using string-signature heuristics ported from cve-bin-tool. This
+is useful for spotting libraries vendored into binaries that no package manager
+tracks. It is off by default; combine with --code to restrict detection to
+executables and libraries. Because it honours --set, it is not limited to dark
+files — use --set tracked or --set all to also scan package-owned binaries and
+libraries (e.g. darkfiles --detect-libs --code --set all <image>).`,
 	Args:         cobra.MaximumNArgs(1),
 	RunE:         runScan,
 	SilenceUsage: true,

@@ -174,23 +174,32 @@ darkfiles --detect-libs --format json img     # machine-readable results
 
 It operates on the same selection as the other views (`--set` and `--code`), so
 `--detect-libs --code` targets dark executables and libraries — usually what you
-want. Example:
+want. It is **not limited to dark files**: because it honours `--set`, you can
+detect vendored libraries in package-owned binaries too:
+
+```
+darkfiles --detect-libs --code --set tracked img  # only package-owned code
+darkfiles --detect-libs --code --set all img      # every binary, dark or not
+```
+
+Each detected library is listed under its file as `library  version(s)  vendor(s)`.
+Example:
 
 ```
 /usr/bin/busybox
-  busybox  1.38.0  busybox  contents
+  busybox  1.38.0  busybox
 
 /usr/lib/libcrypto.so.3
-  openssl  3.6.4   openssl  contents
+  openssl  3.6.4   openssl
 
 Scanned 29 file(s); 27 with detected libraries.
 ```
 
 This is signature-based detection, not a bill of materials: false positives
 (e.g. a compiler build-id string reported as `gcc`) and false negatives are
-inherent to the heuristic. Presence with no parseable version is reported as
-`UNKNOWN`. Tune string extraction with `--detect-libs-min-length`, and add
-`--detect-libs-use-filename` to also treat a matching file name as evidence.
+inherent to the heuristic. Detection is based purely on the file's contents;
+presence with no parseable version is reported as `UNKNOWN`. Tune string
+extraction with `--detect-libs-min-length`.
 
 The feature is off by default and reads full file content (a second pass over
 the image layers), unlike the metadata-only default scan.

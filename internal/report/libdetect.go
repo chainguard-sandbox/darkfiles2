@@ -34,11 +34,10 @@ func PrintDetections(w io.Writer, results []FileDetections) {
 		fmt.Fprintf(w, "\n%s\n", sanitize(r.Path))
 		tw := tabwriter.NewWriter(w, 0, 0, 2, ' ', 0)
 		for _, d := range r.Detections {
-			fmt.Fprintf(tw, "  %s\t%s\t%s\t%s\n",
+			fmt.Fprintf(tw, "  %s\t%s\t%s\n",
 				sanitize(d.Library),
 				sanitize(strings.Join(d.Versions, ", ")),
 				sanitize(vendors(d.VendorProducts)),
-				evidence(d.Evidence),
 			)
 		}
 		tw.Flush()
@@ -83,16 +82,4 @@ func vendors(vps []libdetect.VendorProduct) string {
 		out = append(out, vp.Vendor)
 	}
 	return strings.Join(out, ", ")
-}
-
-// evidence renders which signals matched (contents, filename, or both).
-func evidence(e libdetect.Evidence) string {
-	var parts []string
-	if e.MatchedContents {
-		parts = append(parts, "contents")
-	}
-	if e.MatchedFilename {
-		parts = append(parts, "filename")
-	}
-	return strings.Join(parts, "+")
 }

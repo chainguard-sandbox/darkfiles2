@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"path/filepath"
 	"runtime"
 	"sync"
 
@@ -30,9 +29,8 @@ var scanFlags struct {
 	sbomKey  string
 	insecure bool
 
-	detectLibs            bool
-	detectLibsMinLength   int
-	detectLibsUseFilename bool
+	detectLibs          bool
+	detectLibsMinLength int
 }
 
 func runScan(cmd *cobra.Command, args []string) error {
@@ -199,8 +197,7 @@ func detectLibsInFiles(db *libdetect.DB, contents map[string][]byte) []report.Fi
 		go func() {
 			defer wg.Done()
 			for i := range ch {
-				base := filepath.Base(jobs[i].path)
-				dets := db.Detect(jobs[i].data, base, scanFlags.detectLibsMinLength, scanFlags.detectLibsUseFilename)
+				dets := db.Detect(jobs[i].data, scanFlags.detectLibsMinLength)
 				results[i] = report.FileDetections{Path: jobs[i].path, Detections: dets}
 			}
 		}()
@@ -223,7 +220,7 @@ func init() {
 	rootCmd.Flags().BoolVar(&scanFlags.paths, "paths", false,
 		"Print matching file paths only, one per line (for scripting)")
 	rootCmd.Flags().StringVar(&scanFlags.set, "set", "unknown",
-		"Which files the --detailed/--paths views show: unknown, dark, tracked, all, or in-sbom")
+		"Which files the --detailed/--paths/--detect-libs views act on: unknown, dark, tracked, all, or in-sbom")
 	rootCmd.Flags().BoolVar(&scanFlags.group, "group", false, "With --paths, group output by category")
 	rootCmd.Flags().BoolVar(&scanFlags.sizes, "sizes", false, "With --paths, show file sizes")
 	rootCmd.Flags().BoolVar(&scanFlags.code, "code", false,
@@ -241,8 +238,6 @@ func init() {
 		"Scan the selected files (see --set/--code) for statically-linked libraries and versions")
 	rootCmd.Flags().IntVar(&scanFlags.detectLibsMinLength, "detect-libs-min-length", libdetect.DefaultMinLength,
 		"Minimum printable-run length for string extraction during library detection")
-	rootCmd.Flags().BoolVar(&scanFlags.detectLibsUseFilename, "detect-libs-use-filename", false,
-		"Also treat a matching file name as library-detection evidence (noisier)")
 }
 
 func validSet(s string) bool {

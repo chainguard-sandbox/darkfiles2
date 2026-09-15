@@ -50,11 +50,12 @@ type VendorProduct struct {
 // prefixes like "go" or "git/" are too generic and would cause false positives.
 const presenceMarkerMinLen = 8
 
-// checker is a single library's signature with all patterns compiled.
+// checker is a single library's signature with all patterns compiled. Detection
+// is contents-only, so FILENAME patterns are not compiled or matched; they are
+// still read from the database to determine version-marker eligibility below.
 type checker struct {
 	name          string
 	vendorProduct []VendorProduct
-	filename      []*regexp.Regexp
 	contains      []*regexp.Regexp
 	version       []*regexp.Regexp
 	ignore        []*regexp.Regexp
@@ -94,7 +95,6 @@ func loadFrom(data []byte) (*DB, error) {
 				c.vendorProduct = append(c.vendorProduct, VendorProduct{Vendor: vp[0], Product: vp[1]})
 			}
 		}
-		c.filename = db.compileAll(rc.FilenamePatterns)
 		c.contains = db.compileAll(rc.ContainsPatterns)
 		c.version = db.compileAll(rc.VersionPatterns)
 		c.ignore = db.compileAll(rc.IgnorePatterns)

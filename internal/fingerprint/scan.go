@@ -59,6 +59,13 @@ func (c *checker) detect(blob, filename string, useFilename bool) (Detection, bo
 	matchedContents := anyMatch(c.contains, blob) || anyMatch(c.version, blob)
 	matchedFilename := useFilename && anyMatchAtStart(c.filename, filename)
 
+	// Presence fallback: for version-only checkers whose anchored version pattern
+	// didn't match, a literal marker string still indicates the library is present
+	// (version reported as UNKNOWN).
+	if !matchedContents && anySubstr(c.versionMarkers, blob) {
+		matchedContents = true
+	}
+
 	if !matchedContents && !matchedFilename {
 		return Detection{}, false
 	}
@@ -111,6 +118,16 @@ func (c *checker) detect(blob, filename string, useFilename bool) (Detection, bo
 func anyMatch(res []*regexp.Regexp, text string) bool {
 	for _, re := range res {
 		if re.MatchString(text) {
+			return true
+		}
+	}
+	return false
+}
+
+// anySubstr reports whether any marker is a literal substring of text.
+func anySubstr(markers []string, text string) bool {
+	for _, m := range markers {
+		if strings.Contains(text, m) {
 			return true
 		}
 	}

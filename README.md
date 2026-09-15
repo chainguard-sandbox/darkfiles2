@@ -195,6 +195,27 @@ string extraction with `--fingerprint-min-length`, and add
 The feature is off by default and reads full file content (a second pass over
 the image layers), unlike the metadata-only default scan.
 
+#### Presence detection (a deliberate divergence from cve-bin-tool)
+
+Some cve-bin-tool signatures detect a library only when its version string sits
+immediately next to a marker string in the binary. libevent, for example, is
+matched by `libevent using: %s ... X.Y.Z-stable`. Depending on how the compiler
+lays out the string table, the version constant can end up kilobytes away from
+its marker, so the anchored pattern misses even though the library is clearly
+present — and the same library statically linked into two different builds may be
+detected in one and not the other.
+
+To recover these cases, darkfiles adds a **presence fallback** that upstream
+cve-bin-tool (and `drm`) do not have: for signatures that rely solely on a
+version pattern, it also matches the pattern's distinctive literal marker on its
+own. When the marker is found but no version can be parsed, the library is
+reported present with version `UNKNOWN`. To keep false positives low, the marker
+must be specific — a multi-word phrase or one containing punctuation/digits;
+bare dictionary words (`unbound`, `coreutils`) are rejected so ordinary help text
+does not trigger a match. This trades a small amount of precision for meaningful
+recall on vendored static libraries, which is the point of running fingerprinting
+on dark files.
+
 ### Selecting which files to show
 
 The `--set` flag controls which files the `--detailed` and `--paths` views

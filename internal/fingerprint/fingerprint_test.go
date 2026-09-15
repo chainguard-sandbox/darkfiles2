@@ -139,6 +139,103 @@ func TestScanUseFilename(t *testing.T) {
 	}
 }
 
+func TestDistinctiveMarker(t *testing.T) {
+	keep := []string{
+		"libevent using: %s", // multi-word phrase
+		"GNU Bison ",         // has uppercase + space
+		"coreutils-",         // version connector
+		"apr-util-1",         // punctuation + digit
+	}
+	drop := []string{
+		"coreutils", // bare lowercase word
+		"unbound ",  // trims to 7 chars, below threshold
+		"apcupsd",   // bare word (safe to drop even though distinctive)
+		"short",     // too short
+		"",          // empty (version pattern started with a group)
+	}
+	for _, m := range keep {
+		if !distinctiveMarker(m) {
+			t.Errorf("distinctiveMarker(%q) = false, want true", m)
+		}
+	}
+	for _, m := range drop {
+		if distinctiveMarker(m) {
+			t.Errorf("distinctiveMarker(%q) = true, want false", m)
+		}
+	}
+}
+
+func TestPresenceMarkerFallback(t *testing.T) {
+	// A version-only checker whose anchored pattern needs the version adjacent to
+	// "libfoo using: ". The literal prefix "libfoo using: " is a distinctive
+	// marker.
+	json := `{"checkers":[{
+		"name":"libfoo",
+		"vendor_product":[["acme","libfoo"]],
+		"version_patterns":["libfoo using: [a-z ]*([0-9.]+)-stable"]
+	}]}`
+	db, err := loadFrom([]byte(json))
+	if err != nil {
+		t.Fatalf("loadFrom: %v", err)
+	}
+
+	// Adjacent: the full pattern matches, real version reported.
+	dets := db.Fingerprint([]byte("libfoo using: epoll 1.2.3-stable"), "bin", DefaultMinLength, false)
+	if len(dets) != 1 || !reflect.DeepEqual(dets[0].Versions, []string{"1.2.3"}) {
+		t.Fatalf("adjacent: got %+v, want libfoo 1.2.3", dets)
+	}
+
+	// Spaced apart: the anchored pattern fails (uppercase + '/' break the class),
+	// but the marker still fires -> presence with UNKNOWN version.
+	spaced := []byte("libfoo using: epoll\nSOME/Path/thing\n1.2.3-stable")
+	dets = db.Fingerprint(spaced, "bin", DefaultMinLength, false)
+	if len(dets) != 1 || !reflect.DeepEqual(dets[0].Versions, []string{Unknown}) {
+		t.Fatalf("spaced: got %+v, want libfoo UNKNOWN", dets)
+	}
+}
+
+func TestPresenceMarkerNoBareWordFalsePositive(t *testing.T) {
+	// "unbound (...)" yields the literal prefix "unbound ", which trims below the
+	// length threshold and is rejected as a marker — so an English-word occurrence
+	// must not be reported.
+	json := `{"checkers":[{
+		"name":"unbound",
+		"vendor_product":[["nlnetlabs","unbound"]],
+		"version_patterns":["unbound ([0-9.]+)"]
+	}]}`
+	db, err := loadFrom([]byte(json))
+	if err != nil {
+		t.Fatalf("loadFrom: %v", err)
+	}
+	dets := db.Fingerprint([]byte("Sets hash slots as unbound for a node."), "bin", DefaultMinLength, false)
+	if len(dets) != 0 {
+		t.Errorf("expected no detection from bare-word marker, got %+v", dets)
+	}
+}
+
+func TestPresenceMarkerOnlyForVersionOnlyCheckers(t *testing.T) {
+	// A checker with a CONTAINS pattern must not gain a version-prefix marker;
+	// presence for it is already well-defined by CONTAINS.
+	json := `{"checkers":[{
+		"name":"libfoo",
+		"vendor_product":[["acme","libfoo"]],
+		"contains_patterns":["FOO_BUILD_ID"],
+		"version_patterns":["libfoo using: [a-z ]*([0-9.]+)-stable"]
+	}]}`
+	db, err := loadFrom([]byte(json))
+	if err != nil {
+		t.Fatalf("loadFrom: %v", err)
+	}
+	if len(db.checkers[0].versionMarkers) != 0 {
+		t.Errorf("checker with CONTAINS should have no version markers, got %v", db.checkers[0].versionMarkers)
+	}
+	// The marker string alone (no CONTAINS, no adjacent version) must not match.
+	spaced := []byte("libfoo using: epoll\nSOME/Path\n1.2.3-stable")
+	if dets := db.Fingerprint(spaced, "bin", DefaultMinLength, false); len(dets) != 0 {
+		t.Errorf("expected no detection (no marker fallback for CONTAINS checker), got %+v", dets)
+	}
+}
+
 func TestVersionSeparatorRewrite(t *testing.T) {
 	json := `{"checkers":[{
 		"name":"foo",

@@ -15,6 +15,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"regexp"
+	"strings"
+	"unicode"
 )
 
 // signaturesJSON is the signature database (449 libraries, ported from
@@ -43,6 +45,11 @@ type VendorProduct struct {
 	Product string `json:"product"`
 }
 
+// presenceMarkerMinLen is the minimum length of a literal version-pattern prefix
+// for it to be used as a presence marker (see checker.versionMarkers). Short
+// prefixes like "go" or "git/" are too generic and would cause false positives.
+const presenceMarkerMinLen = 8
+
 // checker is a single library's signature with all patterns compiled.
 type checker struct {
 	name          string
@@ -51,6 +58,16 @@ type checker struct {
 	contains      []*regexp.Regexp
 	version       []*regexp.Regexp
 	ignore        []*regexp.Regexp
+
+	// versionMarkers are literal prefixes of this checker's version patterns,
+	// used as a weaker presence signal: some libraries (e.g. libevent) have no
+	// CONTAINS patterns, so presence relies solely on a VERSION pattern matching.
+	// When the version number sits too far from its marker in the binary's string
+	// table, that anchored match fails even though the library is present. If a
+	// marker string still appears, we report the library present with an UNKNOWN
+	// version. Only populated for version-only checkers (no CONTAINS/FILENAME) to
+	// keep the extra recall targeted and the false-positive rate low.
+	versionMarkers []string
 }
 
 // DB is a compiled signature database, ready to scan against.
@@ -81,9 +98,41 @@ func loadFrom(data []byte) (*DB, error) {
 		c.contains = db.compileAll(rc.ContainsPatterns)
 		c.version = db.compileAll(rc.VersionPatterns)
 		c.ignore = db.compileAll(rc.IgnorePatterns)
+
+		// Derive presence markers only for version-only checkers, where the strict
+		// version match is the sole presence signal.
+		if len(rc.ContainsPatterns) == 0 && len(rc.FilenamePatterns) == 0 {
+			for _, re := range c.version {
+				prefix, _ := re.LiteralPrefix()
+				if distinctiveMarker(prefix) {
+					c.versionMarkers = append(c.versionMarkers, prefix)
+				}
+			}
+		}
+
 		db.checkers = append(db.checkers, c)
 	}
 	return db, nil
+}
+
+// distinctiveMarker reports whether a literal version-pattern prefix is specific
+// enough to use as a presence marker. A bare single word is rejected: it is
+// either an ordinary English word (e.g. "unbound", "coreutils") that appears in
+// unrelated help text, or too short once whitespace is trimmed. A marker is kept
+// only if, after trimming, it still meets the length threshold and contains a
+// space (a multi-word phrase like "libevent using: %s" or "GNU Bison ") or a
+// non-letter character (a version connector like "coreutils-" or "apr-util-1").
+func distinctiveMarker(prefix string) bool {
+	s := strings.TrimSpace(prefix)
+	if len(s) < presenceMarkerMinLen {
+		return false
+	}
+	for _, r := range s {
+		if r == ' ' || !unicode.IsLetter(r) {
+			return true
+		}
+	}
+	return false
 }
 
 // compileAll compiles each pattern, dropping (and counting) any the regexp

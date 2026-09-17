@@ -1,0 +1,7 @@
+# Code owners for darkfiles2.
+#
+# Naming a team (not an individual) keeps ownership stable across role changes and
+# routes incoming security issues and pull requests to a real owner. See the
+# open-source release guide (go/oss-security-guide).
+
+* @chainguard-sandbox/devrel-team-write

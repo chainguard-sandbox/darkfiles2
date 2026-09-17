@@ -25,13 +25,13 @@ files, injected binaries).
 ## Installation
 
 ```
-go install github.com/chainguard-dev/darkfiles2@latest
+go install github.com/chainguard-sandbox/darkfiles2@latest
 ```
 
 Or build from source:
 
 ```
-git clone https://github.com/chainguard-dev/darkfiles2
+git clone https://github.com/chainguard-sandbox/darkfiles2
 cd darkfiles2
 go build -o darkfiles .
 ```

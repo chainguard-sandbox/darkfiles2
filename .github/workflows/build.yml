@@ -24,15 +24,15 @@ jobs:
           egress-policy: audit
 
       - name: Checkout
-        uses: chainguard-actions/actions-checkout@42798c96a6a006223089d8b2908c0d8f592c2d6d # v7.0.0
+        uses: chainguard-actions/actions-checkout@7c40f1441ab5a6453743642606ee3fbd2f53d7ea # v7.0.0
 
       - name: Set up Go
-        uses: chainguard-actions/actions-setup-go@21d5c0a7417043fc34bd485b58aef80461398f1c # v6.5.0
+        uses: chainguard-actions/actions-setup-go@20018d272d0aca816f467eb6dfcb403725e5d7ca # v6.5.0
         with:
           go-version-file: go.mod
 
       - name: Log in to ghcr.io
-        uses: chainguard-actions/docker-login-action@59b6ec50c7e24ae938784029c60c019d02fdccdc # v4.6.0
+        uses: chainguard-actions/docker-login-action@471f865b6525577aec1a207ce43d4ec3ed8a996d # v4.6.0
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -42,7 +42,7 @@ jobs:
         uses: sigstore/cosign-installer@6f9f17788090df1f26f669e9d70d6ae9567deba6 # v4.1.2
 
       - name: Set up ko to build image
-        uses: chainguard-actions/ko-build-setup-ko@02f91de813b49a4d423ecd4826aaaa9d1aa152f7 # v0.10
+        uses: chainguard-actions/ko-build-setup-ko@54c16f5105d807c92d6c013d59a080aa63936dc8 # v0.10
 
       - name: Build and push image
         run: |

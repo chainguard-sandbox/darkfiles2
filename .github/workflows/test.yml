@@ -19,10 +19,10 @@ jobs:
           egress-policy: audit
 
       - name: Checkout
-        uses: chainguard-actions/actions-checkout@42798c96a6a006223089d8b2908c0d8f592c2d6d # v7.0.0
+        uses: chainguard-actions/actions-checkout@7c40f1441ab5a6453743642606ee3fbd2f53d7ea # v7.0.0
 
       - name: Set up Go
-        uses: chainguard-actions/actions-setup-go@21d5c0a7417043fc34bd485b58aef80461398f1c # v6.5.0
+        uses: chainguard-actions/actions-setup-go@20018d272d0aca816f467eb6dfcb403725e5d7ca # v6.5.0
         with:
           go-version-file: go.mod
 

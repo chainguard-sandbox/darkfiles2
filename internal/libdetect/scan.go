@@ -44,7 +44,8 @@ func (db *DB) scan(blob string) []Detection {
 
 // detect runs one checker against the blob. It mirrors cve-bin-tool's
 // Checker.get_versions:
-//   - presence = a CONTAINS/VERSION pattern is found in the blob;
+//   - presence = a CONTAINS match when CONTAINS patterns exist, otherwise a
+//     VERSION match (or the version-only marker fallback) is found in the blob;
 //   - versions = capture group 1 of each VERSION pattern, trimmed, with '_'/'-'
 //     rewritten to '.'; the whole match is what's tested against IGNORE patterns;
 //   - present but no version parsed -> UNKNOWN.

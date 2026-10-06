@@ -223,6 +223,67 @@ func TestPresenceMarkerOnlyForVersionOnlyCheckers(t *testing.T) {
 	}
 }
 
+func TestVersionMatchAloneDoesNotEstablishPresence(t *testing.T) {
+	// A checker with CONTAINS patterns must not be reported present on a VERSION
+	// match alone: VERSION patterns are often loose and match mere references to a
+	// library. Presence requires one of the (stronger) CONTAINS markers.
+	json := `{"checkers":[{
+		"name":"foo",
+		"vendor_product":[["acme","foo"]],
+		"contains_patterns":["FOO_RUNTIME_MARKER"],
+		"version_patterns":["foo ([0-9]+\\.[0-9]+\\.[0-9]+)"]
+	}]}`
+	db, err := loadFrom([]byte(json))
+	if err != nil {
+		t.Fatalf("loadFrom: %v", err)
+	}
+
+	// Version string present but no CONTAINS marker -> not detected.
+	if dets := db.Detect([]byte("built against foo 1.2.3"), DefaultMinLength); len(dets) != 0 {
+		t.Errorf("version-only match on a CONTAINS checker should not be detected, got %+v", dets)
+	}
+
+	// CONTAINS marker present -> detected, and the version is still extracted.
+	dets := db.Detect([]byte("FOO_RUNTIME_MARKER\nfoo 1.2.3"), DefaultMinLength)
+	if len(dets) != 1 || !reflect.DeepEqual(dets[0].Versions, []string{"1.2.3"}) {
+		t.Fatalf("CONTAINS + version: got %+v, want foo 1.2.3", dets)
+	}
+}
+
+// TestNodeFalsePositiveOnCompatRuntimes guards against reporting node.js in
+// Node-compatible runtimes (deno, bun) that are not the node C++ runtime but
+// embed references to it. Both ship the "https://nodejs.org/download/release/v"
+// download URL (and deno a "node vX.Y.Z" mention) for their Node compatibility
+// layer; neither contains node's runtime-specific markers. A real node binary,
+// which does carry those markers, must still be detected.
+func TestNodeFalsePositiveOnCompatRuntimes(t *testing.T) {
+	db, err := Load()
+	if err != nil {
+		t.Fatalf("Load: %v", err)
+	}
+
+	nodeDetected := func(blob []byte) bool {
+		for _, d := range db.Detect(blob, DefaultMinLength) {
+			if d.Library == "node.js" {
+				return true
+			}
+		}
+		return false
+	}
+
+	// deno/bun embed only references to node; node must NOT be reported.
+	denoish := []byte("deno\nhttps://nodejs.org/download/release/v21.2.0/node-v21.2.0.tar.gz\nnode v10.12.0\n")
+	if nodeDetected(denoish) {
+		t.Errorf("node.js falsely detected from Node-compat reference strings (deno/bun scenario)")
+	}
+
+	// A real node binary carries runtime-specific markers and must be detected.
+	realNode := []byte("Usage: node [options]\nDocumentation can be found at https://nodejs.org/\nhttps://nodejs.org/download/release/v21.2.0/\n")
+	if !nodeDetected(realNode) {
+		t.Errorf("node.js not detected from genuine node runtime markers")
+	}
+}
+
 func TestVersionSeparatorRewrite(t *testing.T) {
 	json := `{"checkers":[{
 		"name":"foo",

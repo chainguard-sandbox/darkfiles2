@@ -5504,9 +5504,10 @@
     "bin/node"
    ],
    "contains_patterns": [
-    "https://nodejs.org/download/release/v",
     "(0) == (uv_async_init(uv_default_loop(), &dispatch_debug_messages_async, DispatchDebugMessagesAsyncCallback))",
-    "Documentation can be found at http://nodejs.org/"
+    "Documentation can be found at http://nodejs.org/",
+    "Documentation can be found at https://nodejs.org/",
+    "Usage: node \\[options\\]"
    ],
    "version_patterns": [
     "https\\:\\/\\/nodejs.org\\/download\\/release\\/v([0-9]+\\.[0-9]+\\.[0-9]+)\\/",

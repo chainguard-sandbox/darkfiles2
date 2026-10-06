@@ -44,18 +44,32 @@ func (db *DB) scan(blob string) []Detection {
 
 // detect runs one checker against the blob. It mirrors cve-bin-tool's
 // Checker.get_versions:
-//   - presence = a CONTAINS/VERSION pattern is found in the blob;
+//   - presence = a CONTAINS match when CONTAINS patterns exist, otherwise a
+//     VERSION match (or the version-only marker fallback) is found in the blob;
 //   - versions = capture group 1 of each VERSION pattern, trimmed, with '_'/'-'
 //     rewritten to '.'; the whole match is what's tested against IGNORE patterns;
 //   - present but no version parsed -> UNKNOWN.
 func (c *checker) detect(blob string) (Detection, bool) {
-	matched := anyMatch(c.contains, blob) || anyMatch(c.version, blob)
+	var matched bool
+	if len(c.contains) > 0 {
+		// When a checker carries CONTAINS patterns, those are its strong presence
+		// signal; a VERSION pattern matching alone is not enough. VERSION patterns
+		// are often loose and match mere *references* to a library — e.g. node's
+		// "https://nodejs.org/download/release/vX.Y.Z/" download URL, which any
+		// Node-compatible runtime (deno, bun) embeds without being the node runtime.
+		// Requiring a CONTAINS match here keeps those references from registering as
+		// presence while the VERSION patterns still supply the version below.
+		matched = anyMatch(c.contains, blob)
+	} else {
+		matched = anyMatch(c.version, blob)
 
-	// Presence fallback: for version-only checkers whose anchored version pattern
-	// didn't match, a literal marker string still indicates the library is present
-	// (version reported as UNKNOWN).
-	if !matched && anySubstr(c.versionMarkers, blob) {
-		matched = true
+		// Presence fallback: for version-only checkers whose anchored version pattern
+		// didn't match, a literal marker string still indicates the library is present
+		// (version reported as UNKNOWN). Only version-only checkers populate
+		// versionMarkers (see loadFrom), so this never applies to CONTAINS checkers.
+		if !matched && anySubstr(c.versionMarkers, blob) {
+			matched = true
+		}
 	}
 
 	if !matched {

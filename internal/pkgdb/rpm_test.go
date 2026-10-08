@@ -1,12 +1,27 @@
 package pkgdb
 
 import (
+	"encoding/binary"
+	"errors"
 	"os"
 	"path/filepath"
 	"testing"
 
 	"github.com/chainguard-sandbox/darkfiles2/internal/image"
 )
+
+// bdbHeader builds the first 16 bytes of a Berkeley DB hash database: the magic
+// number 0x00061561 at offset 12, in the requested byte order. That is all
+// rpmIsBerkeleyDB inspects, so a full fixture is unnecessary.
+func bdbHeader(bigEndian bool) []byte {
+	b := make([]byte, 16)
+	if bigEndian {
+		binary.BigEndian.PutUint32(b[12:16], bdbHashMagic)
+	} else {
+		binary.LittleEndian.PutUint32(b[12:16], bdbHashMagic)
+	}
+	return b
+}
 
 // loadFixture reads the trimmed SQLite rpmdb fixture. It is a real rpm database
 // (SQLite format, the default since rpm 4.16 / RHEL 9 / Fedora 33) containing a
@@ -103,6 +118,64 @@ func TestScanRPMEmptyFileIgnored(t *testing.T) {
 	}
 	if len(tracked) != 0 {
 		t.Errorf("expected empty set, got %d entries", len(tracked))
+	}
+}
+
+func TestScanRPMRefusesBerkeleyDB(t *testing.T) {
+	// A BerkeleyDB database must be refused (not parsed partially), in either
+	// byte order, regardless of the filename it is stored under.
+	for _, tc := range []struct {
+		name string
+		path string
+		data []byte
+	}{
+		{"little-endian Packages", "/var/lib/rpm/Packages", bdbHeader(false)},
+		{"big-endian Packages", "/var/lib/rpm/Packages", bdbHeader(true)},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			fs := &image.ImageFS{FileContent: map[string][]byte{tc.path: tc.data}}
+			_, err := scanRPM(fs)
+			if !errors.Is(err, ErrBerkeleyDBUnsupported) {
+				t.Errorf("scanRPM err = %v, want ErrBerkeleyDBUnsupported", err)
+			}
+		})
+	}
+}
+
+// TestScanRPMBerkeleyDBSurfacedAsWarning checks the end-to-end dispatch: a
+// BerkeleyDB image is detected as rpm and its unsupported-format error is
+// returned by TrackedFiles (where the CLI surfaces it as a warning), with no
+// tracked files.
+func TestScanRPMBerkeleyDBSurfacedAsWarning(t *testing.T) {
+	fs := &image.ImageFS{
+		OsRelease:   map[string]string{"ID": "centos"},
+		FileContent: map[string][]byte{"/var/lib/rpm/Packages": bdbHeader(false)},
+	}
+	tracked, distro, err := TrackedFiles(fs)
+	if distro != "rpm" {
+		t.Errorf("distro = %q, want rpm", distro)
+	}
+	if !errors.Is(err, ErrBerkeleyDBUnsupported) {
+		t.Errorf("TrackedFiles err = %v, want ErrBerkeleyDBUnsupported", err)
+	}
+	if len(tracked) != 0 {
+		t.Errorf("expected no tracked files for a refused BerkeleyDB, got %d", len(tracked))
+	}
+}
+
+// TestScanRPMPrefersSQLiteOverBerkeleyDB ensures a transitional image carrying
+// both databases is read via the reliable SQLite file rather than refused.
+func TestScanRPMPrefersSQLiteOverBerkeleyDB(t *testing.T) {
+	fs := &image.ImageFS{FileContent: map[string][]byte{
+		"/var/lib/rpm/Packages":     bdbHeader(false),
+		"/var/lib/rpm/rpmdb.sqlite": loadFixture(t),
+	}}
+	tracked, err := scanRPM(fs)
+	if err != nil {
+		t.Fatalf("scanRPM: %v", err)
+	}
+	if _, ok := tracked["/usr/lib64/libbz2.so.1.0.8"]; !ok {
+		t.Error("expected SQLite database to be used when both formats are present")
 	}
 }
 

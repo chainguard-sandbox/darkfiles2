@@ -9,6 +9,8 @@ require (
 	modernc.org/sqlite v1.60.1
 )
 
+replace github.com/knqyf263/go-rpmdb => ./third_party/go-rpmdb
+
 require (
 	github.com/docker/cli v29.7.2+incompatible // indirect
 	github.com/docker/docker-credential-helpers v0.9.3 // indirect

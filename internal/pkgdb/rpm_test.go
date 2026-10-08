@@ -1,6 +1,7 @@
 package pkgdb
 
 import (
+	"database/sql"
 	"encoding/binary"
 	"errors"
 	"os"
@@ -69,6 +70,40 @@ func TestScanRPM(t *testing.T) {
 		if !filepath.IsAbs(p) {
 			t.Errorf("tracked path %q is not absolute", p)
 		}
+	}
+}
+
+func TestScanRPMContinuesAfterCorruptPackage(t *testing.T) {
+	path, cleanup, err := writeTempDB(loadFixture(t))
+	if err != nil {
+		t.Fatalf("writeTempDB: %v", err)
+	}
+	defer cleanup()
+
+	db, err := sql.Open("sqlite", path)
+	if err != nil {
+		t.Fatalf("open fixture database: %v", err)
+	}
+	if _, err := db.Exec("INSERT INTO Packages(blob) VALUES (?)", make([]byte, 8)); err != nil {
+		db.Close()
+		t.Fatalf("insert corrupt package: %v", err)
+	}
+	if err := db.Close(); err != nil {
+		t.Fatalf("close fixture database: %v", err)
+	}
+
+	data, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatalf("read fixture database: %v", err)
+	}
+	tracked, err := scanRPM(&image.ImageFS{
+		FileContent: map[string][]byte{"/var/lib/rpm/rpmdb.sqlite": data},
+	})
+	if err != nil {
+		t.Fatalf("scanRPM: %v", err)
+	}
+	if _, ok := tracked["/usr/lib64/libbz2.so.1.0.8"]; !ok {
+		t.Error("valid package files should still be tracked when another package is corrupt")
 	}
 }
 

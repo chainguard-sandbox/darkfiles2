@@ -78,17 +78,14 @@ func scanRPM(fs *image.ImageFS) (map[string]struct{}, error) {
 	}
 	defer db.Close()
 
-	pkgs, err := db.ListPackages()
-	if err != nil {
-		return nil, fmt.Errorf("listing rpm packages: %w", err)
-	}
-
 	tracked := map[string]struct{}{}
-	for _, p := range pkgs {
+	for result := range db.ReadPackages() {
+		if result.Err != nil {
+			continue
+		}
+		p := result.Package
 		files, err := p.InstalledFileNames()
 		if err != nil {
-			// A single corrupt package header should not abort the whole scan;
-			// skip it and keep the paths we can read.
 			continue
 		}
 		for _, f := range files {

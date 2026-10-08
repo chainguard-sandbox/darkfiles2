@@ -23,11 +23,11 @@ import (
 // content (see rpmIsBerkeleyDB), not the filename.
 var rpmDBPaths = []string{
 	"/var/lib/rpm/rpmdb.sqlite",
-	"/var/lib/rpm/Packages",
-	"/var/lib/rpm/Packages.db",
 	"/usr/lib/sysimage/rpm/rpmdb.sqlite",
-	"/usr/lib/sysimage/rpm/Packages",
+	"/var/lib/rpm/Packages.db",
 	"/usr/lib/sysimage/rpm/Packages.db",
+	"/var/lib/rpm/Packages",
+	"/usr/lib/sysimage/rpm/Packages",
 }
 
 // ErrBerkeleyDBUnsupported is returned when the image's RPM database is in the

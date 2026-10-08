@@ -153,6 +153,11 @@ func isPkgDBPath(path string) bool {
 	if strings.HasPrefix(path, "/var/lib/rpm/") {
 		return true
 	}
+	// Newer rpm (Fedora, usr-move distros) stores the database here, with
+	// /var/lib/rpm a symlink to it.
+	if strings.HasPrefix(path, "/usr/lib/sysimage/rpm/") {
+		return true
+	}
 	return false
 }
 

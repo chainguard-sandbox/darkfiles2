@@ -11,7 +11,8 @@ files, injected binaries).
 ## Features
 
 - **Auto-detects the distro** from `/etc/os-release` — no `--distro` flag needed
-- **Supports Alpine, Wolfi/Chainguard, Debian/Ubuntu** package databases
+- **Supports Alpine, Wolfi/Chainguard, Debian/Ubuntu, and RPM** package databases
+  (RHEL/UBI, Fedora, Rocky, CentOS — BerkeleyDB, NDB, and SQLite formats)
 - **Reports by file count and bytes** — a 1,000-file shell script collection is
   less alarming than a single 200 MB injected binary
 - **Cross-references an SBOM** (`--sbom`) — fetches the image's SPDX SBOM
@@ -245,5 +246,4 @@ There was an original [chainguard-dev/darkfiles](https://github.com/chainguard-d
 
 ## Limitations
 
-- **RPM-based images** (RHEL, Fedora, Rocky): there is currently no support for RPM based distros.
 - **Multi-platform images**: the tool pulls the platform that matches the host.

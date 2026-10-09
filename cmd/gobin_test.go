@@ -89,6 +89,44 @@ func TestApplyGoBinariesFromImage(t *testing.T) {
 	}
 }
 
+// TestApplyGoBinariesSBOMTargetSymlink covers a Go binary documented by the
+// SBOM with an undocumented symlink to it: the binary stays in the SBOM bucket
+// and the symlink is accounted for as a Go binary instead of staying dark.
+func TestApplyGoBinariesSBOMTargetSymlink(t *testing.T) {
+	exe, err := os.Executable()
+	if err != nil {
+		t.Fatal(err)
+	}
+	goBin, err := os.ReadFile(exe)
+	if err != nil {
+		t.Fatal(err)
+	}
+	tarPath := writeImageTar(t, []tarEntry{
+		{name: "app/server", mode: 0o755, body: goBin},
+		{name: "usr/bin/server", link: "/app/server"},
+		{name: "app/run.sh", mode: 0o755, body: []byte("#!/bin/sh\n")},
+	})
+	fs, err := image.LoadFromTar(tarPath)
+	if err != nil {
+		t.Fatalf("LoadFromTar: %v", err)
+	}
+	r, _, _ := analyzeImage(tarPath, fs)
+	r.ApplySBOM(map[string]struct{}{"/app/server": {}}) // as runScan does, before Go detection
+
+	if err := applyGoBinaries(r, fs); err != nil {
+		t.Fatalf("applyGoBinaries: %v", err)
+	}
+	if got, want := paths(r.SBOMFiles), []string{"/app/server"}; !equalUnordered(got, want) {
+		t.Errorf("SBOMFiles = %v, want %v", got, want)
+	}
+	if got, want := paths(r.GoFiles), []string{"/usr/bin/server"}; !equalUnordered(got, want) {
+		t.Errorf("GoFiles = %v, want %v", got, want)
+	}
+	if got, want := paths(r.DarkFiles), []string{"/app/run.sh"}; !equalUnordered(got, want) {
+		t.Errorf("DarkFiles = %v, want %v", got, want)
+	}
+}
+
 type tarEntry struct {
 	name string
 	mode int64

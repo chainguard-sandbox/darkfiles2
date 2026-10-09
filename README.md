@@ -195,7 +195,8 @@ binary outside the package manager as unaccounted for.
 The `Dark file breakdown` and `Dark code` lines then exclude the Go binaries.
 Binaries whose build info cannot be read (e.g. deliberately stripped of it) stay
 dark. When `--sbom` is also given, the SBOM takes precedence: a Go binary the
-SBOM documents is counted under `In SBOM`, not `Go binaries`.
+SBOM documents is counted under `In SBOM`, not `Go binaries`. A dark symlink to
+such a binary is still counted under `Go binaries`.
 
 List the Go binaries with `--set go`, or scan them for vendored libraries with
 `--detect-libs` (`--set go` requires `--detect-go`):

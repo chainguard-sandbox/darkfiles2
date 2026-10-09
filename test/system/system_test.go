@@ -87,12 +87,12 @@ func TestSnapshots(t *testing.T) {
 		{"redis", "redis.json", true, []string{"--format", "json", redisImg}},
 		// Exercises the SBOM signature-verification + reclassification path.
 		{"redis-sbom", "redis-sbom.json", true, []string{"--sbom", "--format", "json", redisImg}},
-		// Go binary detection: vault is accounted for by its build info by
-		// default, is dark with --go-dark, and stays attributed to the SBOM
-		// (which takes precedence) with --sbom.
+		// Go binary detection: vault is dark by default, accounted for by its
+		// build info with --detect-go, and stays attributed to the SBOM (which
+		// takes precedence) when --sbom is also given.
 		{"vault", "vault.json", true, []string{"--format", "json", vaultImg}},
-		{"vault-go-dark", "vault-go-dark.json", true, []string{"--go-dark", "--format", "json", vaultImg}},
-		{"vault-sbom", "vault-sbom.json", true, []string{"--sbom", "--format", "json", vaultImg}},
+		{"vault-detect-go", "vault-detect-go.json", true, []string{"--detect-go", "--format", "json", vaultImg}},
+		{"vault-detect-go-sbom", "vault-detect-go-sbom.json", true, []string{"--detect-go", "--sbom", "--format", "json", vaultImg}},
 	}
 
 	for _, tc := range cases {

@@ -9,18 +9,20 @@
       "bytes": 209
     },
     "Unknown": {
-      "count": 40,
-      "bytes": 446327878
+      "count": 39,
+      "bytes": 2438466
     }
   },
-  "dark_bytes": 446487659,
-  "dark_bytes_pct": 96.7262988107826,
-  "dark_code": {
-    "executable": 1
-  },
-  "dark_file_pct": 7.250470809792843,
-  "dark_files": 77,
+  "dark_bytes": 2598247,
+  "dark_bytes_pct": 0.5628796465933663,
+  "dark_code": {},
+  "dark_file_pct": 7.1563088512241055,
+  "dark_files": 76,
   "distro": "debian",
+  "go_binaries": {
+    "bytes": 443889412,
+    "count": 1
+  },
   "image": "dhi.io/vault@sha256:00dcc978d35d28746a46e4b0e56c109a4bce21e05958bf5936d4bc98c44e58a5",
   "total_bytes": 461599032,
   "total_files": 1062,

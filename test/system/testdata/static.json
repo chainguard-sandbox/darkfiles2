@@ -19,10 +19,6 @@
   "dark_file_pct": 1.202886928628709,
   "dark_files": 15,
   "distro": "wolfi",
-  "go_binaries": {
-    "bytes": 0,
-    "count": 0
-  },
   "image": "cgr.dev/chainguard/static@sha256:1fe35025bd06652914560fd01af12a705c645c5566a8d40766b2a4769f33a824",
   "total_bytes": 2042713,
   "total_files": 1247,

@@ -49,9 +49,12 @@ type File struct {
 	Size       int64
 	Mode       uint32
 	IsSymlink  bool
-	LinkTarget string   // only set when IsSymlink is true
-	LayerIndex int      // index into ImageFS.Layers
-	Kind       FileKind // executable/library/script classification
+	LinkTarget string // only set when IsSymlink is true
+	// HardLinkTarget is set for hard links: the path of the file whose content
+	// this entry shares. Hard links have no body of their own in the layer tar.
+	HardLinkTarget string
+	LayerIndex     int      // index into ImageFS.Layers
+	Kind           FileKind // executable/library/script classification
 }
 
 // Layer describes a single image layer and the Dockerfile command that created it.
@@ -345,6 +348,7 @@ func scanLayerTar(
 			// is no body to read. Classify by name and mode only (no magic bytes)
 			// and do NOT add to Symlinks — hard links are not symbolic links.
 			f.Kind = classifyKind(name, hdr.Mode, nil)
+			f.HardLinkTarget = cleanPath(hdr.Linkname)
 		default:
 			// Sniff the leading bytes to classify executables/libraries, then
 			// drain the rest. We never retain full file content.

@@ -94,32 +94,35 @@ func (r *Result) ApplySBOM(paths map[string]struct{}) {
 }
 
 // GoCandidates returns the files to inspect for Go build info: the dark
-// regular executables and shared libraries, plus any SBOM-accounted executable
-// or library that a dark symlink resolves to. The latter stays in the SBOM
-// bucket, but if it is a Go binary its dark aliases are accounted for too (see
-// ApplyGoBinaries). Other SBOM files are not inspected, as nothing would change.
+// regular executables and shared libraries, plus the resolved target of every
+// dark symlink or hard link when that target is a regular executable or library
+// elsewhere in the image (e.g. accounted for by the SBOM, or package-owned). The
+// target keeps its own bucket, but if it is a Go binary its dark aliases are
+// accounted for too (see ApplyGoBinaries).
 func (r *Result) GoCandidates(fs *image.ImageFS) map[string]bool {
 	want := map[string]bool{}
+	var aliases []CategorizedFile
 	for _, f := range r.DarkFiles {
-		if !f.IsSymlink && isBinaryKind(f.Kind) {
+		switch {
+		case f.IsSymlink || f.HardLinkTarget != "":
+			aliases = append(aliases, f)
+		case isBinaryKind(f.Kind):
 			want[f.Path] = true
 		}
 	}
-
-	sbomBinaries := map[string]bool{}
-	for _, f := range r.SBOMFiles {
-		if !f.IsSymlink && isBinaryKind(f.Kind) {
-			sbomBinaries[f.Path] = true
-		}
-	}
-	if len(sbomBinaries) == 0 {
+	if len(aliases) == 0 {
 		return want
 	}
-	for _, f := range r.DarkFiles {
-		if !f.IsSymlink {
-			continue
+
+	binaries := map[string]bool{}
+	for _, f := range fs.Files {
+		// A hard link's own entry has no content to inspect; only real files.
+		if !f.IsSymlink && f.HardLinkTarget == "" && isBinaryKind(f.Kind) {
+			binaries[f.Path] = true
 		}
-		if target := fs.ResolveSymlink(f.Path); sbomBinaries[target] {
+	}
+	for _, f := range aliases {
+		if target := aliasTarget(f, fs); binaries[target] {
 			want[target] = true
 		}
 	}
@@ -130,19 +133,31 @@ func isBinaryKind(k image.FileKind) bool {
 	return k == image.KindExecutable || k == image.KindSharedLibrary
 }
 
+// aliasTarget returns the fully-resolved path of the file a symlink or hard link
+// refers to, or "" for any other file.
+func aliasTarget(f CategorizedFile, fs *image.ImageFS) string {
+	switch {
+	case f.IsSymlink:
+		return fs.ResolveSymlink(f.Path)
+	case f.HardLinkTarget != "":
+		return fs.ResolveSymlink(f.HardLinkTarget)
+	}
+	return ""
+}
+
 // ApplyGoBinaries moves from the dark set every file in goPaths, and every
-// symlink whose fully-resolved target is in goPaths, into GoFiles. goPaths may
-// include SBOM-accounted targets (see GoCandidates); those files stay in
-// SBOMFiles and only their dark symlinks move. These are
-// Go binaries whose embedded build info lets scanners see what they contain,
-// so they should not count as dark.
+// symlink or hard link whose fully-resolved target is in goPaths, into GoFiles.
+// goPaths may include targets outside the dark set (see GoCandidates); those
+// files keep their bucket and only their dark aliases move.
 func (r *Result) ApplyGoBinaries(goPaths map[string]struct{}, fs *image.ImageFS) {
 	r.GoChecked = true
 	var dark []CategorizedFile
 	for _, f := range r.DarkFiles {
 		_, ok := goPaths[f.Path]
-		if !ok && f.IsSymlink {
-			_, ok = goPaths[fs.ResolveSymlink(f.Path)]
+		if !ok {
+			if target := aliasTarget(f, fs); target != "" {
+				_, ok = goPaths[target]
+			}
 		}
 		if ok {
 			r.GoFiles = append(r.GoFiles, f)

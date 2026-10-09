@@ -2,6 +2,7 @@ package report
 
 import (
 	"math"
+	"strings"
 	"testing"
 
 	"github.com/chainguard-sandbox/darkfiles2/internal/image"
@@ -273,49 +274,67 @@ func TestApplyGoBinaries(t *testing.T) {
 	}
 }
 
-func TestGoCandidatesIncludesSBOMSymlinkTargets(t *testing.T) {
-	// /app/server and /opt/other are documented by the SBOM; only /app/server
-	// has a dark symlink pointing at it, so only it needs inspecting.
-	fs := newFS(nil, map[string]string{"/usr/bin/server": "/app/server"})
+func TestGoCandidatesIncludesAliasTargets(t *testing.T) {
+	// The image: /app/server (SBOM-documented), /usr/lib/tool (package-owned),
+	// /opt/other (SBOM-documented, no aliases), /etc/cfg (not a binary), and dark
+	// aliases of each kind pointing at them.
+	files := []image.File{
+		{Path: "/app/server", Kind: image.KindExecutable},
+		{Path: "/usr/lib/tool", Kind: image.KindExecutable},
+		{Path: "/opt/other", Kind: image.KindExecutable},
+		{Path: "/etc/cfg", Kind: image.KindOther},
+		{Path: "/usr/bin/server", IsSymlink: true, LinkTarget: "/app/server"},
+		{Path: "/usr/local/bin/server", HardLinkTarget: "/app/server"},
+		{Path: "/usr/local/bin/tool", HardLinkTarget: "/usr/lib/tool"},
+		{Path: "/usr/local/etc/cfg", HardLinkTarget: "/etc/cfg"},
+	}
+	fs := newFS(files, map[string]string{"/usr/bin/server": "/app/server"})
 	r := &Result{
-		DarkFiles: []CategorizedFile{
-			{File: image.File{Path: "/usr/bin/server", IsSymlink: true, LinkTarget: "/app/server"}},
-		},
-		SBOMFiles: []CategorizedFile{
-			{File: image.File{Path: "/app/server", Kind: image.KindExecutable}},
-			{File: image.File{Path: "/opt/other", Kind: image.KindExecutable}},
-		},
+		DarkFiles: []CategorizedFile{{File: files[4]}, {File: files[5]}, {File: files[6]}, {File: files[7]}},
+		SBOMFiles: []CategorizedFile{{File: files[0]}, {File: files[2]}},
 	}
 	got := r.GoCandidates(fs)
-	if len(got) != 1 || !got["/app/server"] {
-		t.Errorf("GoCandidates() = %v, want only /app/server", got)
+	// /opt/other has no dark alias and /etc/cfg is not a binary, so neither is
+	// inspected; the alias entries themselves have no content to inspect.
+	if len(got) != 2 || !got["/app/server"] || !got["/usr/lib/tool"] {
+		t.Errorf("GoCandidates() = %v, want only /app/server and /usr/lib/tool", got)
 	}
 }
 
-func TestApplyGoBinariesSymlinkToSBOMTarget(t *testing.T) {
+func TestApplyGoBinariesAliasesOfAccountedTarget(t *testing.T) {
 	// The Go binary itself is SBOM-documented and stays there; its undocumented
-	// symlink is accounted for as a Go binary rather than left dark.
+	// symlink and hard link are accounted for as Go binaries rather than left dark.
 	fs := newFS(nil, map[string]string{"/usr/bin/server": "/app/server"})
 	r := &Result{
 		DarkFiles: []CategorizedFile{
 			{File: image.File{Path: "/usr/bin/server", IsSymlink: true, LinkTarget: "/app/server"}},
+			{File: image.File{Path: "/usr/local/bin/server", HardLinkTarget: "/app/server"}},
+			{File: image.File{Path: "/usr/local/bin/other", HardLinkTarget: "/app/other"}},
 			{File: image.File{Path: "/app/mystery", Kind: image.KindExecutable}},
 		},
 		SBOMFiles: []CategorizedFile{
-			{File: image.File{Path: "/app/server", Size: 150, Kind: image.KindExecutable}},
+			{File: image.File{Path: "/app/server", Kind: image.KindExecutable}},
 		},
 	}
 	r.ApplyGoBinaries(map[string]struct{}{"/app/server": {}}, fs)
 
-	if len(r.SBOMFiles) != 1 || r.SBOMFiles[0].Path != "/app/server" {
-		t.Errorf("SBOMFiles = %+v, want only /app/server (target stays in SBOM)", r.SBOMFiles)
+	if got := filePaths(r.SBOMFiles); len(got) != 1 || got[0] != "/app/server" {
+		t.Errorf("SBOMFiles = %v, want only /app/server (target stays in SBOM)", got)
 	}
-	if len(r.GoFiles) != 1 || r.GoFiles[0].Path != "/usr/bin/server" {
-		t.Errorf("GoFiles = %+v, want only /usr/bin/server", r.GoFiles)
+	if got, want := strings.Join(filePaths(r.GoFiles), " "), "/usr/bin/server /usr/local/bin/server"; got != want {
+		t.Errorf("GoFiles = %v, want %v", got, want)
 	}
-	if len(r.DarkFiles) != 1 || r.DarkFiles[0].Path != "/app/mystery" {
-		t.Errorf("DarkFiles = %+v, want only /app/mystery", r.DarkFiles)
+	if got, want := strings.Join(filePaths(r.DarkFiles), " "), "/usr/local/bin/other /app/mystery"; got != want {
+		t.Errorf("DarkFiles = %v, want %v", got, want)
 	}
+}
+
+func filePaths(files []CategorizedFile) []string {
+	out := make([]string, len(files))
+	for i, f := range files {
+		out[i] = f.Path
+	}
+	return out
 }
 
 func TestApplyGoBinariesNoneFound(t *testing.T) {

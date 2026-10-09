@@ -66,7 +66,9 @@ func TestApplyGoBinariesFromImage(t *testing.T) {
 	tarPath := writeImageTar(t, []tarEntry{
 		{name: "app/server", mode: 0o755, body: goBin},
 		{name: "usr/bin/server", link: "/app/server"},
+		{name: "usr/local/bin/server", mode: 0o755, hardlink: "app/server"},
 		{name: "app/other", mode: 0o755, body: notGo},
+		{name: "usr/local/bin/other", mode: 0o755, hardlink: "app/other"},
 		{name: "app/run.sh", mode: 0o755, body: []byte("#!/bin/sh\n")},
 	})
 	fs, err := image.LoadFromTar(tarPath)
@@ -81,18 +83,19 @@ func TestApplyGoBinariesFromImage(t *testing.T) {
 	if !r.GoChecked {
 		t.Error("GoChecked should be true")
 	}
-	if got, want := paths(r.GoFiles), []string{"/app/server", "/usr/bin/server"}; !equalUnordered(got, want) {
+	if got, want := paths(r.GoFiles), []string{"/app/server", "/usr/bin/server", "/usr/local/bin/server"}; !equalUnordered(got, want) {
 		t.Errorf("GoFiles = %v, want %v", got, want)
 	}
-	if got, want := paths(r.DarkFiles), []string{"/app/other", "/app/run.sh"}; !equalUnordered(got, want) {
+	if got, want := paths(r.DarkFiles), []string{"/app/other", "/usr/local/bin/other", "/app/run.sh"}; !equalUnordered(got, want) {
 		t.Errorf("DarkFiles = %v, want %v", got, want)
 	}
 }
 
-// TestApplyGoBinariesSBOMTargetSymlink covers a Go binary documented by the
-// SBOM with an undocumented symlink to it: the binary stays in the SBOM bucket
-// and the symlink is accounted for as a Go binary instead of staying dark.
-func TestApplyGoBinariesSBOMTargetSymlink(t *testing.T) {
+// TestApplyGoBinariesSBOMTargetAliases covers a Go binary documented by the
+// SBOM with an undocumented symlink and hard link to it: the binary stays in the
+// SBOM bucket and both aliases are accounted for as Go binaries instead of
+// staying dark.
+func TestApplyGoBinariesSBOMTargetAliases(t *testing.T) {
 	exe, err := os.Executable()
 	if err != nil {
 		t.Fatal(err)
@@ -104,6 +107,7 @@ func TestApplyGoBinariesSBOMTargetSymlink(t *testing.T) {
 	tarPath := writeImageTar(t, []tarEntry{
 		{name: "app/server", mode: 0o755, body: goBin},
 		{name: "usr/bin/server", link: "/app/server"},
+		{name: "usr/local/bin/server", mode: 0o755, hardlink: "app/server"},
 		{name: "app/run.sh", mode: 0o755, body: []byte("#!/bin/sh\n")},
 	})
 	fs, err := image.LoadFromTar(tarPath)
@@ -119,7 +123,7 @@ func TestApplyGoBinariesSBOMTargetSymlink(t *testing.T) {
 	if got, want := paths(r.SBOMFiles), []string{"/app/server"}; !equalUnordered(got, want) {
 		t.Errorf("SBOMFiles = %v, want %v", got, want)
 	}
-	if got, want := paths(r.GoFiles), []string{"/usr/bin/server"}; !equalUnordered(got, want) {
+	if got, want := paths(r.GoFiles), []string{"/usr/bin/server", "/usr/local/bin/server"}; !equalUnordered(got, want) {
 		t.Errorf("GoFiles = %v, want %v", got, want)
 	}
 	if got, want := paths(r.DarkFiles), []string{"/app/run.sh"}; !equalUnordered(got, want) {
@@ -128,10 +132,11 @@ func TestApplyGoBinariesSBOMTargetSymlink(t *testing.T) {
 }
 
 type tarEntry struct {
-	name string
-	mode int64
-	body []byte
-	link string // symlink target; body is ignored when set
+	name     string
+	mode     int64
+	body     []byte
+	link     string // symlink target; body is ignored when set
+	hardlink string // hard link target (archive path); body is ignored when set
 }
 
 // writeImageTar builds a single-layer image from entries and saves it as a
@@ -142,13 +147,16 @@ func writeImageTar(t *testing.T, entries []tarEntry) string {
 	tw := tar.NewWriter(&buf)
 	for _, e := range entries {
 		hdr := &tar.Header{Name: e.name, Mode: e.mode, Typeflag: tar.TypeReg, Size: int64(len(e.body))}
-		if e.link != "" {
+		switch {
+		case e.link != "":
 			hdr = &tar.Header{Name: e.name, Mode: 0o777, Typeflag: tar.TypeSymlink, Linkname: e.link}
+		case e.hardlink != "":
+			hdr = &tar.Header{Name: e.name, Mode: e.mode, Typeflag: tar.TypeLink, Linkname: e.hardlink}
 		}
 		if err := tw.WriteHeader(hdr); err != nil {
 			t.Fatal(err)
 		}
-		if e.link == "" {
+		if hdr.Typeflag == tar.TypeReg {
 			if _, err := tw.Write(e.body); err != nil {
 				t.Fatal(err)
 			}

@@ -167,8 +167,8 @@ arbitrary unknown binary is.
 
 By default darkfiles counts Go binaries like any other untracked file: as dark.
 `--detect-go` inspects each dark executable and shared library for Go build info
-(using `debug/buildinfo`), and moves those that carry it — along with any
-symlinks that resolve to them — into their own `Go binaries` bucket rather than
+(using `debug/buildinfo`), and moves those that carry it — along with any dark
+symlinks or hard links to them — into their own `Go binaries` bucket rather than
 counting them as dark:
 
 ```
@@ -195,8 +195,9 @@ binary outside the package manager as unaccounted for.
 The `Dark file breakdown` and `Dark code` lines then exclude the Go binaries.
 Binaries whose build info cannot be read (e.g. deliberately stripped of it) stay
 dark. When `--sbom` is also given, the SBOM takes precedence: a Go binary the
-SBOM documents is counted under `In SBOM`, not `Go binaries`. A dark symlink to
-such a binary is still counted under `Go binaries`.
+SBOM documents is counted under `In SBOM`, not `Go binaries`. A dark symlink or
+hard link to such a binary (or to a package-owned Go binary) is still counted
+under `Go binaries`.
 
 List the Go binaries with `--set go`, or scan them for vendored libraries with
 `--detect-libs` (`--set go` requires `--detect-go`):
@@ -301,7 +302,7 @@ A file is dark if:
    correctly handles multi-call busybox, merged-usr hierarchies, etc.
 3. It is **not documented by the image's SBOM**, when `--sbom` is given
 4. With `--detect-go`, it is **not a Go binary** with readable embedded build
-   info (or a symlink to one) — scanners read that build info directly, so such
+   info (or a symlink or hard link to one) — scanners read that build info directly, so such
    binaries are visible to them
 
 Each untracked file is accounted for by the first rule that matches, so a Go

@@ -17,9 +17,9 @@ files, injected binaries).
 - **Cross-references an SBOM** (`--sbom`) — fetches the image's SPDX SBOM
   attestation and excludes the files it documents from the dark set, reporting
   them separately
-- **Accounts for Go binaries** — Go executables embed build info (module,
-  dependencies, versions) that scanners read directly, so they are reported
-  separately rather than as dark (`--go-dark` to count them as dark)
+- **Accounts for Go binaries** (`--detect-go`) — Go executables embed build
+  info (module, dependencies, versions) that scanners read directly, so they
+  can be reported separately rather than as dark
 - **Detects vendored libraries** (`--detect-libs`) — scans binaries for
   statically-linked libraries using string-signature heuristics ported from 
   cve-bin-tool
@@ -132,8 +132,9 @@ Dark size:      536.8 KiB (0.1%)
 
 The `Dark file breakdown` and `Dark code` lines then describe only the files
 that remain unaccounted for — neither tracked by a package nor documented by the
-SBOM (nor identified as a Go binary; see below). `Tracked`, `In SBOM`,
-`Go binaries`, and `Dark` partition every file in the image.
+SBOM (nor, with `--detect-go`, identified as a Go binary; see below).
+`Tracked`, `In SBOM`, `Go binaries` (with `--detect-go`), and `Dark` partition
+every file in the image.
 
 A registry-fetched SBOM is only trusted once its cosign signature is verified.
 darkfiles verifies the SPDX attestation against Docker's published DHI signing
@@ -164,10 +165,15 @@ Vulnerability scanners such as Grype, Trivy, and Syft read this metadata
 directly, so an untracked Go binary is not invisible to them in the way an
 arbitrary unknown binary is.
 
-By default darkfiles therefore inspects each dark executable and shared library
-for Go build info (using `debug/buildinfo`), and moves those that carry it —
-along with any symlinks that resolve to them — into their own `Go binaries`
-bucket rather than counting them as dark:
+By default darkfiles counts Go binaries like any other untracked file: as dark.
+`--detect-go` inspects each dark executable and shared library for Go build info
+(using `debug/buildinfo`), and moves those that carry it — along with any
+symlinks that resolve to them — into their own `Go binaries` bucket rather than
+counting them as dark:
+
+```
+darkfiles --detect-go registry:2
+```
 
 ```
 Image:           registry:2
@@ -182,33 +188,26 @@ Dark files:      12 (1.4%)
 Dark size:       14.0 KiB (0.1%)
 ```
 
-The `Go binaries` lines are shown only when some were found. The `Dark file
-breakdown` and `Dark code` lines exclude them. Binaries whose build info cannot
-be read (e.g. deliberately stripped of it) stay dark.
+Without `--detect-go`, `/bin/registry` would be among the dark files (16.7 MiB
+dark). Use it when your scanner reads Go build info; leave it off to treat every
+binary outside the package manager as unaccounted for.
 
-When `--sbom` is also given, the SBOM takes precedence: a Go binary the SBOM
-documents is counted under `In SBOM`, not `Go binaries`.
+The `Dark file breakdown` and `Dark code` lines then exclude the Go binaries.
+Binaries whose build info cannot be read (e.g. deliberately stripped of it) stay
+dark. When `--sbom` is also given, the SBOM takes precedence: a Go binary the
+SBOM documents is counted under `In SBOM`, not `Go binaries`.
 
 List the Go binaries with `--set go`, or scan them for vendored libraries with
-`--detect-libs`:
+`--detect-libs` (`--set go` requires `--detect-go`):
 
 ```
-darkfiles --paths --set go registry:2
-darkfiles --detect-libs --set go registry:2
+darkfiles --detect-go --paths --set go registry:2
+darkfiles --detect-go --detect-libs --set go registry:2
 ```
 
-The JSON output carries a `go_binaries` object (`{count, bytes}`) whenever
-detection ran — including `{"count": 0, ...}` when none were found — and
+The JSON output gains a `go_binaries` object (`{count, bytes}`) whenever
+`--detect-go` is given — including `{"count": 0, ...}` when none were found — and
 `dark_files`/`dark_bytes` exclude them.
-
-Pass `--go-dark` to skip detection and count Go binaries as dark — for example
-if your scanner does not read Go build info, or you want to treat every binary
-outside the package manager as unaccounted for. The `go_binaries` JSON object is
-then omitted, and `--set go` is rejected:
-
-```
-darkfiles --go-dark registry:2
-```
 
 Detection reads file content, so it costs a second pass over the image layers
 when the image has dark executables or shared libraries (and nothing otherwise).
@@ -230,9 +229,9 @@ darkfiles --detect-libs --format json img     # machine-readable results
 
 It operates on the same selection as the other views (`--set` and `--code`), so
 `--detect-libs --code` targets dark executables and libraries — usually what you
-want. Go binaries are not dark by default (see [Go binaries](#go-binaries)), so
-they are not included; add `--set go` to scan them, or `--go-dark` to keep them
-in the dark set. It is **not limited to dark files**: because it honours `--set`, you can
+want. With `--detect-go`, Go binaries leave the dark set (see
+[Go binaries](#go-binaries)) and so are not included; add `--set go` to scan
+them. It is **not limited to dark files**: because it honours `--set`, you can
 detect vendored libraries in package-owned binaries too:
 
 ```
@@ -259,10 +258,8 @@ inherent to the heuristic. Detection is based purely on the file's contents;
 presence with no parseable version is reported as `UNKNOWN`. Tune string
 extraction with `--detect-libs-min-length`.
 
-The feature is off by default and reads the full content of every selected
-file (a second pass over the image layers). The default scan otherwise works
-from file metadata, reading content only to check dark executables and
-libraries for Go build info.
+The feature is off by default and reads full file content (a second pass over
+the image layers), unlike the metadata-only default scan.
 
 ### Selecting which files to show
 
@@ -274,7 +271,7 @@ darkfiles -d --set unknown img    # unrecognised dark files only (default)
 darkfiles -d --set dark    img    # all dark files, incl. expected ones
 darkfiles --paths --set tracked img
 darkfiles --paths --set all img
-darkfiles --paths --set go img      # Go binaries excluded from the dark set
+darkfiles --detect-go --paths --set go img  # Go binaries (see above)
 ```
 
 | `--set`   | meaning                                                  |
@@ -284,7 +281,7 @@ darkfiles --paths --set go img      # Go binaries excluded from the dark set
 | `tracked` | files owned by a package                                 |
 | `all`     | every file in the image                                  |
 | `in-sbom` | files accounted for by the SBOM (requires `--sbom`)      |
-| `go`      | Go binaries accounted for by their build info (not with `--go-dark`) |
+| `go`      | Go binaries accounted for by their build info (requires `--detect-go`) |
 
 ### Load from a local tar
 
@@ -302,9 +299,9 @@ A file is dark if:
 2. It is **not a symlink** whose fully-resolved target is a tracked file — this
    correctly handles multi-call busybox, merged-usr hierarchies, etc.
 3. It is **not documented by the image's SBOM**, when `--sbom` is given
-4. It is **not a Go binary** with readable embedded build info (or a symlink
-   to one), unless `--go-dark` is given — scanners read that build info
-   directly, so such binaries are visible to them
+4. With `--detect-go`, it is **not a Go binary** with readable embedded build
+   info (or a symlink to one) — scanners read that build info directly, so such
+   binaries are visible to them
 
 Each untracked file is accounted for by the first rule that matches, so a Go
 binary that the SBOM documents is counted as `In SBOM`.

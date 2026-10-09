@@ -22,9 +22,9 @@ func TestValidateFlags(t *testing.T) {
 		wantErr string // "" means valid
 	}{
 		{"defaults", func() {}, ""},
-		{"set go", func() { scanFlags.set = "go" }, ""},
-		{"go-dark", func() { scanFlags.goDark = true }, ""},
-		{"set go with go-dark", func() { scanFlags.set = "go"; scanFlags.goDark = true }, "--set go cannot be combined with --go-dark"},
+		{"detect-go", func() { scanFlags.detectGo = true }, ""},
+		{"set go with detect-go", func() { scanFlags.set = "go"; scanFlags.detectGo = true }, ""},
+		{"set go without detect-go", func() { scanFlags.set = "go" }, "--set go requires --detect-go"},
 		{"set in-sbom without sbom", func() { scanFlags.set = "in-sbom" }, "requires --sbom"},
 		{"set in-sbom with sbom-file", func() { scanFlags.set = "in-sbom"; scanFlags.sbomFile = "x.json" }, ""},
 		{"detailed and paths", func() { scanFlags.detailed = true; scanFlags.paths = true }, "mutually exclusive"},

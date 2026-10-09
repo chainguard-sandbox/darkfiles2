@@ -29,7 +29,7 @@ var scanFlags struct {
 	sbomFile string
 	sbomKey  string
 	insecure bool
-	goDark   bool
+	detectGo bool
 
 	detectLibs          bool
 	detectLibsMinLength int
@@ -66,10 +66,10 @@ func runScan(cmd *cobra.Command, args []string) error {
 		}
 	}
 
-	// Go binaries carry build info that scanners read directly, so unless asked
-	// to treat them as dark, move them into their own bucket. This runs after
-	// the SBOM cross-reference so files the SBOM documents stay attributed to it.
-	if !scanFlags.goDark {
+	// Go binaries carry build info that scanners read directly, so when asked,
+	// move them into their own bucket. This runs after the SBOM cross-reference
+	// so files the SBOM documents stay attributed to it.
+	if scanFlags.detectGo {
 		if err := applyGoBinaries(r, fs); err != nil {
 			fmt.Fprintf(os.Stderr, "warning: Go binary detection failed, leaving them dark: %v\n", err)
 		}
@@ -239,8 +239,8 @@ func init() {
 		"PEM public key to verify the registry SBOM attestation signature (default: embedded Docker Hardened Images key)")
 	rootCmd.Flags().BoolVar(&scanFlags.insecure, "insecure-sbom", false,
 		"Skip signature verification of the registry SBOM attestation (trust it unverified)")
-	rootCmd.Flags().BoolVar(&scanFlags.goDark, "go-dark", false,
-		"Count Go binaries as dark instead of accounting for them by their embedded build info")
+	rootCmd.Flags().BoolVar(&scanFlags.detectGo, "detect-go", false,
+		"Account for Go binaries by their embedded build info instead of counting them as dark")
 	rootCmd.Flags().BoolVar(&scanFlags.detectLibs, "detect-libs", false,
 		"Scan the selected files (see --set/--code) for statically-linked libraries and versions")
 	rootCmd.Flags().IntVar(&scanFlags.detectLibsMinLength, "detect-libs-min-length", libdetect.DefaultMinLength,
@@ -259,8 +259,8 @@ func validateFlags() error {
 	if scanFlags.set == "in-sbom" && !scanFlags.sbom && scanFlags.sbomFile == "" {
 		return fmt.Errorf("--set in-sbom requires --sbom or --sbom-file")
 	}
-	if scanFlags.set == "go" && scanFlags.goDark {
-		return fmt.Errorf("--set go cannot be combined with --go-dark")
+	if scanFlags.set == "go" && !scanFlags.detectGo {
+		return fmt.Errorf("--set go requires --detect-go")
 	}
 	return nil
 }

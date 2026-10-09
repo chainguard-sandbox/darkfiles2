@@ -70,9 +70,8 @@ func PrintStats(w io.Writer, r *Result) {
 		fmt.Fprintf(tw, "In SBOM:\t%d (%.1f%%)\n", r.SBOMCount(), r.SBOMFilePct())
 		fmt.Fprintf(tw, "In SBOM size:\t%s (%.1f%%)\n", humanBytes(r.SBOMBytes()), r.SBOMBytesPct())
 	}
-	// Go binaries are only worth a line when some were found: detection runs by
-	// default, and "0" on every non-Go image would just be noise.
-	if r.GoCount() > 0 {
+	// Likewise for Go binaries, when detection ran (--detect-go).
+	if r.GoChecked {
 		fmt.Fprintf(tw, "Go binaries:\t%d (%.1f%%)\n", r.GoCount(), r.GoFilePct())
 		fmt.Fprintf(tw, "Go binary size:\t%s (%.1f%%)\n", humanBytes(r.GoBytes()), r.GoBytesPct())
 	}
@@ -181,7 +180,7 @@ func PrintJSON(w io.Writer, r *Result) error {
 			"bytes": r.SBOMBytes(),
 		}
 	}
-	// Likewise only present when Go binary detection ran (i.e. not --go-dark).
+	// Likewise only present when Go binary detection ran (--detect-go).
 	if r.GoChecked {
 		out["go_binaries"] = map[string]int64{
 			"count": int64(r.GoCount()),

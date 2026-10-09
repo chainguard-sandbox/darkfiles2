@@ -2,6 +2,7 @@ package report
 
 import (
 	"bytes"
+	"encoding/json"
 	"strings"
 	"testing"
 
@@ -46,6 +47,45 @@ func TestPrintStatsShowsZeroUnknown(t *testing.T) {
 	}
 	if !strings.Contains(unknownLine, "0 files") {
 		t.Errorf("expected Unknown to report 0 files, got line: %q", unknownLine)
+	}
+}
+
+func TestGoBinariesOutput(t *testing.T) {
+	r := &Result{TotalFiles: 2, TotalBytes: 100, GoChecked: true}
+
+	// No Go binaries found: the text summary omits the line, but JSON still
+	// records that detection ran.
+	var buf bytes.Buffer
+	PrintStats(&buf, r)
+	if strings.Contains(buf.String(), "Go binaries") {
+		t.Errorf("summary should omit Go binaries when none found, got:\n%s", buf.String())
+	}
+	buf.Reset()
+	if err := PrintJSON(&buf, r); err != nil {
+		t.Fatal(err)
+	}
+	var out map[string]any
+	if err := json.Unmarshal(buf.Bytes(), &out); err != nil {
+		t.Fatal(err)
+	}
+	if got, ok := out["go_binaries"].(map[string]any); !ok || got["count"] != float64(0) {
+		t.Errorf("go_binaries = %v, want {count: 0, ...}", out["go_binaries"])
+	}
+
+	r.GoFiles = []CategorizedFile{{File: image.File{Path: "/app/server", Size: 40}}}
+	buf.Reset()
+	PrintStats(&buf, r)
+	if !strings.Contains(buf.String(), "Go binaries:") || !strings.Contains(buf.String(), "1 (50.0%)") {
+		t.Errorf("summary should report 1 Go binary, got:\n%s", buf.String())
+	}
+
+	// With --go-dark detection never runs, so the JSON key is absent.
+	buf.Reset()
+	if err := PrintJSON(&buf, &Result{}); err != nil {
+		t.Fatal(err)
+	}
+	if strings.Contains(buf.String(), "go_binaries") {
+		t.Errorf("go_binaries should be absent when detection did not run, got:\n%s", buf.String())
 	}
 }
 

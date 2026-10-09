@@ -224,6 +224,66 @@ func TestApplySBOMEmptyStillRecorded(t *testing.T) {
 	}
 }
 
+func TestGoCandidates(t *testing.T) {
+	r := &Result{DarkFiles: []CategorizedFile{
+		{File: image.File{Path: "/app/server", Kind: image.KindExecutable}},
+		{File: image.File{Path: "/app/libgo.so", Kind: image.KindSharedLibrary}},
+		{File: image.File{Path: "/app/run.sh", Kind: image.KindScript}},
+		{File: image.File{Path: "/app/cfg.yaml", Kind: image.KindOther}},
+		{File: image.File{Path: "/usr/bin/server", Kind: image.KindExecutable, IsSymlink: true}},
+	}}
+	got := r.GoCandidates()
+	if len(got) != 2 || !got["/app/server"] || !got["/app/libgo.so"] {
+		t.Errorf("GoCandidates() = %v, want only /app/server and /app/libgo.so", got)
+	}
+}
+
+func TestApplyGoBinaries(t *testing.T) {
+	fs := newFS(nil, map[string]string{"/usr/bin/server": "/app/server"})
+	r := &Result{
+		TotalFiles: 3,
+		TotalBytes: 200,
+		DarkFiles: []CategorizedFile{
+			{File: image.File{Path: "/app/server", Size: 150, Kind: image.KindExecutable}},
+			{File: image.File{Path: "/usr/bin/server", IsSymlink: true, LinkTarget: "/app/server"}},
+			{File: image.File{Path: "/app/mystery", Size: 50, Kind: image.KindExecutable}},
+		},
+	}
+	if r.GoChecked {
+		t.Fatal("GoChecked should be false before ApplyGoBinaries")
+	}
+
+	r.ApplyGoBinaries(map[string]struct{}{"/app/server": {}}, fs)
+
+	if !r.GoChecked {
+		t.Error("GoChecked should be true after ApplyGoBinaries")
+	}
+	// The binary and the symlink resolving to it both leave the dark set.
+	if got := r.GoCount(); got != 2 {
+		t.Errorf("GoCount() = %d, want 2 (binary + symlink to it)", got)
+	}
+	if got := r.GoBytes(); got != 150 {
+		t.Errorf("GoBytes() = %d, want 150", got)
+	}
+	if !approx(r.GoFilePct(), 100.0*2/3) || !approx(r.GoBytesPct(), 75) {
+		t.Errorf("Go pct = %v/%v, want 66.7/75", r.GoFilePct(), r.GoBytesPct())
+	}
+	if len(r.DarkFiles) != 1 || r.DarkFiles[0].Path != "/app/mystery" {
+		t.Errorf("DarkFiles should be only /app/mystery, got %+v", r.DarkFiles)
+	}
+}
+
+func TestApplyGoBinariesNoneFound(t *testing.T) {
+	r := &Result{DarkFiles: []CategorizedFile{{File: image.File{Path: "/a"}}}}
+	r.ApplyGoBinaries(nil, newFS(nil, nil))
+	if !r.GoChecked {
+		t.Error("GoChecked should be true even when nothing matched")
+	}
+	if r.GoCount() != 0 || r.DarkCount() != 1 {
+		t.Errorf("GoCount/DarkCount = %d/%d, want 0/1", r.GoCount(), r.DarkCount())
+	}
+}
+
 func approx(a, b float64) bool { return math.Abs(a-b) < 1e-9 }
 
 func TestDarkCodeCountsAndFormat(t *testing.T) {

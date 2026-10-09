@@ -62,6 +62,10 @@ const (
 	wolfiBaseImg = "cgr.dev/chainguard/wolfi-base@sha256:eba430503496d7a3b3bbf96cb0656e1daa37b6044c61c362778b7e17d371db3a"
 	// DHI, Debian/dpkg — also carries a signed SPDX SBOM attestation.
 	redisImg = "dhi.io/redis@sha256:66bdfc025c61d246509621e078846ab4c9a33c7125fe55450d55e7c8a853c4f9"
+	// DHI, Debian/dpkg — ships an untracked Go binary (/usr/local/bin/vault) that
+	// its SBOM also documents. Chainguard images can't cover this: every file in
+	// them is owned by an apk package.
+	vaultImg = "dhi.io/vault@sha256:00dcc978d35d28746a46e4b0e56c109a4bce21e05958bf5936d4bc98c44e58a5"
 )
 
 func TestSnapshots(t *testing.T) {
@@ -83,6 +87,12 @@ func TestSnapshots(t *testing.T) {
 		{"redis", "redis.json", true, []string{"--format", "json", redisImg}},
 		// Exercises the SBOM signature-verification + reclassification path.
 		{"redis-sbom", "redis-sbom.json", true, []string{"--sbom", "--format", "json", redisImg}},
+		// Go binary detection: vault is accounted for by its build info by
+		// default, is dark with --go-dark, and stays attributed to the SBOM
+		// (which takes precedence) with --sbom.
+		{"vault", "vault.json", true, []string{"--format", "json", vaultImg}},
+		{"vault-go-dark", "vault-go-dark.json", true, []string{"--go-dark", "--format", "json", vaultImg}},
+		{"vault-sbom", "vault-sbom.json", true, []string{"--sbom", "--format", "json", vaultImg}},
 	}
 
 	for _, tc := range cases {

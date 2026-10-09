@@ -114,3 +114,28 @@ func TestExtractContentsNilImage(t *testing.T) {
 		t.Error("expected error when image source is unavailable")
 	}
 }
+
+func TestScanLayerContentsKeepsOnlyResults(t *testing.T) {
+	want := map[string]bool{"/app/bin": true, "/app/gone": true}
+	out := map[string]int{}
+	l0 := buildTar(t, []tarEntry{
+		{name: "app/bin", body: "old"},
+		{name: "app/gone", body: "data"},
+	})
+	l1 := buildTar(t, []tarEntry{
+		{name: "app/bin", body: "new-content"},
+		{name: "app/.wh.gone"},
+	})
+	size := func(data []byte) int { return len(data) }
+	for _, l := range [][]byte{l0, l1} {
+		if err := scanLayerContents(bytes.NewReader(l), want, out, size); err != nil {
+			t.Fatal(err)
+		}
+	}
+	if got := out["/app/bin"]; got != len("new-content") {
+		t.Errorf("result = %d, want %d (later layer wins)", got, len("new-content"))
+	}
+	if _, ok := out["/app/gone"]; ok {
+		t.Error("whited-out path should have no result")
+	}
+}

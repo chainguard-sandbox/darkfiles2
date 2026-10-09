@@ -22,6 +22,10 @@
   "dark_file_pct": 9.344115004492362,
   "dark_files": 104,
   "distro": "debian",
+  "go_binaries": {
+    "bytes": 0,
+    "count": 0
+  },
   "image": "dhi.io/redis@sha256:66bdfc025c61d246509621e078846ab4c9a33c7125fe55450d55e7c8a853c4f9",
   "total_bytes": 93281353,
   "total_files": 1113,

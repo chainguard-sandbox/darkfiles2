@@ -30,6 +30,13 @@ type Result struct {
 	// SBOMChecked is true once ApplySBOM has run, enabling the "In SBOM" summary
 	// line even when nothing matched.
 	SBOMChecked bool
+	// GoFiles holds the untracked files identified as Go binaries with embedded
+	// build info (plus symlinks resolving to them). Scanners read that metadata
+	// directly, so these are excluded from the dark set. Only populated after
+	// ApplyGoBinaries.
+	GoFiles []CategorizedFile
+	// GoChecked is true once ApplyGoBinaries has run.
+	GoChecked bool
 }
 
 func (r *Result) DarkCount() int { return len(r.DarkFiles) }
@@ -84,6 +91,69 @@ func (r *Result) ApplySBOM(paths map[string]struct{}) {
 		}
 	}
 	r.DarkFiles = dark
+}
+
+// GoCandidates returns the dark files that could be Go binaries — regular
+// executables and shared libraries — for content inspection.
+func (r *Result) GoCandidates() map[string]bool {
+	want := map[string]bool{}
+	for _, f := range r.DarkFiles {
+		if f.IsSymlink {
+			continue
+		}
+		if f.Kind == image.KindExecutable || f.Kind == image.KindSharedLibrary {
+			want[f.Path] = true
+		}
+	}
+	return want
+}
+
+// ApplyGoBinaries moves from the dark set every file in goPaths, and every
+// symlink whose fully-resolved target is in goPaths, into GoFiles. These are
+// Go binaries whose embedded build info lets scanners see what they contain,
+// so they should not count as dark.
+func (r *Result) ApplyGoBinaries(goPaths map[string]struct{}, fs *image.ImageFS) {
+	r.GoChecked = true
+	var dark []CategorizedFile
+	for _, f := range r.DarkFiles {
+		_, ok := goPaths[f.Path]
+		if !ok && f.IsSymlink {
+			_, ok = goPaths[fs.ResolveSymlink(f.Path)]
+		}
+		if ok {
+			r.GoFiles = append(r.GoFiles, f)
+		} else {
+			dark = append(dark, f)
+		}
+	}
+	r.DarkFiles = dark
+}
+
+// GoCount returns the number of files accounted for as Go binaries.
+func (r *Result) GoCount() int { return len(r.GoFiles) }
+
+// GoBytes returns the total size of the files accounted for as Go binaries.
+func (r *Result) GoBytes() int64 { return sumBytes(r.GoFiles) }
+
+// GoFilePct returns the Go binary files as a percentage of all files.
+func (r *Result) GoFilePct() float64 { return pct(int64(r.GoCount()), int64(r.TotalFiles)) }
+
+// GoBytesPct returns the Go binary bytes as a percentage of all bytes.
+func (r *Result) GoBytesPct() float64 { return pct(r.GoBytes(), r.TotalBytes) }
+
+func sumBytes(files []CategorizedFile) int64 {
+	var n int64
+	for _, f := range files {
+		n += f.Size
+	}
+	return n
+}
+
+func pct(n, total int64) float64 {
+	if total == 0 {
+		return 0
+	}
+	return 100.0 * float64(n) / float64(total)
 }
 
 // SBOMCount returns the number of files accounted for by the SBOM (i.e. moved

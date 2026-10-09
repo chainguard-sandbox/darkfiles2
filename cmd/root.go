@@ -25,6 +25,11 @@ The attestation's cosign signature is verified against Docker's published
 DHI key (override with --sbom-key); if it cannot be verified the SBOM is
 not applied unless --insecure-sbom is given.
 
+Add --detect-go to account for Go binaries. Go binaries embed build info
+(module, dependencies, and versions) that vulnerability scanners read directly,
+so with --detect-go, dark executables and libraries carrying it are not counted
+as dark; they are reported on their own "Go binaries" line instead.
+
 The --set flag selects which files the --detailed, --paths, and --detect-libs
 views operate on:
   unknown  unrecognised dark files (default)
@@ -32,6 +37,7 @@ views operate on:
   tracked  files owned by a package
   all      every file in the image
   in-sbom  files accounted for by the SBOM (requires --sbom)
+  go       Go binaries accounted for by their embedded build info (requires --detect-go)
 
 Add --detect-libs to scan the selected files for statically-linked libraries and
 their versions, using string-signature heuristics ported from cve-bin-tool. This

@@ -2,6 +2,7 @@ package report
 
 import (
 	"math"
+	"strings"
 	"testing"
 
 	"github.com/chainguard-sandbox/darkfiles2/internal/image"
@@ -221,6 +222,129 @@ func TestApplySBOMEmptyStillRecorded(t *testing.T) {
 	}
 	if r.DarkCount() != 1 {
 		t.Errorf("DarkCount() = %d, want 1 (unchanged)", r.DarkCount())
+	}
+}
+
+func TestGoCandidates(t *testing.T) {
+	r := &Result{DarkFiles: []CategorizedFile{
+		{File: image.File{Path: "/app/server", Kind: image.KindExecutable}},
+		{File: image.File{Path: "/app/libgo.so", Kind: image.KindSharedLibrary}},
+		{File: image.File{Path: "/app/run.sh", Kind: image.KindScript}},
+		{File: image.File{Path: "/app/cfg.yaml", Kind: image.KindOther}},
+		{File: image.File{Path: "/usr/bin/server", Kind: image.KindExecutable, IsSymlink: true}},
+	}}
+	got := r.GoCandidates(newFS(nil, map[string]string{"/usr/bin/server": "/app/server"}))
+	if len(got) != 2 || !got["/app/server"] || !got["/app/libgo.so"] {
+		t.Errorf("GoCandidates() = %v, want only /app/server and /app/libgo.so", got)
+	}
+}
+
+func TestApplyGoBinaries(t *testing.T) {
+	fs := newFS(nil, map[string]string{"/usr/bin/server": "/app/server"})
+	r := &Result{
+		TotalFiles: 3,
+		TotalBytes: 200,
+		DarkFiles: []CategorizedFile{
+			{File: image.File{Path: "/app/server", Size: 150, Kind: image.KindExecutable}},
+			{File: image.File{Path: "/usr/bin/server", IsSymlink: true, LinkTarget: "/app/server"}},
+			{File: image.File{Path: "/app/mystery", Size: 50, Kind: image.KindExecutable}},
+		},
+	}
+	if r.GoChecked {
+		t.Fatal("GoChecked should be false before ApplyGoBinaries")
+	}
+
+	r.ApplyGoBinaries(map[string]struct{}{"/app/server": {}}, fs)
+
+	if !r.GoChecked {
+		t.Error("GoChecked should be true after ApplyGoBinaries")
+	}
+	// The binary and the symlink resolving to it both leave the dark set.
+	if got := r.GoCount(); got != 2 {
+		t.Errorf("GoCount() = %d, want 2 (binary + symlink to it)", got)
+	}
+	if got := r.GoBytes(); got != 150 {
+		t.Errorf("GoBytes() = %d, want 150", got)
+	}
+	if !approx(r.GoFilePct(), 100.0*2/3) || !approx(r.GoBytesPct(), 75) {
+		t.Errorf("Go pct = %v/%v, want 66.7/75", r.GoFilePct(), r.GoBytesPct())
+	}
+	if len(r.DarkFiles) != 1 || r.DarkFiles[0].Path != "/app/mystery" {
+		t.Errorf("DarkFiles should be only /app/mystery, got %+v", r.DarkFiles)
+	}
+}
+
+func TestGoCandidatesIncludesAliasTargets(t *testing.T) {
+	// The image: /app/server (SBOM-documented), /usr/lib/tool (package-owned),
+	// /opt/other (SBOM-documented, no aliases), /etc/cfg (not a binary), and dark
+	// aliases of each kind pointing at them.
+	files := []image.File{
+		{Path: "/app/server", Kind: image.KindExecutable},
+		{Path: "/usr/lib/tool", Kind: image.KindExecutable},
+		{Path: "/opt/other", Kind: image.KindExecutable},
+		{Path: "/etc/cfg", Kind: image.KindOther},
+		{Path: "/usr/bin/server", IsSymlink: true, LinkTarget: "/app/server"},
+		{Path: "/usr/local/bin/server", HardLinkTarget: "/app/server"},
+		{Path: "/usr/local/bin/tool", HardLinkTarget: "/usr/lib/tool"},
+		{Path: "/usr/local/etc/cfg", HardLinkTarget: "/etc/cfg"},
+	}
+	fs := newFS(files, map[string]string{"/usr/bin/server": "/app/server"})
+	r := &Result{
+		DarkFiles: []CategorizedFile{{File: files[4]}, {File: files[5]}, {File: files[6]}, {File: files[7]}},
+		SBOMFiles: []CategorizedFile{{File: files[0]}, {File: files[2]}},
+	}
+	got := r.GoCandidates(fs)
+	// /opt/other has no dark alias and /etc/cfg is not a binary, so neither is
+	// inspected; the alias entries themselves have no content to inspect.
+	if len(got) != 2 || !got["/app/server"] || !got["/usr/lib/tool"] {
+		t.Errorf("GoCandidates() = %v, want only /app/server and /usr/lib/tool", got)
+	}
+}
+
+func TestApplyGoBinariesAliasesOfAccountedTarget(t *testing.T) {
+	// The Go binary itself is SBOM-documented and stays there; its undocumented
+	// symlink and hard link are accounted for as Go binaries rather than left dark.
+	fs := newFS(nil, map[string]string{"/usr/bin/server": "/app/server"})
+	r := &Result{
+		DarkFiles: []CategorizedFile{
+			{File: image.File{Path: "/usr/bin/server", IsSymlink: true, LinkTarget: "/app/server"}},
+			{File: image.File{Path: "/usr/local/bin/server", HardLinkTarget: "/app/server"}},
+			{File: image.File{Path: "/usr/local/bin/other", HardLinkTarget: "/app/other"}},
+			{File: image.File{Path: "/app/mystery", Kind: image.KindExecutable}},
+		},
+		SBOMFiles: []CategorizedFile{
+			{File: image.File{Path: "/app/server", Kind: image.KindExecutable}},
+		},
+	}
+	r.ApplyGoBinaries(map[string]struct{}{"/app/server": {}}, fs)
+
+	if got := filePaths(r.SBOMFiles); len(got) != 1 || got[0] != "/app/server" {
+		t.Errorf("SBOMFiles = %v, want only /app/server (target stays in SBOM)", got)
+	}
+	if got, want := strings.Join(filePaths(r.GoFiles), " "), "/usr/bin/server /usr/local/bin/server"; got != want {
+		t.Errorf("GoFiles = %v, want %v", got, want)
+	}
+	if got, want := strings.Join(filePaths(r.DarkFiles), " "), "/usr/local/bin/other /app/mystery"; got != want {
+		t.Errorf("DarkFiles = %v, want %v", got, want)
+	}
+}
+
+func filePaths(files []CategorizedFile) []string {
+	out := make([]string, len(files))
+	for i, f := range files {
+		out[i] = f.Path
+	}
+	return out
+}
+
+func TestApplyGoBinariesNoneFound(t *testing.T) {
+	r := &Result{DarkFiles: []CategorizedFile{{File: image.File{Path: "/a"}}}}
+	r.ApplyGoBinaries(nil, newFS(nil, nil))
+	if !r.GoChecked {
+		t.Error("GoChecked should be true even when nothing matched")
+	}
+	if r.GoCount() != 0 || r.DarkCount() != 1 {
+		t.Errorf("GoCount/DarkCount = %d/%d, want 0/1", r.GoCount(), r.DarkCount())
 	}
 }
 

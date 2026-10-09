@@ -24,7 +24,17 @@ const maxContentSize = 512 << 20
 // bounded, so this performs a second pass over the layers. It is intended for
 // opt-in features such as library detection, not the default analysis path.
 func (fs *ImageFS) ExtractContents(want map[string]bool) (map[string][]byte, error) {
-	out := make(map[string][]byte, len(want))
+	return ScanContents(fs, want, func(data []byte) []byte { return data })
+}
+
+// ScanContents is a streaming form of ExtractContents: rather than retaining
+// each requested file's bytes, it calls fn on them as the layers are read and
+// keeps only fn's result, so at most one file body is held in memory at a time.
+// Overlay semantics match ExtractContents — a later layer's version of a path
+// replaces the earlier result, and whiteouts drop it — so each result reflects
+// the flattened filesystem.
+func ScanContents[T any](fs *ImageFS, want map[string]bool, fn func(data []byte) T) (map[string]T, error) {
+	out := make(map[string]T, len(want))
 	if len(want) == 0 {
 		return out, nil
 	}
@@ -41,7 +51,7 @@ func (fs *ImageFS) ExtractContents(want map[string]bool) (map[string][]byte, err
 		if err != nil {
 			return nil, fmt.Errorf("layer %d uncompressed: %w", i, err)
 		}
-		err = extractLayerContents(rc, want, out)
+		err = scanLayerContents(rc, want, out, fn)
 		rc.Close()
 		if err != nil {
 			return nil, fmt.Errorf("scanning layer %d: %w", i, err)
@@ -51,6 +61,10 @@ func (fs *ImageFS) ExtractContents(want map[string]bool) (map[string][]byte, err
 }
 
 func extractLayerContents(rc io.Reader, want map[string]bool, out map[string][]byte) error {
+	return scanLayerContents(rc, want, out, func(data []byte) []byte { return data })
+}
+
+func scanLayerContents[T any](rc io.Reader, want map[string]bool, out map[string]T, fn func([]byte) T) error {
 	tr := tar.NewReader(rc)
 	for {
 		hdr, err := tr.Next()
@@ -92,7 +106,7 @@ func extractLayerContents(rc io.Reader, want map[string]bool, out map[string][]b
 		if err != nil {
 			return fmt.Errorf("reading %s: %w", name, err)
 		}
-		out[name] = data
+		out[name] = fn(data)
 	}
 	return nil
 }

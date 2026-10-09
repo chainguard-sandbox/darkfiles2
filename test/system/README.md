@@ -33,6 +33,8 @@ host architecture:
 - `cgr.dev/chainguard/wolfi-base` — Wolfi/apk, more packages (anonymous pull)
 - `dhi.io/redis` — Debian/dpkg; also exercises signed SPDX SBOM verification
   (`--sbom`) and reclassification
+- `dhi.io/vault` — Debian/dpkg with an untracked Go binary; exercises Go binary
+  detection (`--detect-go`) and SBOM-over-Go precedence
 
 The `dhi.io` cases require a Docker account: run `docker login` first. Without
 credentials the pull returns 401 and those cases **skip** (rather than fail), so

@@ -390,6 +390,9 @@ func TestScanLayerTarHardLink(t *testing.T) {
 	if _, inSymlinks := fs.Symlinks["/usr/bin/sh"]; inSymlinks {
 		t.Error("/usr/bin/sh hard link incorrectly added to Symlinks map")
 	}
+	if f.HardLinkTarget != "/usr/bin/busybox" {
+		t.Errorf("/usr/bin/sh HardLinkTarget = %q, want /usr/bin/busybox", f.HardLinkTarget)
+	}
 	if origin["/usr/bin/sh"] != 0 {
 		t.Errorf("/usr/bin/sh origin = %d, want 0", origin["/usr/bin/sh"])
 	}

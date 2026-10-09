@@ -30,6 +30,13 @@ type Result struct {
 	// SBOMChecked is true once ApplySBOM has run, enabling the "In SBOM" summary
 	// line even when nothing matched.
 	SBOMChecked bool
+	// GoFiles holds the untracked files identified as Go binaries with embedded
+	// build info (plus symlinks resolving to them). Scanners read that metadata
+	// directly, so these are excluded from the dark set. Only populated after
+	// ApplyGoBinaries.
+	GoFiles []CategorizedFile
+	// GoChecked is true once ApplyGoBinaries has run.
+	GoChecked bool
 }
 
 func (r *Result) DarkCount() int { return len(r.DarkFiles) }
@@ -84,6 +91,108 @@ func (r *Result) ApplySBOM(paths map[string]struct{}) {
 		}
 	}
 	r.DarkFiles = dark
+}
+
+// GoCandidates returns the files to inspect for Go build info: the dark
+// regular executables and shared libraries, plus the resolved target of every
+// dark symlink or hard link when that target is a regular executable or library
+// elsewhere in the image (e.g. accounted for by the SBOM, or package-owned). The
+// target keeps its own bucket, but if it is a Go binary its dark aliases are
+// accounted for too (see ApplyGoBinaries).
+func (r *Result) GoCandidates(fs *image.ImageFS) map[string]bool {
+	want := map[string]bool{}
+	var aliases []CategorizedFile
+	for _, f := range r.DarkFiles {
+		switch {
+		case f.IsSymlink || f.HardLinkTarget != "":
+			aliases = append(aliases, f)
+		case isBinaryKind(f.Kind):
+			want[f.Path] = true
+		}
+	}
+	if len(aliases) == 0 {
+		return want
+	}
+
+	binaries := map[string]bool{}
+	for _, f := range fs.Files {
+		// A hard link's own entry has no content to inspect; only real files.
+		if !f.IsSymlink && f.HardLinkTarget == "" && isBinaryKind(f.Kind) {
+			binaries[f.Path] = true
+		}
+	}
+	for _, f := range aliases {
+		if target := aliasTarget(f, fs); binaries[target] {
+			want[target] = true
+		}
+	}
+	return want
+}
+
+func isBinaryKind(k image.FileKind) bool {
+	return k == image.KindExecutable || k == image.KindSharedLibrary
+}
+
+// aliasTarget returns the fully-resolved path of the file a symlink or hard link
+// refers to, or "" for any other file.
+func aliasTarget(f CategorizedFile, fs *image.ImageFS) string {
+	switch {
+	case f.IsSymlink:
+		return fs.ResolveSymlink(f.Path)
+	case f.HardLinkTarget != "":
+		return fs.ResolveSymlink(f.HardLinkTarget)
+	}
+	return ""
+}
+
+// ApplyGoBinaries moves from the dark set every file in goPaths, and every
+// symlink or hard link whose fully-resolved target is in goPaths, into GoFiles.
+// goPaths may include targets outside the dark set (see GoCandidates); those
+// files keep their bucket and only their dark aliases move.
+func (r *Result) ApplyGoBinaries(goPaths map[string]struct{}, fs *image.ImageFS) {
+	r.GoChecked = true
+	var dark []CategorizedFile
+	for _, f := range r.DarkFiles {
+		_, ok := goPaths[f.Path]
+		if !ok {
+			if target := aliasTarget(f, fs); target != "" {
+				_, ok = goPaths[target]
+			}
+		}
+		if ok {
+			r.GoFiles = append(r.GoFiles, f)
+		} else {
+			dark = append(dark, f)
+		}
+	}
+	r.DarkFiles = dark
+}
+
+// GoCount returns the number of files accounted for as Go binaries.
+func (r *Result) GoCount() int { return len(r.GoFiles) }
+
+// GoBytes returns the total size of the files accounted for as Go binaries.
+func (r *Result) GoBytes() int64 { return sumBytes(r.GoFiles) }
+
+// GoFilePct returns the Go binary files as a percentage of all files.
+func (r *Result) GoFilePct() float64 { return pct(int64(r.GoCount()), int64(r.TotalFiles)) }
+
+// GoBytesPct returns the Go binary bytes as a percentage of all bytes.
+func (r *Result) GoBytesPct() float64 { return pct(r.GoBytes(), r.TotalBytes) }
+
+func sumBytes(files []CategorizedFile) int64 {
+	var n int64
+	for _, f := range files {
+		n += f.Size
+	}
+	return n
+}
+
+func pct(n, total int64) float64 {
+	if total == 0 {
+		return 0
+	}
+	return 100.0 * float64(n) / float64(total)
 }
 
 // SBOMCount returns the number of files accounted for by the SBOM (i.e. moved

@@ -11,7 +11,9 @@ files, injected binaries).
 ## Features
 
 - **Auto-detects the distro** from `/etc/os-release` — no `--distro` flag needed
-- **Supports Alpine, Wolfi/Chainguard, Debian/Ubuntu** package databases
+- **Supports Alpine, Wolfi/Chainguard, Debian/Ubuntu, and RPM** package databases
+  (RPM via the SQLite `rpmdb.sqlite` format — the default on RHEL/UBI 9+, Fedora,
+  and Rocky/Alma 9+; see Limitations for the legacy BerkeleyDB format)
 - **Reports by file count and bytes** — a 1,000-file shell script collection is
   less alarming than a single 200 MB injected binary
 - **Cross-references an SBOM** (`--sbom`) — fetches the image's SPDX SBOM
@@ -245,5 +247,11 @@ There was an original [chainguard-dev/darkfiles](https://github.com/chainguard-d
 
 ## Limitations
 
-- **RPM-based images** (RHEL, Fedora, Rocky): there is currently no support for RPM based distros.
+- **Legacy BerkeleyDB RPM databases** (RHEL/CentOS 7, UBI 8): these use the old
+  BerkeleyDB `Packages` format, which the available pure-Go reader parses
+  incompletely (it silently drops some packages). Rather than under-report
+  installed packages — and so over-report dark files — darkfiles refuses such a
+  database and prints a warning; all files are then reported as dark. RPM images
+  using the SQLite format (RHEL/UBI 9+, Fedora, Rocky/Alma 9+) are fully
+  supported.
 - **Multi-platform images**: the tool pulls the platform that matches the host.

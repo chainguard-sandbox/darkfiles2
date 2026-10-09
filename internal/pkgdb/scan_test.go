@@ -143,7 +143,7 @@ func TestScanRPMEmpty(t *testing.T) {
 		t.Fatal(err)
 	}
 	if len(got) != 0 {
-		t.Errorf("scanRPM is a stub; want empty set, got %v", keys(got))
+		t.Errorf("no rpm database present; want empty set, got %v", keys(got))
 	}
 }
 

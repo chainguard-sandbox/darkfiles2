@@ -1,0 +1,35 @@
+{
+  "categories": {
+    "Package manager state": {
+      "count": 17,
+      "bytes": 80303
+    },
+    "Runtime-generated": {
+      "count": 3,
+      "bytes": 209
+    },
+    "Unknown": {
+      "count": 35,
+      "bytes": 476851
+    }
+  },
+  "dark_bytes": 557363,
+  "dark_bytes_pct": 0.12074613709328576,
+  "dark_code": {},
+  "dark_file_pct": 5.178907721280603,
+  "dark_files": 55,
+  "distro": "debian",
+  "go_binaries": {
+    "bytes": 0,
+    "count": 0
+  },
+  "image": "dhi.io/vault@sha256:00dcc978d35d28746a46e4b0e56c109a4bce21e05958bf5936d4bc98c44e58a5",
+  "in_sbom": {
+    "bytes": 445930296,
+    "count": 22
+  },
+  "total_bytes": 461599032,
+  "total_files": 1062,
+  "tracked_bytes": 15111373,
+  "tracked_files": 985
+}

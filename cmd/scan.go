@@ -7,6 +7,7 @@ import (
 	"runtime"
 	"sync"
 
+	"github.com/chainguard-sandbox/darkfiles2/internal/gobin"
 	"github.com/chainguard-sandbox/darkfiles2/internal/image"
 	"github.com/chainguard-sandbox/darkfiles2/internal/libdetect"
 	"github.com/chainguard-sandbox/darkfiles2/internal/pkgdb"
@@ -28,22 +29,17 @@ var scanFlags struct {
 	sbomFile string
 	sbomKey  string
 	insecure bool
+	goDark   bool
 
 	detectLibs          bool
 	detectLibsMinLength int
 }
 
 func runScan(cmd *cobra.Command, args []string) error {
-	if scanFlags.detailed && scanFlags.paths {
-		return fmt.Errorf("--detailed and --paths are mutually exclusive")
-	}
-	if !validSet(scanFlags.set) {
-		return fmt.Errorf("invalid --set %q: want unknown, dark, tracked, all, or in-sbom", scanFlags.set)
+	if err := validateFlags(); err != nil {
+		return err
 	}
 	sbomEnabled := scanFlags.sbom || scanFlags.sbomFile != ""
-	if scanFlags.set == "in-sbom" && !sbomEnabled {
-		return fmt.Errorf("--set in-sbom requires --sbom or --sbom-file")
-	}
 
 	ref, fs, err := loadFS(args, scanFlags.tar)
 	if err != nil {
@@ -67,6 +63,15 @@ func runScan(cmd *cobra.Command, args []string) error {
 			return fmt.Errorf("cross-referencing SBOM: %w", err)
 		default:
 			r.ApplySBOM(paths)
+		}
+	}
+
+	// Go binaries carry build info that scanners read directly, so unless asked
+	// to treat them as dark, move them into their own bucket. This runs after
+	// the SBOM cross-reference so files the SBOM documents stay attributed to it.
+	if !scanFlags.goDark {
+		if err := applyGoBinaries(r, fs); err != nil {
+			fmt.Fprintf(os.Stderr, "warning: Go binary detection failed, leaving them dark: %v\n", err)
 		}
 	}
 
@@ -220,7 +225,7 @@ func init() {
 	rootCmd.Flags().BoolVar(&scanFlags.paths, "paths", false,
 		"Print matching file paths only, one per line (for scripting)")
 	rootCmd.Flags().StringVar(&scanFlags.set, "set", "unknown",
-		"Which files the --detailed/--paths/--detect-libs views act on: unknown, dark, tracked, all, or in-sbom")
+		"Which files the --detailed/--paths/--detect-libs views act on: unknown, dark, tracked, all, in-sbom, or go")
 	rootCmd.Flags().BoolVar(&scanFlags.group, "group", false, "With --paths, group output by category")
 	rootCmd.Flags().BoolVar(&scanFlags.sizes, "sizes", false, "With --paths, show file sizes")
 	rootCmd.Flags().BoolVar(&scanFlags.code, "code", false,
@@ -234,15 +239,35 @@ func init() {
 		"PEM public key to verify the registry SBOM attestation signature (default: embedded Docker Hardened Images key)")
 	rootCmd.Flags().BoolVar(&scanFlags.insecure, "insecure-sbom", false,
 		"Skip signature verification of the registry SBOM attestation (trust it unverified)")
+	rootCmd.Flags().BoolVar(&scanFlags.goDark, "go-dark", false,
+		"Count Go binaries as dark instead of accounting for them by their embedded build info")
 	rootCmd.Flags().BoolVar(&scanFlags.detectLibs, "detect-libs", false,
 		"Scan the selected files (see --set/--code) for statically-linked libraries and versions")
 	rootCmd.Flags().IntVar(&scanFlags.detectLibsMinLength, "detect-libs-min-length", libdetect.DefaultMinLength,
 		"Minimum printable-run length for string extraction during library detection")
 }
 
+// validateFlags rejects flag combinations that are contradictory or invalid,
+// before any image is loaded.
+func validateFlags() error {
+	if scanFlags.detailed && scanFlags.paths {
+		return fmt.Errorf("--detailed and --paths are mutually exclusive")
+	}
+	if !validSet(scanFlags.set) {
+		return fmt.Errorf("invalid --set %q: want unknown, dark, tracked, all, in-sbom, or go", scanFlags.set)
+	}
+	if scanFlags.set == "in-sbom" && !scanFlags.sbom && scanFlags.sbomFile == "" {
+		return fmt.Errorf("--set in-sbom requires --sbom or --sbom-file")
+	}
+	if scanFlags.set == "go" && scanFlags.goDark {
+		return fmt.Errorf("--set go cannot be combined with --go-dark")
+	}
+	return nil
+}
+
 func validSet(s string) bool {
 	switch s {
-	case "unknown", "dark", "tracked", "all", "in-sbom":
+	case "unknown", "dark", "tracked", "all", "in-sbom", "go":
 		return true
 	default:
 		return false
@@ -257,15 +282,20 @@ func selectFiles(r *report.Result, fs *image.ImageFS, set string, codeOnly bool)
 	switch set {
 	case "in-sbom":
 		files = r.SBOMFiles
+	case "go":
+		files = r.GoFiles
 	case "dark":
 		files = r.DarkFiles
 	case "tracked", "all":
-		dark := make(map[string]bool, len(r.DarkFiles))
-		for _, f := range r.DarkFiles {
-			dark[f.Path] = true
+		// Untracked files sit in exactly one of the dark, SBOM, or Go buckets.
+		untracked := make(map[string]bool, len(r.DarkFiles)+len(r.SBOMFiles)+len(r.GoFiles))
+		for _, bucket := range [][]report.CategorizedFile{r.DarkFiles, r.SBOMFiles, r.GoFiles} {
+			for _, f := range bucket {
+				untracked[f.Path] = true
+			}
 		}
 		for _, f := range fs.Files {
-			if set == "tracked" && dark[f.Path] {
+			if set == "tracked" && untracked[f.Path] {
 				continue
 			}
 			files = append(files, report.CategorizedFile{File: f, Cat: report.Classify(f)})
@@ -284,6 +314,35 @@ func selectFiles(r *report.Result, fs *image.ImageFS, set string, codeOnly bool)
 		}
 	}
 	return code
+}
+
+// applyGoBinaries inspects the dark executables and shared libraries for
+// embedded Go build info and moves those that have it out of the dark set. This
+// needs file content, so it costs a second pass over the layers — skipped when
+// there are no candidates.
+func applyGoBinaries(r *report.Result, fs *image.ImageFS) error {
+	want := r.GoCandidates()
+	if len(want) == 0 {
+		r.ApplyGoBinaries(nil, fs)
+		return nil
+	}
+	var isGo map[string]bool
+	err := withSpinner(fmt.Sprintf("Checking %d file(s) for Go build info", len(want)), func() error {
+		var e error
+		isGo, e = image.ScanContents(fs, want, gobin.IsGoBinary)
+		return e
+	})
+	if err != nil {
+		return err
+	}
+	goPaths := map[string]struct{}{}
+	for p, ok := range isGo {
+		if ok {
+			goPaths[p] = struct{}{}
+		}
+	}
+	r.ApplyGoBinaries(goPaths, fs)
+	return nil
 }
 
 // analyzeImage runs the package-db scan and dark-file analysis under a spinner,

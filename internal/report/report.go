@@ -93,23 +93,47 @@ func (r *Result) ApplySBOM(paths map[string]struct{}) {
 	r.DarkFiles = dark
 }
 
-// GoCandidates returns the dark files that could be Go binaries — regular
-// executables and shared libraries — for content inspection.
-func (r *Result) GoCandidates() map[string]bool {
+// GoCandidates returns the files to inspect for Go build info: the dark
+// regular executables and shared libraries, plus any SBOM-accounted executable
+// or library that a dark symlink resolves to. The latter stays in the SBOM
+// bucket, but if it is a Go binary its dark aliases are accounted for too (see
+// ApplyGoBinaries). Other SBOM files are not inspected, as nothing would change.
+func (r *Result) GoCandidates(fs *image.ImageFS) map[string]bool {
 	want := map[string]bool{}
 	for _, f := range r.DarkFiles {
-		if f.IsSymlink {
+		if !f.IsSymlink && isBinaryKind(f.Kind) {
+			want[f.Path] = true
+		}
+	}
+
+	sbomBinaries := map[string]bool{}
+	for _, f := range r.SBOMFiles {
+		if !f.IsSymlink && isBinaryKind(f.Kind) {
+			sbomBinaries[f.Path] = true
+		}
+	}
+	if len(sbomBinaries) == 0 {
+		return want
+	}
+	for _, f := range r.DarkFiles {
+		if !f.IsSymlink {
 			continue
 		}
-		if f.Kind == image.KindExecutable || f.Kind == image.KindSharedLibrary {
-			want[f.Path] = true
+		if target := fs.ResolveSymlink(f.Path); sbomBinaries[target] {
+			want[target] = true
 		}
 	}
 	return want
 }
 
+func isBinaryKind(k image.FileKind) bool {
+	return k == image.KindExecutable || k == image.KindSharedLibrary
+}
+
 // ApplyGoBinaries moves from the dark set every file in goPaths, and every
-// symlink whose fully-resolved target is in goPaths, into GoFiles. These are
+// symlink whose fully-resolved target is in goPaths, into GoFiles. goPaths may
+// include SBOM-accounted targets (see GoCandidates); those files stay in
+// SBOMFiles and only their dark symlinks move. These are
 // Go binaries whose embedded build info lets scanners see what they contain,
 // so they should not count as dark.
 func (r *Result) ApplyGoBinaries(goPaths map[string]struct{}, fs *image.ImageFS) {

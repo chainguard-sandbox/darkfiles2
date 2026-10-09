@@ -316,12 +316,13 @@ func selectFiles(r *report.Result, fs *image.ImageFS, set string, codeOnly bool)
 	return code
 }
 
-// applyGoBinaries inspects the dark executables and shared libraries for
-// embedded Go build info and moves those that have it out of the dark set. This
-// needs file content, so it costs a second pass over the layers — skipped when
-// there are no candidates.
+// applyGoBinaries inspects the dark executables and shared libraries (and the
+// SBOM-accounted targets of dark symlinks) for embedded Go build info, and moves
+// those that have it, and dark symlinks to them, out of the dark set. This needs
+// file content, so it costs a second pass over the layers — skipped when there
+// are no candidates.
 func applyGoBinaries(r *report.Result, fs *image.ImageFS) error {
-	want := r.GoCandidates()
+	want := r.GoCandidates(fs)
 	if len(want) == 0 {
 		r.ApplyGoBinaries(nil, fs)
 		return nil

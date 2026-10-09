@@ -232,7 +232,7 @@ func TestGoCandidates(t *testing.T) {
 		{File: image.File{Path: "/app/cfg.yaml", Kind: image.KindOther}},
 		{File: image.File{Path: "/usr/bin/server", Kind: image.KindExecutable, IsSymlink: true}},
 	}}
-	got := r.GoCandidates()
+	got := r.GoCandidates(newFS(nil, map[string]string{"/usr/bin/server": "/app/server"}))
 	if len(got) != 2 || !got["/app/server"] || !got["/app/libgo.so"] {
 		t.Errorf("GoCandidates() = %v, want only /app/server and /app/libgo.so", got)
 	}
@@ -270,6 +270,51 @@ func TestApplyGoBinaries(t *testing.T) {
 	}
 	if len(r.DarkFiles) != 1 || r.DarkFiles[0].Path != "/app/mystery" {
 		t.Errorf("DarkFiles should be only /app/mystery, got %+v", r.DarkFiles)
+	}
+}
+
+func TestGoCandidatesIncludesSBOMSymlinkTargets(t *testing.T) {
+	// /app/server and /opt/other are documented by the SBOM; only /app/server
+	// has a dark symlink pointing at it, so only it needs inspecting.
+	fs := newFS(nil, map[string]string{"/usr/bin/server": "/app/server"})
+	r := &Result{
+		DarkFiles: []CategorizedFile{
+			{File: image.File{Path: "/usr/bin/server", IsSymlink: true, LinkTarget: "/app/server"}},
+		},
+		SBOMFiles: []CategorizedFile{
+			{File: image.File{Path: "/app/server", Kind: image.KindExecutable}},
+			{File: image.File{Path: "/opt/other", Kind: image.KindExecutable}},
+		},
+	}
+	got := r.GoCandidates(fs)
+	if len(got) != 1 || !got["/app/server"] {
+		t.Errorf("GoCandidates() = %v, want only /app/server", got)
+	}
+}
+
+func TestApplyGoBinariesSymlinkToSBOMTarget(t *testing.T) {
+	// The Go binary itself is SBOM-documented and stays there; its undocumented
+	// symlink is accounted for as a Go binary rather than left dark.
+	fs := newFS(nil, map[string]string{"/usr/bin/server": "/app/server"})
+	r := &Result{
+		DarkFiles: []CategorizedFile{
+			{File: image.File{Path: "/usr/bin/server", IsSymlink: true, LinkTarget: "/app/server"}},
+			{File: image.File{Path: "/app/mystery", Kind: image.KindExecutable}},
+		},
+		SBOMFiles: []CategorizedFile{
+			{File: image.File{Path: "/app/server", Size: 150, Kind: image.KindExecutable}},
+		},
+	}
+	r.ApplyGoBinaries(map[string]struct{}{"/app/server": {}}, fs)
+
+	if len(r.SBOMFiles) != 1 || r.SBOMFiles[0].Path != "/app/server" {
+		t.Errorf("SBOMFiles = %+v, want only /app/server (target stays in SBOM)", r.SBOMFiles)
+	}
+	if len(r.GoFiles) != 1 || r.GoFiles[0].Path != "/usr/bin/server" {
+		t.Errorf("GoFiles = %+v, want only /usr/bin/server", r.GoFiles)
+	}
+	if len(r.DarkFiles) != 1 || r.DarkFiles[0].Path != "/app/mystery" {
+		t.Errorf("DarkFiles = %+v, want only /app/mystery", r.DarkFiles)
 	}
 }
 

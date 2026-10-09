@@ -4,12 +4,10 @@ go 1.26.2
 
 require (
 	github.com/google/go-containerregistry v0.22.1
-	github.com/knqyf263/go-rpmdb v0.1.1
 	github.com/spf13/cobra v1.10.2
+	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1
 	modernc.org/sqlite v1.60.1
 )
-
-replace github.com/knqyf263/go-rpmdb => ./third_party/go-rpmdb
 
 require (
 	github.com/docker/cli v29.7.2+incompatible // indirect
@@ -27,7 +25,6 @@ require (
 	github.com/spf13/pflag v1.0.10 // indirect
 	golang.org/x/sync v0.23.0 // indirect
 	golang.org/x/sys v0.48.0 // indirect
-	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
 	gotest.tools/v3 v3.5.2 // indirect
 	modernc.org/libc v1.77.1 // indirect
 	modernc.org/mathutil v1.7.1 // indirect

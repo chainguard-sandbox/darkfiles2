@@ -28,7 +28,7 @@ import (
 	"os"
 	"unsafe"
 
-	dbi "github.com/knqyf263/go-rpmdb/pkg/db"
+	dbi "github.com/chainguard-sandbox/darkfiles2/internal/rpmdb/db"
 	"golang.org/x/xerrors"
 )
 

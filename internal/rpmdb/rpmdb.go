@@ -1,10 +1,16 @@
+// Package rpmdb reads the RPM package database. It is a vendored copy of
+// github.com/knqyf263/go-rpmdb (MIT, see LICENSE), brought in-module so the
+// project installs cleanly via `go install ...@latest` (a replace directive
+// would prevent that) and so local fixes can be carried: a typed DBReadError
+// distinguishing database-level failures from recoverable per-package errors,
+// and a guard against negative directory indexes in InstalledFileNames.
 package rpmdb
 
 import (
-	"github.com/knqyf263/go-rpmdb/pkg/bdb"
-	dbi "github.com/knqyf263/go-rpmdb/pkg/db"
-	"github.com/knqyf263/go-rpmdb/pkg/ndb"
-	"github.com/knqyf263/go-rpmdb/pkg/sqlite3"
+	"github.com/chainguard-sandbox/darkfiles2/internal/rpmdb/bdb"
+	dbi "github.com/chainguard-sandbox/darkfiles2/internal/rpmdb/db"
+	"github.com/chainguard-sandbox/darkfiles2/internal/rpmdb/ndb"
+	"github.com/chainguard-sandbox/darkfiles2/internal/rpmdb/sqlite3"
 	"golang.org/x/xerrors"
 )
 
@@ -87,6 +93,16 @@ type PackageEntry struct {
 	Err     error
 }
 
+// DBReadError wraps a failure to read the underlying rpm database — I/O, a
+// failed query, a corrupt or unsupported container — as opposed to a
+// recoverable error parsing a single package's header. Callers can use
+// errors.As to tell a broken database (where an empty result means "trust
+// nothing") apart from one bad package (which can be skipped).
+type DBReadError struct{ Err error }
+
+func (e *DBReadError) Error() string { return "rpm database read error: " + e.Err.Error() }
+func (e *DBReadError) Unwrap() error { return e.Err }
+
 func (d *RpmDB) ReadPackages() <-chan PackageEntry {
 	packages := make(chan PackageEntry)
 
@@ -95,7 +111,8 @@ func (d *RpmDB) ReadPackages() <-chan PackageEntry {
 
 		for entry := range d.db.Read() {
 			if entry.Err != nil {
-				packages <- PackageEntry{Err: entry.Err}
+				// A failure from the database layer, not a single package.
+				packages <- PackageEntry{Err: &DBReadError{Err: entry.Err}}
 				continue
 			}
 

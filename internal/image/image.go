@@ -160,8 +160,6 @@ func isPkgDBPath(path string) bool {
 		path == "/usr/lib/sysimage/rpm/Packages" {
 		return true
 	}
-		return true
-	}
 	return false
 }
 

@@ -7,7 +7,7 @@ import (
 	"os"
 	"strings"
 
-	rpmdb "github.com/knqyf263/go-rpmdb/pkg"
+	"github.com/chainguard-sandbox/darkfiles2/internal/rpmdb"
 	_ "modernc.org/sqlite" // registers the pure-Go "sqlite" driver used for rpmdb.sqlite
 
 	"github.com/chainguard-sandbox/darkfiles2/internal/image"
@@ -79,8 +79,19 @@ func scanRPM(fs *image.ImageFS) (map[string]struct{}, error) {
 	defer db.Close()
 
 	tracked := map[string]struct{}{}
+	var dbErr error
 	for result := range db.ReadPackages() {
 		if result.Err != nil {
+			// A database-level failure (unreadable container, failed query) means
+			// the whole result set is untrustworthy: returning an empty tracked set
+			// would mark every file dark. Remember it and keep draining the channel
+			// (so the producer goroutine doesn't block), then fail after the loop.
+			// A per-package parse error, by contrast, is recoverable — skip that
+			// one package and keep the rest.
+			var readErr *rpmdb.DBReadError
+			if errors.As(result.Err, &readErr) {
+				dbErr = result.Err
+			}
 			continue
 		}
 		p := result.Package
@@ -94,6 +105,9 @@ func scanRPM(fs *image.ImageFS) (map[string]struct{}, error) {
 			}
 			tracked["/"+strings.TrimPrefix(f, "/")] = struct{}{}
 		}
+	}
+	if dbErr != nil {
+		return nil, fmt.Errorf("reading rpm database: %w", dbErr)
 	}
 	return tracked, nil
 }

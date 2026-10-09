@@ -214,6 +214,42 @@ func TestScanRPMPrefersSQLiteOverBerkeleyDB(t *testing.T) {
 	}
 }
 
+// TestScanRPMDatabaseErrorNotSilent guards the regression mosabua flagged: a
+// database that opens but cannot be read (here a valid SQLite file missing the
+// Packages table) must surface as an error, not an apparently-successful scan
+// with zero tracked files that would mark every file in the image dark.
+func TestScanRPMDatabaseErrorNotSilent(t *testing.T) {
+	f, err := os.CreateTemp(t.TempDir(), "rpmdb-*.sqlite")
+	if err != nil {
+		t.Fatalf("temp file: %v", err)
+	}
+	f.Close()
+
+	db, err := sql.Open("sqlite", f.Name())
+	if err != nil {
+		t.Fatalf("open sqlite: %v", err)
+	}
+	// A real SQLite database, but without the Packages table go-rpmdb queries.
+	if _, err := db.Exec("CREATE TABLE NotPackages (blob BLOB)"); err != nil {
+		db.Close()
+		t.Fatalf("create table: %v", err)
+	}
+	if err := db.Close(); err != nil {
+		t.Fatalf("close sqlite: %v", err)
+	}
+
+	data, err := os.ReadFile(f.Name())
+	if err != nil {
+		t.Fatalf("read sqlite: %v", err)
+	}
+	tracked, err := scanRPM(&image.ImageFS{
+		FileContent: map[string][]byte{"/var/lib/rpm/rpmdb.sqlite": data},
+	})
+	if err == nil {
+		t.Fatalf("expected a database-read error, got nil (tracked=%d)", len(tracked))
+	}
+}
+
 func TestScanRPMMalformedDatabase(t *testing.T) {
 	// Non-rpm bytes under a database path must surface as an error rather than
 	// silently returning nothing.

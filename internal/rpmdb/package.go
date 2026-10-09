@@ -401,7 +401,9 @@ func (p *PackageInfo) InstalledFileNames() ([]string, error) {
 	var filePaths []string
 	for i, baseName := range p.BaseNames {
 		idx := p.DirIndexes[i]
-		if len(p.DirNames) <= int(idx) {
+		// idx is a signed int32 read from the package header; a negative value
+		// (corrupt/hostile data) would otherwise panic on the slice index below.
+		if idx < 0 || len(p.DirNames) <= int(idx) {
 			return nil, xerrors.Errorf("invalid rpm %s", p.Name)
 		}
 		dir := p.DirNames[idx]

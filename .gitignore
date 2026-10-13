@@ -1,9 +1,13 @@
 # Compiled binaries
 /df
 /darkfiles
+/darkfiles2
 
 # GoReleaser build output
 /dist/
 
 # Stray scan artifacts
 /sbom.json
+
+# Vim swap
+.swp

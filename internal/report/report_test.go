@@ -2,6 +2,7 @@ package report
 
 import (
 	"math"
+	"strings"
 	"testing"
 
 	"github.com/chainguard-sandbox/darkfiles2/internal/image"
@@ -221,6 +222,217 @@ func TestApplySBOMEmptyStillRecorded(t *testing.T) {
 	}
 	if r.DarkCount() != 1 {
 		t.Errorf("DarkCount() = %d, want 1 (unchanged)", r.DarkCount())
+	}
+}
+
+func TestGoCandidates(t *testing.T) {
+	r := &Result{DarkFiles: []CategorizedFile{
+		{File: image.File{Path: "/app/server", Kind: image.KindExecutable}},
+		{File: image.File{Path: "/app/libgo.so", Kind: image.KindSharedLibrary}},
+		{File: image.File{Path: "/app/run.sh", Kind: image.KindScript}},
+		{File: image.File{Path: "/app/cfg.yaml", Kind: image.KindOther}},
+		{File: image.File{Path: "/usr/bin/server", Kind: image.KindExecutable, IsSymlink: true}},
+	}}
+	got := r.GoCandidates(newFS(nil, map[string]string{"/usr/bin/server": "/app/server"}))
+	if len(got) != 2 || !got["/app/server"] || !got["/app/libgo.so"] {
+		t.Errorf("GoCandidates() = %v, want only /app/server and /app/libgo.so", got)
+	}
+}
+
+func TestApplyGoBinaries(t *testing.T) {
+	fs := newFS(nil, map[string]string{"/usr/bin/server": "/app/server"})
+	r := &Result{
+		TotalFiles: 3,
+		TotalBytes: 200,
+		DarkFiles: []CategorizedFile{
+			{File: image.File{Path: "/app/server", Size: 150, Kind: image.KindExecutable}},
+			{File: image.File{Path: "/usr/bin/server", IsSymlink: true, LinkTarget: "/app/server"}},
+			{File: image.File{Path: "/app/mystery", Size: 50, Kind: image.KindExecutable}},
+		},
+	}
+	if r.GoChecked {
+		t.Fatal("GoChecked should be false before ApplyGoBinaries")
+	}
+
+	r.ApplyGoBinaries(map[string]bool{"/app/server": true, "/app/mystery": false}, fs)
+
+	if !r.GoChecked {
+		t.Error("GoChecked should be true after ApplyGoBinaries")
+	}
+	// The binary and the symlink resolving to it both leave the dark set.
+	if got := r.GoCount(); got != 2 {
+		t.Errorf("GoCount() = %d, want 2 (binary + symlink to it)", got)
+	}
+	if got := r.GoBytes(); got != 150 {
+		t.Errorf("GoBytes() = %d, want 150", got)
+	}
+	if !approx(r.GoFilePct(), 100.0*2/3) || !approx(r.GoBytesPct(), 75) {
+		t.Errorf("Go pct = %v/%v, want 66.7/75", r.GoFilePct(), r.GoBytesPct())
+	}
+	if len(r.DarkFiles) != 1 || r.DarkFiles[0].Path != "/app/mystery" {
+		t.Errorf("DarkFiles should be only /app/mystery, got %+v", r.DarkFiles)
+	}
+}
+
+func TestGoCandidatesIncludesAliasTargets(t *testing.T) {
+	// The image: /app/server (SBOM-documented), /usr/lib/tool (package-owned),
+	// /opt/other (SBOM-documented, no aliases), /etc/cfg (not a binary), and dark
+	// aliases of each kind pointing at them.
+	files := []image.File{
+		{Path: "/app/server", Kind: image.KindExecutable},
+		{Path: "/usr/lib/tool", Kind: image.KindExecutable},
+		{Path: "/opt/other", Kind: image.KindExecutable},
+		{Path: "/etc/cfg", Kind: image.KindOther},
+		{Path: "/usr/bin/server", IsSymlink: true, LinkTarget: "/app/server"},
+		{Path: "/usr/local/bin/server", HardLinkTarget: "/app/server"},
+		{Path: "/usr/local/bin/tool", HardLinkTarget: "/usr/lib/tool"},
+		{Path: "/usr/local/etc/cfg", HardLinkTarget: "/etc/cfg"},
+	}
+	fs := newFS(files, map[string]string{"/usr/bin/server": "/app/server"})
+	r := &Result{
+		DarkFiles: []CategorizedFile{{File: files[4]}, {File: files[5]}, {File: files[6]}, {File: files[7]}},
+		SBOMFiles: []CategorizedFile{{File: files[0]}, {File: files[2]}},
+	}
+	got := r.GoCandidates(fs)
+	// The dark hard links are inspected themselves (they carry their target's
+	// content as of linking), as are their targets — even /etc/cfg, which may
+	// have been a binary when it was linked. /opt/other has no dark alias.
+	want := []string{"/app/server", "/usr/lib/tool", "/usr/local/bin/server", "/usr/local/bin/tool", "/usr/local/etc/cfg", "/etc/cfg"}
+	if len(got) != len(want) {
+		t.Errorf("GoCandidates() = %v, want %v", got, want)
+	}
+	for _, p := range want {
+		if !got[p] {
+			t.Errorf("GoCandidates() missing %s (got %v)", p, got)
+		}
+	}
+}
+
+func TestApplyGoBinariesAliasesOfAccountedTarget(t *testing.T) {
+	// The Go binary itself is SBOM-documented and stays there; its undocumented
+	// symlink and hard link are accounted for as Go binaries rather than left dark.
+	files := []image.File{
+		{Path: "/usr/bin/server", IsSymlink: true, LinkTarget: "/app/server"},
+		{Path: "/usr/local/bin/server", HardLinkTarget: "/app/server"},
+		{Path: "/usr/local/bin/other", HardLinkTarget: "/app/other"},
+		{Path: "/app/mystery", Kind: image.KindExecutable},
+		{Path: "/app/server", Kind: image.KindExecutable},
+		{Path: "/app/other", Kind: image.KindExecutable},
+	}
+	fs := newFS(files, map[string]string{"/usr/bin/server": "/app/server"})
+	r := &Result{
+		DarkFiles: []CategorizedFile{{File: files[0]}, {File: files[1]}, {File: files[2]}, {File: files[3]}},
+		SBOMFiles: []CategorizedFile{{File: files[4]}},
+	}
+	// As a real scan would produce: each hard link carries its target's result.
+	r.ApplyGoBinaries(map[string]bool{
+		"/app/server": true, "/usr/local/bin/server": true,
+		"/app/other": false, "/usr/local/bin/other": false, "/app/mystery": false,
+	}, fs)
+
+	if got := filePaths(r.SBOMFiles); len(got) != 1 || got[0] != "/app/server" {
+		t.Errorf("SBOMFiles = %v, want only /app/server (target stays in SBOM)", got)
+	}
+	if got, want := strings.Join(filePaths(r.GoFiles), " "), "/usr/bin/server /usr/local/bin/server"; got != want {
+		t.Errorf("GoFiles = %v, want %v", got, want)
+	}
+	if got, want := strings.Join(filePaths(r.DarkFiles), " "), "/usr/local/bin/other /app/mystery"; got != want {
+		t.Errorf("DarkFiles = %v, want %v", got, want)
+	}
+}
+
+func filePaths(files []CategorizedFile) []string {
+	out := make([]string, len(files))
+	for i, f := range files {
+		out[i] = f.Path
+	}
+	return out
+}
+
+func TestGoCandidatesFollowsLinkChains(t *testing.T) {
+	files := []image.File{
+		{Path: "/app/real", Kind: image.KindExecutable},
+		{Path: "/app/cfg", Kind: image.KindOther},
+		// symlink -> hard link -> regular
+		{Path: "/usr/bin/via", IsSymlink: true, LinkTarget: "/usr/bin/hl"},
+		{Path: "/usr/bin/hl", HardLinkTarget: "/app/real"},
+		// hard link -> hard link -> regular file since deleted from the image
+		{Path: "/usr/bin/h2", HardLinkTarget: "/usr/bin/h1"},
+		{Path: "/usr/bin/h1", HardLinkTarget: "/app/gone"},
+		// symlink -> non-binary: not worth inspecting
+		{Path: "/etc/cfg", IsSymlink: true, LinkTarget: "/app/cfg"},
+		// cycles must terminate
+		{Path: "/loop/a", HardLinkTarget: "/loop/b"},
+		{Path: "/loop/b", HardLinkTarget: "/loop/a"},
+		{Path: "/sym/a", IsSymlink: true, LinkTarget: "/sym/b"},
+		{Path: "/sym/b", IsSymlink: true, LinkTarget: "/sym/a"},
+	}
+	fs := newFS(files, map[string]string{
+		"/usr/bin/via": "/usr/bin/hl", "/etc/cfg": "/app/cfg",
+		"/sym/a": "/sym/b", "/sym/b": "/sym/a",
+	})
+	r := &Result{}
+	for _, i := range []int{2, 4, 6, 7, 9} {
+		r.DarkFiles = append(r.DarkFiles, CategorizedFile{File: files[i]})
+	}
+
+	got := r.GoCandidates(fs)
+	// The dark hard links on each chain are inspected themselves, too.
+	want := []string{"/usr/bin/hl", "/app/real", "/usr/bin/h2", "/usr/bin/h1", "/app/gone", "/loop/a", "/loop/b"}
+	if len(got) != len(want) {
+		t.Errorf("GoCandidates() = %v, want %v", got, want)
+	}
+	for _, p := range want {
+		if !got[p] {
+			t.Errorf("GoCandidates() missing %s (got %v)", p, got)
+		}
+	}
+}
+
+func TestApplyGoBinariesLinkTimeContent(t *testing.T) {
+	files := []image.File{
+		{Path: "/app/swapped", Kind: image.KindExecutable}, // non-Go when linked, Go now
+		{Path: "/app/real", Kind: image.KindExecutable},
+		{Path: "/usr/bin/swap", HardLinkTarget: "/app/swapped"},
+		{Path: "/usr/bin/keep", HardLinkTarget: "/app/deleted"}, // target since deleted
+		{Path: "/usr/bin/chain", HardLinkTarget: "/usr/bin/keep"},
+		{Path: "/usr/bin/via", IsSymlink: true, LinkTarget: "/usr/bin/keep"},
+		{Path: "/usr/bin/tosym", HardLinkTarget: "/app/sym"}, // hard link to a symlink
+		{Path: "/app/sym", IsSymlink: true, LinkTarget: "/app/real"},
+		{Path: "/loop/a", HardLinkTarget: "/loop/b"},
+		{Path: "/loop/b", HardLinkTarget: "/loop/a"},
+	}
+	fs := newFS(files, map[string]string{"/usr/bin/via": "/usr/bin/keep", "/app/sym": "/app/real"})
+	r := &Result{}
+	for _, i := range []int{2, 3, 4, 5, 6, 8} {
+		r.DarkFiles = append(r.DarkFiles, CategorizedFile{File: files[i]})
+	}
+	// Scan results: each hard link carries its target's content as of linking.
+	// /usr/bin/tosym linked to a symlink entry, so no content was captured.
+	results := map[string]bool{
+		"/app/swapped": true, "/usr/bin/swap": false,
+		"/usr/bin/keep": true, "/usr/bin/chain": true,
+		"/app/real": true,
+	}
+	r.ApplyGoBinaries(results, fs)
+
+	wantGo := "/usr/bin/keep /usr/bin/chain /usr/bin/via /usr/bin/tosym"
+	if got := strings.Join(filePaths(r.GoFiles), " "); got != wantGo {
+		t.Errorf("GoFiles = %s, want %s", got, wantGo)
+	}
+	if got := strings.Join(filePaths(r.DarkFiles), " "); got != "/usr/bin/swap /loop/a" {
+		t.Errorf("DarkFiles = %s, want /usr/bin/swap /loop/a", got)
+	}
+}
+
+func TestApplyGoBinariesNoneFound(t *testing.T) {
+	r := &Result{DarkFiles: []CategorizedFile{{File: image.File{Path: "/a"}}}}
+	r.ApplyGoBinaries(nil, newFS(nil, nil))
+	if !r.GoChecked {
+		t.Error("GoChecked should be true even when nothing matched")
+	}
+	if r.GoCount() != 0 || r.DarkCount() != 1 {
+		t.Errorf("GoCount/DarkCount = %d/%d, want 0/1", r.GoCount(), r.DarkCount())
 	}
 }
 

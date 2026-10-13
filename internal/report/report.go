@@ -30,6 +30,13 @@ type Result struct {
 	// SBOMChecked is true once ApplySBOM has run, enabling the "In SBOM" summary
 	// line even when nothing matched.
 	SBOMChecked bool
+	// GoFiles holds the untracked files identified as Go binaries with embedded
+	// build info (plus symlinks resolving to them). Scanners read that metadata
+	// directly, so these are excluded from the dark set. Only populated after
+	// ApplyGoBinaries.
+	GoFiles []CategorizedFile
+	// GoChecked is true once ApplyGoBinaries has run.
+	GoChecked bool
 }
 
 func (r *Result) DarkCount() int { return len(r.DarkFiles) }
@@ -84,6 +91,142 @@ func (r *Result) ApplySBOM(paths map[string]struct{}) {
 		}
 	}
 	r.DarkFiles = dark
+}
+
+// GoCandidates returns the files to inspect for Go build info: the dark
+// regular executables and shared libraries, plus everything along the link
+// chain of each dark symlink or hard link (see ApplyGoBinaries). A chain is
+// followed through any mix of symlinks and hard links, with cycle protection:
+// every hard link on it is inspected, as it carries its target's content as of
+// when it was linked; so is its final target if that is a regular executable or
+// library — or, when the chain passed through a hard link, any final target,
+// since its content at link time may differ from what is there now. Targets
+// keep their own bucket; only the dark aliases are affected.
+func (r *Result) GoCandidates(fs *image.ImageFS) map[string]bool {
+	want := map[string]bool{}
+	var files map[string]image.File
+	for _, f := range r.DarkFiles {
+		if !isLink(f.File) {
+			if isBinaryKind(f.Kind) {
+				want[f.Path] = true
+			}
+			continue
+		}
+		if files == nil {
+			files = fileIndex(fs)
+		}
+		viaHardLink := false
+		walkLinkChain(f.Path, fs, files, func(p string) bool {
+			file, ok := files[p]
+			switch {
+			case ok && file.HardLinkTarget != "":
+				want[p] = true
+				viaHardLink = true
+				return true // keep following
+			case viaHardLink, ok && isBinaryKind(file.Kind):
+				want[p] = true
+			}
+			return false
+		})
+	}
+	return want
+}
+
+// ApplyGoBinaries moves into GoFiles every dark file found to be a Go binary.
+// results holds the inspection outcome per path (from GoCandidates' selection):
+// a regular file is judged by its own result; a symlink by the file it resolves
+// to; and a hard link by its own result — its content as of when it was linked,
+// unaffected by later replacement or deletion of its target — falling back to
+// following the link only when no content was captured for it (e.g. it links to
+// a symlink). Chains of mixed links are followed with cycle protection. Targets
+// outside the dark set keep their bucket; only their dark aliases move.
+func (r *Result) ApplyGoBinaries(results map[string]bool, fs *image.ImageFS) {
+	r.GoChecked = true
+	var files map[string]image.File
+	var dark []CategorizedFile
+	for _, f := range r.DarkFiles {
+		isGo, inspected := results[f.Path]
+		if !inspected && isLink(f.File) {
+			if files == nil {
+				files = fileIndex(fs)
+			}
+			walkLinkChain(f.Path, fs, files, func(p string) bool {
+				var ok bool
+				isGo, ok = results[p]
+				return !ok // no result here: keep following if p is a hard link
+			})
+		}
+		if isGo {
+			r.GoFiles = append(r.GoFiles, f)
+		} else {
+			dark = append(dark, f)
+		}
+	}
+	r.DarkFiles = dark
+}
+
+// walkLinkChain follows path through symlinks (resolved via fs.ResolveSymlink,
+// including symlinked parent directories) and hard links. visit is called on
+// each non-symlink path reached; when it returns true and the path is a hard
+// link, the walk continues to the link's target. A path seen twice ends the walk.
+func walkLinkChain(path string, fs *image.ImageFS, files map[string]image.File, visit func(p string) bool) {
+	seen := map[string]bool{}
+	for !seen[path] {
+		seen[path] = true
+		if resolved := fs.ResolveSymlink(path); resolved != path {
+			path = resolved
+			continue
+		}
+		if !visit(path) {
+			return
+		}
+		f, ok := files[path]
+		if !ok || f.HardLinkTarget == "" {
+			return
+		}
+		path = f.HardLinkTarget
+	}
+}
+
+func isLink(f image.File) bool { return f.IsSymlink || f.HardLinkTarget != "" }
+
+func isBinaryKind(k image.FileKind) bool {
+	return k == image.KindExecutable || k == image.KindSharedLibrary
+}
+
+func fileIndex(fs *image.ImageFS) map[string]image.File {
+	m := make(map[string]image.File, len(fs.Files))
+	for _, f := range fs.Files {
+		m[f.Path] = f
+	}
+	return m
+}
+
+// GoCount returns the number of files accounted for as Go binaries.
+func (r *Result) GoCount() int { return len(r.GoFiles) }
+
+// GoBytes returns the total size of the files accounted for as Go binaries.
+func (r *Result) GoBytes() int64 { return sumBytes(r.GoFiles) }
+
+// GoFilePct returns the Go binary files as a percentage of all files.
+func (r *Result) GoFilePct() float64 { return pct(int64(r.GoCount()), int64(r.TotalFiles)) }
+
+// GoBytesPct returns the Go binary bytes as a percentage of all bytes.
+func (r *Result) GoBytesPct() float64 { return pct(r.GoBytes(), r.TotalBytes) }
+
+func sumBytes(files []CategorizedFile) int64 {
+	var n int64
+	for _, f := range files {
+		n += f.Size
+	}
+	return n
+}
+
+func pct(n, total int64) float64 {
+	if total == 0 {
+		return 0
+	}
+	return 100.0 * float64(n) / float64(total)
 }
 
 // SBOMCount returns the number of files accounted for by the SBOM (i.e. moved

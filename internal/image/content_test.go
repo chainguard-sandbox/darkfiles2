@@ -139,3 +139,39 @@ func TestScanLayerContentsKeepsOnlyResults(t *testing.T) {
 		t.Error("whited-out path should have no result")
 	}
 }
+
+func TestScanLayerContentsHardLinkKeepsLinkTimeContent(t *testing.T) {
+	want := map[string]bool{"/app/a": true, "/bin/link": true, "/bin/chain": true, "/bin/orphan": true}
+	out := map[string]string{}
+	id := func(data []byte) string { return string(data) }
+	layers := [][]tarEntry{
+		{
+			{name: "app/a", body: "original"},
+			{name: "bin/link", typeflag: tar.TypeLink, linkname: "app/a"},
+			{name: "bin/chain", typeflag: tar.TypeLink, linkname: "bin/link"},
+			{name: "app/unwanted", body: "x"},
+			{name: "bin/orphan", typeflag: tar.TypeLink, linkname: "app/unwanted"},
+		},
+		{{name: "app/a", body: "replaced"}}, // target replaced...
+		{{name: "app/.wh.a"}},               // ...then deleted
+	}
+	for i, entries := range layers {
+		if err := scanLayerContents(bytes.NewReader(buildTar(t, entries)), want, out, id); err != nil {
+			t.Fatalf("layer %d: %v", i, err)
+		}
+		if i == 1 && out["/app/a"] != "replaced" {
+			t.Errorf("after replacement /app/a = %q, want replaced", out["/app/a"])
+		}
+	}
+	for _, p := range []string{"/bin/link", "/bin/chain"} {
+		if out[p] != "original" {
+			t.Errorf("%s = %q, want original (content as of linking)", p, out[p])
+		}
+	}
+	if _, ok := out["/app/a"]; ok {
+		t.Error("deleted /app/a should have no result")
+	}
+	if _, ok := out["/bin/orphan"]; ok {
+		t.Error("hard link to an unwanted target should have no result")
+	}
+}

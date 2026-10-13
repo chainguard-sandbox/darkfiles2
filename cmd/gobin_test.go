@@ -131,6 +131,52 @@ func TestApplyGoBinariesSBOMTargetAliases(t *testing.T) {
 	}
 }
 
+// TestApplyGoBinariesHardLinksAcrossLayers covers hard links whose target is
+// replaced or deleted in a later layer (the link keeps the content it was
+// linked to), and chains of hard links and symlinks.
+func TestApplyGoBinariesHardLinksAcrossLayers(t *testing.T) {
+	exe, err := os.Executable()
+	if err != nil {
+		t.Fatal(err)
+	}
+	goBin, err := os.ReadFile(exe)
+	if err != nil {
+		t.Fatal(err)
+	}
+	notGo := append([]byte("\x7fELF\x02\x01\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x02\x00"), make([]byte, 64)...)
+
+	tarPath := writeImageTar(t,
+		[]tarEntry{
+			{name: "app/real", mode: 0o755, body: goBin},
+			{name: "app/fake", mode: 0o755, body: notGo},
+			{name: "usr/bin/keep", mode: 0o755, hardlink: "app/real"},      // target deleted below
+			{name: "usr/bin/swap", mode: 0o755, hardlink: "app/fake"},      // target replaced below
+			{name: "usr/bin/chain", mode: 0o755, hardlink: "usr/bin/keep"}, // hard link -> hard link
+			{name: "usr/bin/via", link: "/usr/bin/keep"},                   // symlink -> hard link
+		},
+		[]tarEntry{
+			{name: "app/.wh.real"},                       // delete the Go target
+			{name: "app/fake", mode: 0o755, body: goBin}, // replace non-Go with Go
+		},
+	)
+	fs, err := image.LoadFromTar(tarPath)
+	if err != nil {
+		t.Fatalf("LoadFromTar: %v", err)
+	}
+	r, _, _ := analyzeImage(tarPath, fs)
+	if err := applyGoBinaries(r, fs); err != nil {
+		t.Fatalf("applyGoBinaries: %v", err)
+	}
+
+	if got, want := paths(r.GoFiles), []string{"/app/fake", "/usr/bin/keep", "/usr/bin/chain", "/usr/bin/via"}; !equalUnordered(got, want) {
+		t.Errorf("GoFiles = %v, want %v", got, want)
+	}
+	// /usr/bin/swap was linked to the non-Go original, which it still holds.
+	if got, want := paths(r.DarkFiles), []string{"/usr/bin/swap"}; !equalUnordered(got, want) {
+		t.Errorf("DarkFiles = %v, want %v", got, want)
+	}
+}
+
 type tarEntry struct {
 	name     string
 	mode     int64
@@ -139,9 +185,33 @@ type tarEntry struct {
 	hardlink string // hard link target (archive path); body is ignored when set
 }
 
-// writeImageTar builds a single-layer image from entries and saves it as a
-// docker-style tarball, returning its path.
-func writeImageTar(t *testing.T, entries []tarEntry) string {
+// writeImageTar builds an image with one layer per entries slice, in order, and
+// saves it as a docker-style tarball, returning its path.
+func writeImageTar(t *testing.T, layers ...[]tarEntry) string {
+	t.Helper()
+	img := empty.Image
+	for _, entries := range layers {
+		layer, err := tarball.LayerFromReader(bytes.NewReader(layerTar(t, entries)))
+		if err != nil {
+			t.Fatal(err)
+		}
+		if img, err = mutate.AppendLayers(img, layer); err != nil {
+			t.Fatal(err)
+		}
+	}
+	tag, err := name.NewTag("darkfiles.test/gobin:latest")
+	if err != nil {
+		t.Fatal(err)
+	}
+	path := filepath.Join(t.TempDir(), "image.tar")
+	if err := tarball.WriteToFile(path, tag, img); err != nil {
+		t.Fatal(err)
+	}
+	return path
+}
+
+// layerTar serializes entries into an uncompressed layer tar.
+func layerTar(t *testing.T, entries []tarEntry) []byte {
 	t.Helper()
 	var buf bytes.Buffer
 	tw := tar.NewWriter(&buf)
@@ -165,22 +235,5 @@ func writeImageTar(t *testing.T, entries []tarEntry) string {
 	if err := tw.Close(); err != nil {
 		t.Fatal(err)
 	}
-	layerBytes := buf.Bytes()
-	layer, err := tarball.LayerFromReader(bytes.NewReader(layerBytes))
-	if err != nil {
-		t.Fatal(err)
-	}
-	img, err := mutate.AppendLayers(empty.Image, layer)
-	if err != nil {
-		t.Fatal(err)
-	}
-	tag, err := name.NewTag("darkfiles.test/gobin:latest")
-	if err != nil {
-		t.Fatal(err)
-	}
-	path := filepath.Join(t.TempDir(), "image.tar")
-	if err := tarball.WriteToFile(path, tag, img); err != nil {
-		t.Fatal(err)
-	}
-	return path
+	return buf.Bytes()
 }

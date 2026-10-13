@@ -19,6 +19,8 @@ const maxContentSize = 512 << 20
 // past. Overlay semantics are honoured — the last layer to write a path wins,
 // and whiteouts drop earlier content — so the returned bytes match the flattened
 // filesystem. Files larger than maxContentSize are truncated to that many bytes.
+// A hard link receives its target's content as of when the link was written,
+// provided the target is also in want.
 //
 // The initial image scan (see fromImage) discards file bodies to keep memory
 // bounded, so this performs a second pass over the layers. It is intended for
@@ -92,6 +94,22 @@ func scanLayerContents[T any](rc io.Reader, want map[string]bool, out map[string
 		}
 
 		if !want[name] {
+			continue
+		}
+
+		// A hard link shares its target's content as it stood when the link was
+		// written. Layers are read in order, so the target's result at this point
+		// is exactly that — later replacement or deletion of the target does not
+		// change what the link holds. The target must itself be wanted for its
+		// content to have been captured; otherwise the link gets no result.
+		// (archive/tar reports TypeLink entries as regular files, so this must
+		// precede the regular-file check.)
+		if hdr.Typeflag == tar.TypeLink {
+			if v, ok := out[cleanPath(hdr.Linkname)]; ok {
+				out[name] = v
+			} else {
+				delete(out, name)
+			}
 			continue
 		}
 

@@ -317,8 +317,8 @@ func selectFiles(r *report.Result, fs *image.ImageFS, set string, codeOnly bool)
 }
 
 // applyGoBinaries inspects the dark executables and shared libraries (and the
-// targets of dark symlinks and hard links) for embedded Go build info, and moves
-// those that have it, and dark links to them, out of the dark set. This needs
+// link chains of dark symlinks and hard links) for embedded Go build info, and
+// moves those that have it, and dark links to them, out of the dark set. This needs
 // file content, so it costs a second pass over the layers — skipped when there
 // are no candidates.
 func applyGoBinaries(r *report.Result, fs *image.ImageFS) error {
@@ -336,13 +336,7 @@ func applyGoBinaries(r *report.Result, fs *image.ImageFS) error {
 	if err != nil {
 		return err
 	}
-	goPaths := map[string]struct{}{}
-	for p, ok := range isGo {
-		if ok {
-			goPaths[p] = struct{}{}
-		}
-	}
-	r.ApplyGoBinaries(goPaths, fs)
+	r.ApplyGoBinaries(isGo, fs)
 	return nil
 }
 

@@ -199,6 +199,10 @@ SBOM documents is counted under `In SBOM`, not `Go binaries`. A dark symlink or
 hard link to such a binary (or to a package-owned Go binary) is still counted
 under `Go binaries`.
 
+Links are followed through chains of symlinks and hard links. A hard link is
+judged by the content it was linked to, so it is unaffected if a later layer
+replaces or deletes its target.
+
 List the Go binaries with `--set go`, or scan them for vendored libraries with
 `--detect-libs` (`--set go` requires `--detect-go`):
 

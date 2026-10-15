@@ -36,7 +36,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Run GoReleaser
-        uses: chainguard-actions/goreleaser-goreleaser-action@8dfa05bbb6b951283cf60d88c9364561c544babc # v7.2.3
+        uses: chainguard-actions/goreleaser-goreleaser-action@d1f62e389925fbbdf17814885bac7ffe2622ffa3 # v7.3.0
         with:
           version: "~> v2"
           args: release --clean

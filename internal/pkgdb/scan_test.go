@@ -1,6 +1,8 @@
 package pkgdb
 
 import (
+	"errors"
+	"strings"
 	"testing"
 
 	"github.com/chainguard-sandbox/darkfiles2/internal/image"
@@ -163,4 +165,113 @@ func TestTrackedFilesPkgDB(t *testing.T) {
 		t.Errorf("distro = %q, want wolfi", distro)
 	}
 	hasAll(t, tracked, "/usr/bin/sh")
+}
+
+func TestScanAPKLongLine(t *testing.T) {
+	// A single record longer than bufio.Scanner's default 64 KiB token limit
+	// (real-world: a huge D:/p: dependency line) must not abort the scan.
+	long := "D:" + strings.Repeat("so:libfoo.so.1 ", 10000) // ~150 KiB
+	db := "" +
+		"P:big\n" +
+		long + "\n" +
+		"F:usr/bin\n" +
+		"R:big\n" +
+		"\n" +
+		"P:after\n" +
+		"F:usr/lib\n" +
+		"R:libafter.so\n"
+	fs := &image.ImageFS{
+		FileContent: map[string][]byte{
+			"/usr/lib/apk/db/installed": []byte(db),
+		},
+	}
+	got, err := scanAPK(fs)
+	if err != nil {
+		t.Fatalf("scanAPK: %v", err)
+	}
+	hasAll(t, got, "/usr/bin/big", "/usr/lib/libafter.so")
+}
+
+func TestScanDpkgStatusD(t *testing.T) {
+	// Distroless-style layout: no /var/lib/dpkg/status and no info/*.list.
+	// Each package has a control stanza at status.d/<pkg> and its file list
+	// (relative paths, md5sum format) at status.d/<pkg>.md5sums.
+	fs := &image.ImageFS{
+		FileContent: map[string][]byte{
+			"/var/lib/dpkg/status.d/libc6": []byte(
+				"Package: libc6\nVersion: 2.36-9\nArchitecture: amd64\n"),
+			"/var/lib/dpkg/status.d/libc6.md5sums": []byte(
+				"108877c29ef6a482337ddc42ea8b0985  lib/x86_64-linux-gnu/ld-linux-x86-64.so.2\n" +
+					"d6536c875ddb48f13c5229718bd8094a  usr/share/doc/libc6/copy right\n"),
+			"/var/lib/dpkg/status.d/tzdata": []byte(
+				"Package: tzdata\nVersion: 2024a\nArchitecture: all\n"),
+			"/var/lib/dpkg/status.d/tzdata.md5sums": []byte(
+				"0123456789abcdef0123456789abcdef  usr/share/zoneinfo/UTC\n"),
+		},
+	}
+	got, err := scanDpkg(fs)
+	if err != nil {
+		t.Fatalf("scanDpkg: %v", err)
+	}
+	hasAll(t, got,
+		"/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2",
+		"/usr/share/doc/libc6/copy right",
+		"/usr/share/zoneinfo/UTC",
+	)
+	if len(got) != 3 {
+		t.Errorf("got %d tracked paths, want 3: %v", len(got), keys(got))
+	}
+}
+
+func TestTrackedFilesEmptyDBIsError(t *testing.T) {
+	// A package database that is present but yields zero tracked files means
+	// the scan failed; reporting the image as 100% dark would be wrong.
+	tests := []struct {
+		name string
+		fs   *image.ImageFS
+	}{
+		{"apk without files", &image.ImageFS{
+			OsRelease:   map[string]string{"ID": "wolfi"},
+			FileContent: map[string][]byte{"/usr/lib/apk/db/installed": []byte("P:base\nV:1\n")},
+		}},
+		{"dpkg status without file lists", &image.ImageFS{
+			OsRelease: map[string]string{"ID": "debian"},
+			FileContent: map[string][]byte{
+				"/var/lib/dpkg/status": []byte("Package: bash\nStatus: install ok installed\n"),
+			},
+		}},
+		{"dpkg status.d without md5sums", &image.ImageFS{
+			OsRelease: map[string]string{"ID": "debian"},
+			FileContent: map[string][]byte{
+				"/var/lib/dpkg/status.d/libc6": []byte("Package: libc6\n"),
+			},
+		}},
+		{"unknown distro with apk db", &image.ImageFS{
+			OsRelease:   map[string]string{},
+			FileContent: map[string][]byte{"/lib/apk/db/installed": []byte("P:base\n")},
+		}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			_, _, err := TrackedFiles(tt.fs)
+			if !errors.Is(err, ErrNoTrackedFiles) {
+				t.Errorf("TrackedFiles() error = %v, want ErrNoTrackedFiles", err)
+			}
+		})
+	}
+}
+
+func TestTrackedFilesNoDBIsNotError(t *testing.T) {
+	// Images with no package database at all (scratch, static) are legitimately
+	// fully untracked.
+	tracked, _, err := TrackedFiles(&image.ImageFS{
+		OsRelease:   map[string]string{"ID": "wolfi"},
+		FileContent: map[string][]byte{},
+	})
+	if err != nil {
+		t.Fatalf("TrackedFiles: %v", err)
+	}
+	if len(tracked) != 0 {
+		t.Errorf("want empty tracked set, got %v", keys(tracked))
+	}
 }

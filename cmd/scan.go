@@ -46,9 +46,9 @@ func runScan(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	r, _, warnErr := analyzeImage(ref, fs)
-	if warnErr != nil {
-		fmt.Fprintf(os.Stderr, "warning: %v\n", warnErr)
+	r, _, err := analyzeImage(ref, fs)
+	if err != nil {
+		return err
 	}
 
 	if sbomEnabled {
@@ -341,16 +341,20 @@ func applyGoBinaries(r *report.Result, fs *image.ImageFS) error {
 }
 
 // analyzeImage runs the package-db scan and dark-file analysis under a spinner,
-// since both can be slow on large images. The returned warnErr is non-fatal (a
-// failed pkgdb scan) and should be surfaced but not abort the command.
-func analyzeImage(ref string, fs *image.ImageFS) (r *report.Result, tracked map[string]struct{}, warnErr error) {
-	_ = withSpinner("Analyzing files", func() error {
+// since both can be slow on large images. A failed package-db scan is returned
+// as an error: analyzing without it would report every file as dark.
+func analyzeImage(ref string, fs *image.ImageFS) (r *report.Result, tracked map[string]struct{}, err error) {
+	err = withSpinner("Analyzing files", func() error {
 		var distro string
-		tracked, distro, warnErr = pkgdb.TrackedFiles(fs)
+		var e error
+		tracked, distro, e = pkgdb.TrackedFiles(fs)
+		if e != nil {
+			return e
+		}
 		r = report.Analyze(ref, distro, fs, tracked)
 		return nil
 	})
-	return r, tracked, warnErr
+	return r, tracked, err
 }
 
 // loadSBOM returns the set of file paths recorded in the image's SBOM, either

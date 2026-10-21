@@ -1,8 +1,6 @@
 package pkgdb
 
 import (
-	"bufio"
-	"bytes"
 	"strings"
 
 	"github.com/chainguard-sandbox/darkfiles2/internal/image"
@@ -33,9 +31,11 @@ func scanAPK(fs *image.ImageFS) (map[string]struct{}, error) {
 	tracked := map[string]struct{}{}
 	var dir string
 
-	scanner := bufio.NewScanner(bytes.NewReader(data))
-	for scanner.Scan() {
-		line := scanner.Text()
+	// Iterate lines directly rather than with bufio.Scanner: its default 64 KiB
+	// token limit is exceeded by long records (e.g. a large D: or p: line),
+	// which would abort the scan and leave every file untracked.
+	for line := range strings.Lines(string(data)) {
+		line = strings.TrimRight(line, "\r\n")
 		if len(line) < 2 {
 			dir = ""
 			continue
@@ -54,5 +54,5 @@ func scanAPK(fs *image.ImageFS) (map[string]struct{}, error) {
 		}
 	}
 
-	return tracked, scanner.Err()
+	return tracked, nil
 }

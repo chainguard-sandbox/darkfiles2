@@ -1,11 +1,18 @@
 package pkgdb
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 
 	"github.com/chainguard-sandbox/darkfiles2/internal/image"
 )
+
+// ErrNoTrackedFiles is returned when the image carries a package database but
+// reading it yielded no files. That indicates the database could not be parsed
+// (an unsupported layout or format), not that every file is dark, so it is
+// reported as a scan failure rather than as a 100%-dark result.
+var ErrNoTrackedFiles = errors.New("package database present but no tracked files could be read from it")
 
 // TrackedFiles returns the set of file paths tracked by the package manager
 // database, plus the detected distro name.
@@ -16,7 +23,24 @@ func TrackedFiles(fs *image.ImageFS) (map[string]struct{}, string, error) {
 	if err != nil {
 		return nil, distro, fmt.Errorf("scanning %s package db: %w", distro, err)
 	}
+	if len(tracked) == 0 && hasPkgDB(fs) {
+		return nil, distro, fmt.Errorf("scanning %s package db: %w", distro, ErrNoTrackedFiles)
+	}
 	return tracked, distro, nil
+}
+
+// hasPkgDB reports whether the image carries a non-empty package database of
+// any supported kind.
+func hasPkgDB(fs *image.ImageFS) bool {
+	for _, p := range apkDBPaths {
+		if len(fs.FileContent[p]) > 0 {
+			return true
+		}
+	}
+	if _, ok := findRPMDB(fs); ok {
+		return true
+	}
+	return hasDpkgDB(fs)
 }
 
 type scannerFn func(*image.ImageFS) (map[string]struct{}, error)

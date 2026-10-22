@@ -303,7 +303,8 @@ darkfiles --tar ./myimage.tar -d --set dark
 A file is dark if:
 
 1. It is **not listed** in any installed-package manifest (`/lib/apk/db/installed`,
-   `/usr/lib/apk/db/installed`, `/var/lib/dpkg/info/*.list`)
+   `/usr/lib/apk/db/installed`, `/var/lib/dpkg/info/*.list`,
+   `/var/lib/dpkg/status.d/*.md5sums`, the RPM database)
 2. It is **not a symlink** whose fully-resolved target is a tracked file — this
    correctly handles multi-call busybox, merged-usr hierarchies, etc.
 3. It is **not documented by the image's SBOM**, when `--sbom` is given
@@ -325,11 +326,14 @@ There was an original [chainguard-dev/darkfiles](https://github.com/chainguard-d
 
 ## Limitations
 
+- **Unreadable package databases are errors**: if an image carries a package
+  database but darkfiles cannot read any tracked files from it, the scan fails
+  rather than reporting every file as dark.
 - **Legacy BerkeleyDB RPM databases** (RHEL/CentOS 7, UBI 8): these use the old
   BerkeleyDB `Packages` format, which the available pure-Go reader parses
   incompletely (it silently drops some packages). Rather than under-report
   installed packages — and so over-report dark files — darkfiles refuses such a
-  database and prints a warning; all files are then reported as dark. RPM images
+  database and exits with an error. RPM images
   using the SQLite format (RHEL/UBI 9+, Fedora, Rocky/Alma 9+) are fully
   supported.
 - **Multi-platform images**: the tool pulls the platform that matches the host.

@@ -38,7 +38,7 @@ var rpmDBPaths = []string{
 // dark files. We refuse it rather than return a partial, misleading result.
 var ErrBerkeleyDBUnsupported = errors.New(
 	"unsupported BerkeleyDB rpm database (legacy format used by RHEL/CentOS 7 and UBI 8); " +
-		"package tracking skipped to avoid under-reporting packages")
+		"refusing to read it to avoid under-reporting packages")
 
 // bdbHashMagic is the Berkeley DB hash-database magic number, found as a uint32
 // at byte offset 12 of the metadata page (first page). It is stored in the

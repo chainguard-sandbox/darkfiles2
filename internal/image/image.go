@@ -153,6 +153,11 @@ func isPkgDBPath(path string) bool {
 	if strings.HasPrefix(path, "/var/lib/dpkg/info/") && strings.HasSuffix(path, ".list") {
 		return true
 	}
+	// Distroless-style dpkg layout: a control stanza per package plus its
+	// <pkg>.md5sums file list, in place of status and info/*.list.
+	if strings.HasPrefix(path, "/var/lib/dpkg/status.d/") {
+		return true
+	}
 	if strings.HasPrefix(path, "/var/lib/rpm/") {
 		return true
 	}

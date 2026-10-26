@@ -13,6 +13,7 @@ import (
 	"github.com/chainguard-sandbox/darkfiles2/internal/pkgdb"
 	"github.com/chainguard-sandbox/darkfiles2/internal/report"
 	"github.com/chainguard-sandbox/darkfiles2/internal/sbom"
+	"github.com/google/go-containerregistry/pkg/name"
 	"github.com/spf13/cobra"
 )
 
@@ -52,7 +53,7 @@ func runScan(cmd *cobra.Command, args []string) error {
 	}
 
 	if sbomEnabled {
-		paths, err := loadSBOM(args, scanFlags.tar, scanFlags.sbomFile, scanFlags.sbomKey, scanFlags.insecure)
+		paths, err := loadSBOM(args, fs, scanFlags.tar, scanFlags.sbomFile, scanFlags.sbomKey, scanFlags.insecure)
 		switch {
 		case errors.Is(err, sbom.ErrUnverified):
 			// The SBOM could not be tied to a trusted key. Don't trust it to hide
@@ -360,8 +361,10 @@ func analyzeImage(ref string, fs *image.ImageFS) (r *report.Result, tracked map[
 // loadSBOM returns the set of file paths recorded in the image's SBOM, either
 // fetched from the registry (by image reference) or read from a local file.
 // Fetching from the registry needs a real image reference, so it is incompatible
-// with --tar unless --sbom-file is also supplied.
-func loadSBOM(args []string, tarPath, sbomFile, keyFile string, insecure bool) (map[string]struct{}, error) {
+// with --tar unless --sbom-file is also supplied. The registry lookup is pinned
+// to the manifest digest of fs, so the SBOM describes exactly the image (and
+// platform) that was scanned, even if the tag has since moved.
+func loadSBOM(args []string, fs *image.ImageFS, tarPath, sbomFile, keyFile string, insecure bool) (map[string]struct{}, error) {
 	ref := ""
 	if len(args) > 0 {
 		ref = args[0]
@@ -373,6 +376,15 @@ func loadSBOM(args []string, tarPath, sbomFile, keyFile string, insecure bool) (
 		if ref == "" {
 			return nil, fmt.Errorf("--sbom requires an image reference")
 		}
+		r, err := name.ParseReference(ref)
+		if err != nil {
+			return nil, fmt.Errorf("parsing reference %q: %w", ref, err)
+		}
+		d, err := fs.Digest()
+		if err != nil {
+			return nil, fmt.Errorf("reading scanned image digest: %w", err)
+		}
+		ref = r.Context().Digest(d.String()).String()
 	}
 
 	opts := sbom.Options{SBOMFile: sbomFile, Insecure: insecure}

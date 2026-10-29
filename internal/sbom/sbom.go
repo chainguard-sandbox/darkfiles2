@@ -10,12 +10,10 @@ import (
 	"io"
 	"os"
 	"path/filepath"
-	"runtime"
 	"strings"
 
 	"github.com/google/go-containerregistry/pkg/authn"
 	"github.com/google/go-containerregistry/pkg/name"
-	v1 "github.com/google/go-containerregistry/pkg/v1"
 	"github.com/google/go-containerregistry/pkg/v1/remote"
 )
 
@@ -85,7 +83,7 @@ func FilePaths(ref string, o Options) (map[string]struct{}, error) {
 	return parsePaths(data)
 }
 
-// fetchSPDX resolves the image to its host-platform manifest, queries the OCI
+// fetchSPDX resolves the image to its platform manifest, queries the OCI
 // referrers API for an SPDX attestation, optionally verifies its signature, and
 // returns the raw in-toto statement.
 func fetchSPDX(ref string, o Options) ([]byte, error) {
@@ -132,34 +130,21 @@ func fetchSPDX(ref string, o Options) ([]byte, error) {
 	return nil, fmt.Errorf("no SPDX SBOM attestation found for %s (predicate-type %s)", imgDigest, spdxPredicateType)
 }
 
-// platformDigest returns the digest of the manifest matching the host platform,
-// resolving a multi-platform index when necessary.
+// platformDigest returns the digest of the image manifest ref resolves to. A
+// multi-platform index is resolved by remote.Image exactly as crane.Pull does
+// when the image filesystem is pulled, so the SBOM describes the same platform
+// that was scanned. Callers that already know the scanned manifest should pass
+// it as a digest reference, which is used as-is.
 func platformDigest(r name.Reference, opts []remote.Option) (name.Digest, error) {
-	desc, err := remote.Get(r, opts...)
+	img, err := remote.Image(r, opts...)
 	if err != nil {
 		return name.Digest{}, fmt.Errorf("fetching %s: %w", r, err)
 	}
-	if !desc.MediaType.IsIndex() {
-		return r.Context().Digest(desc.Digest.String()), nil
-	}
-
-	idx, err := desc.ImageIndex()
+	d, err := img.Digest()
 	if err != nil {
-		return name.Digest{}, fmt.Errorf("reading image index: %w", err)
+		return name.Digest{}, fmt.Errorf("reading manifest digest for %s: %w", r, err)
 	}
-	im, err := idx.IndexManifest()
-	if err != nil {
-		return name.Digest{}, fmt.Errorf("reading index manifest: %w", err)
-	}
-	// Container images are linux; match the host architecture (as crane does
-	// when pulling the image filesystem).
-	want := v1.Platform{OS: "linux", Architecture: runtime.GOARCH}
-	for _, m := range im.Manifests {
-		if m.Platform != nil && m.Platform.Satisfies(want) {
-			return r.Context().Digest(m.Digest.String()), nil
-		}
-	}
-	return name.Digest{}, fmt.Errorf("no manifest for platform %s/%s in %s", want.OS, want.Architecture, r)
+	return r.Context().Digest(d.String()), nil
 }
 
 // maxAttestationSize bounds the attestation blob we buffer. Referrer content is

@@ -98,6 +98,15 @@ type ImageFS struct {
 	img v1.Image
 }
 
+// Digest returns the digest of the scanned image manifest. For a multi-platform
+// reference this is the platform manifest that was actually pulled, not the index.
+func (fs *ImageFS) Digest() (v1.Hash, error) {
+	if fs.img == nil {
+		return v1.Hash{}, fmt.Errorf("image source not retained")
+	}
+	return fs.img.Digest()
+}
+
 // ResolveSymlink follows the full symlink chain for up to maxDepth hops.
 func (fs *ImageFS) ResolveSymlink(path string) string {
 	const maxDepth = 16

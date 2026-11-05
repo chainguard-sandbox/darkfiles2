@@ -24,19 +24,19 @@ jobs:
           fetch-depth: 0
 
       - name: Set up Go
-        uses: chainguard-actions/actions-setup-go@738fd0174f4ff963ac8c2e9dfe83e3191b2777fb # v7.0.0
+        uses: chainguard-actions/actions-setup-go@a23f604fa6ac04bc887d814b1cf828c9fbaf51a7 # v7.0.0
         with:
           go-version-file: go.mod
 
       - name: Log in to ghcr.io
-        uses: chainguard-actions/docker-login-action@7cc43d6de8e1abe40542d86aee724ce0e8ca8eb9 # v4.6.0
+        uses: chainguard-actions/docker-login-action@e866ef65062739486ea6d830a9cd5957df29abea # v4.6.0
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Run GoReleaser
-        uses: chainguard-actions/goreleaser-goreleaser-action@d1f62e389925fbbdf17814885bac7ffe2622ffa3 # v7.3.0
+        uses: chainguard-actions/goreleaser-goreleaser-action@0e236da93b36df8d970858ee54627745eb28fa62 # v7.3.0
         with:
           version: "~> v2"
           args: release --clean

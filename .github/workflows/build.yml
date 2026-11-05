@@ -27,19 +27,19 @@ jobs:
         uses: chainguard-actions/actions-checkout@37298d8de412b35988dd165ffae45f45b329d365 # v7.0.1
 
       - name: Set up Go
-        uses: chainguard-actions/actions-setup-go@738fd0174f4ff963ac8c2e9dfe83e3191b2777fb # v7.0.0
+        uses: chainguard-actions/actions-setup-go@a23f604fa6ac04bc887d814b1cf828c9fbaf51a7 # v7.0.0
         with:
           go-version-file: go.mod
 
       - name: Log in to ghcr.io
-        uses: chainguard-actions/docker-login-action@7cc43d6de8e1abe40542d86aee724ce0e8ca8eb9 # v4.6.0
+        uses: chainguard-actions/docker-login-action@e866ef65062739486ea6d830a9cd5957df29abea # v4.6.0
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set-up cosign to sign image
-        uses: sigstore/cosign-installer@6f9f17788090df1f26f669e9d70d6ae9567deba6 # v4.1.2
+        uses: sigstore/cosign-installer@756fe2d284c7292c4e9b62c8a28f1e5629c59532 # v4.1.3
 
       - name: Set up ko to build image
         uses: chainguard-actions/ko-build-setup-ko@54c16f5105d807c92d6c013d59a080aa63936dc8 # v0.10

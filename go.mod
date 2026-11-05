@@ -6,7 +6,7 @@ require (
 	github.com/google/go-containerregistry v0.22.1
 	github.com/spf13/cobra v1.10.2
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1
-	modernc.org/sqlite v1.61.0
+	modernc.org/sqlite v1.61.1
 )
 
 require (

@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
 
-      - uses: step-security/harden-runner@1d88384fd173af6ecb012dfd0264a306b711241a # v2.22.4
+      - uses: step-security/harden-runner@aebdcf6156ab6691adf63218240e476564a1ed4c # v2.23.0
         with:
           egress-policy: audit
 
@@ -24,7 +24,7 @@ jobs:
           fetch-depth: 0
 
       - name: Set up Go
-        uses: chainguard-actions/actions-setup-go@a23f604fa6ac04bc887d814b1cf828c9fbaf51a7 # v7.0.0
+        uses: chainguard-actions/actions-setup-go@653fb0ad2513758bae09b6d1e1939a17fe9e5e00 # v7.1.0
         with:
           go-version-file: go.mod
 
